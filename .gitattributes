@@ -1,6 +1,6 @@
-*.a linguist-language=Assembly
-*.asm linguist-language=Assembly
-*.bms linguist-language=Assembly
-*.c linguist-language=COBOL
-*.cbl linguist-language=COBOL
-*.jcl linguist-language=JCL
+*.A linguist-language=Assembly
+*.ASM linguist-language=Assembly
+*.BMS linguist-language=Assembly
+*.C linguist-language=COBOL
+*.CBL linguist-language=COBOL
+*.JCL linguist-language=JCL
