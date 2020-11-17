@@ -1,0 +1,9 @@
+// DLBL   IJSYSUC,'DAPSCO.DEVL.CATALOG',,VSAM                                   
+// EXEC   PROC=VUSEROX                                                          
+// EXEC   PGM=IDCAMS,SIZE=AUTO                                                  
+   BLDINDEX -                                                                   
+          INDATASET(WIN.USERID.FILE) -                                          
+          OUTDATASET(WIN.USERID.OPID.AIX) -                                     
+          CATALOG(DAPSCO.DEVL.CATALOG)                                          
+   IF MAXCC > 0 THEN CANCEL JOB                                                 
+/* EOD                                                                          

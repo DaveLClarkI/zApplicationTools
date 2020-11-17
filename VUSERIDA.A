@@ -1,0 +1,22 @@
+VUSERID_RECORD DS  CL174                                                        
+         ORG   VUSERID_RECORD                                                   
+VUSER_ID           DS CL8                                                       
+VUSER_OPID         DS CL4                                                       
+VUSER_NAME         DS CL30                                                      
+VUSER_CLASS        DS CL2                                                       
+VUSER_DAPSCO       DS CL1                                                       
+VUSER_PASSWORD     DS CL8                                                       
+VUSER_FILLER       DS CL35                                                      
+VUSER_WIN_UNIT     DS CL10                                                      
+VUSER_DEPT_NAME    DS CL30                                                      
+VUSER_PRIMARY_CO   DS CL5                                                       
+VUSER_PRIMARY_IND  DS CL1                                                       
+VUSER_WIN_ORG      DS CL5                                                       
+VUSER_WIN_FUNCTION DS CL3                                                       
+VUSER_WIN_DIRECTOR DS CL1                                                       
+VUSER_SVC_REGION   DS CL2                                                       
+VUSER_ALT_REGION   DS CL2                                                       
+VUSER_RPT_REMOTE   DS CL3                                                       
+VUSER_ALT_REMOTE   DS CL3                                                       
+VUSER_DFT_PRINTER  DS CL4                                                       
+         ORG                                                                    

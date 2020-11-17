@@ -1,0 +1,36 @@
+// EXEC   PGM=IDCAMS,SIZE=AUTO                                                  
+   DELETE WIN.USERID.OPID.AIX                                         -         
+          AIX      NOERASE  PURGE                                     -         
+          CATALOG(DAPSCO.DEVL.CATALOG)                                          
+   SET MAXCC = 0                                                                
+   DEFINE AIX    ( NAME('WIN.USERID.OPID.AIX')                        -         
+                   RELATE('WIN.USERID.FILE')                          -         
+                   FREESPACE(0 0)                                     -         
+                   KEYS(4 8)                                          -         
+                   RECORDSIZE(17 17)                                  -         
+                   NOREPLICATE                                        -         
+                   NOREUSE                                            -         
+                   SHAREOPTIONS(4 3)                                  -         
+                   UNIQUEKEY                                          -         
+                   UPGRADE                                            -         
+                 )                                                    -         
+          DATA   ( NAME('WIN.USERID.OPID.DATA')                       -         
+                   TRACKS(2 1)                                        -         
+                   VOLUMES( IDD033  )                                 -         
+                   CISZ(8192)                                         -         
+                   SPEED                                              -         
+                 )                                                    -         
+          INDEX  ( NAME('WIN.USERID.OPID.INDEX')                      -         
+                   TRACKS(1 1)                                        -         
+                   VOLUMES( IDD033  )                                 -         
+                   CISZ(1024)                                         -         
+                 )                                                    -         
+          CATALOG(DAPSCO.DEVL.CATALOG)                                          
+   IF MAXCC > 0 THEN CANCEL JOB                                                 
+   DEFINE  PATH  ( NAME('WIN.USERID.OPID.PATH')                       -         
+                   PATHENTRY('WIN.USERID.OPID.AIX')                   -         
+                   UPDATE                                             -         
+                 )                                                    -         
+          CATALOG(DAPSCO.DEVL.CATALOG)                                          
+   IF MAXCC > 0 THEN CANCEL JOB                                                 
+/* EOD                                                                          
