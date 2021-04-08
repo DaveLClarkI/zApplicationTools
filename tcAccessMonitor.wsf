@@ -1,0 +1,153 @@
+<?xml version="1.0" ?>
+<!-- tcAccess Listener Monitor
+Notes: 	This script uses the tcACCESS client command line interface for the purpose of
+		confirming that the tcACCESS Host Listener is both able to accept new requests
+		as well as able to return mainframe data.  If the tcACCESS client command line
+		request fails for any reason, a mail message is sent to finance programming.
+		The connection request is repeated with one minute between requests but failure
+		messages are only sent to Finance IT for the first failure and every fifth
+		failure after that.  When the tcACCESS Host Listener begins responding again,
+		a final message is sent to finance programming to apprise them of this.
+
+Author: Dave L Clark I
+-->
+<package>
+ <job id="tcAccessMonitor">
+  <reference object="ADODB.Recordset" />
+  <reference object="CDO.Message" />
+  <reference object="Scripting.Dictionary" />
+  <reference object="Scripting.FileSystemObject" />
+  <reference object="WScript.Network" />
+  <reference object="WScript.Shell" />
+  <script language="VBScript">
+'  <![CDATA[
+	Set objShell = CreateObject("WScript.Shell")
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	MFsystem = "LIBRAP"
+'
+	error_count = 0
+	error_file = "C:\Temp\ErrorText.txt"
+	result_file = "C:\Temp\TCAMONTR.txt"
+	parms_file = "C:\Users\ibmconsole\AppData\Roaming\tcACCESS_Install64\Param\tcamontr.psq"
+	cmd = "tcACCESS /FSF " & MFsystem _
+				& " /ID TC$MON96 /PW MF$NM#CT" _
+				& " /ON /NK /NS /QU /OF" _
+				& " /RC " & error_file _
+				& " /PF " & parms_file
+'
+	Do
+		curtime = TimeAsNumber()			' skip monitoring during expected down times
+		dayofweek = DatePart("w", Date(), vbSunday)
+		If dayofweek  = vbSaturday And (curtime < 044500 Or curtime >= 060000) _
+		Or dayofweek <> vbSaturday And (curtime < 051000 Or curtime >= 053500) Then
+			If objFSO.FileExists(error_file) Then
+				objFSO.DeleteFile(error_file)	' delete output error file
+			End If
+			On Error Resume Next				' process errors in-script
+			Set objExec = objShell.Exec(cmd)	' issue shell command
+			If Err.Number <> 0 Then				' if shell reported an error
+				txt = "Shell reported error = " & Err.Number & ", " & Err.Description
+				On Error GoTo 0					' default error processing
+				SendTextMail "Monitor Script Failure", txt
+				Exit Do							' exit processing
+			End If
+			On Error GoTo 0						' default error processing
+			Do While objExec.Status = 0			' wait for shelled command to complete
+				WScript.Sleep 100				' check every 1/10th second
+			Loop
+			If objFSO.FileExists(error_file) Then	' if error output file present
+				error_count = error_count + 1
+				If ((error_count - 1) Mod 5) = 0 Then	' notify every 5 failures
+					txt = GetFailureText(error_count) & vbNewLine _
+						& "Restart Listener in CICS using: TCAM CYCLE" & vbNewLine _
+						& vbNewLine & GetFileText(error_file)
+					SendTextMail "Listener NOT Responding", txt
+				End If
+			ElseIf objExec.ExitCode <> 0 Then		' else other reported error?
+				error_count = error_count + 1
+				If Not objExec.StdErr.AtEndOfStream Then
+					txt = objExec.StdErr.ReadAll()		' get std err output
+					objExec.StdErr.Close()
+				Else
+					txt = objExec.StdOut.ReadAll()		' else std out output
+					objExec.StdOut.Close()
+				End If
+				If ((error_count - 1) Mod 5) = 0 Then	' notify every 5 failures
+					txt = GetFailureText(error_count) & "  tcACCESS exitcode = " & objExec.ExitCode & vbNewLine _
+						& "Restart Listener in CICS using: TCAM CYCLE" & vbNewLine _
+						& vbNewLine & txt 
+					SendTextMail "Command line Failed", txt
+				End If
+			Else									' else success!
+				If error_count > 0 Then					' notify after a failure
+					txt = GetFailureText(error_count) & "  It is working now." & vbNewLine _
+						& vbNewLine & GetFileText(result_file)
+					SendTextMail "Listener IS Responding", txt
+					error_count = 0
+				End If
+			End If
+			Set objExec = Nothing
+		End If
+		WScript.Sleep 60000					' repeat after 60 seconds
+	Loop
+'
+	Set objFSO = Nothing
+	Set objShell = Nothing
+'
+Function TimeAsNumber()
+    systime = Time()
+    TimeAsNumber = (Hour(systime) * 10000) + (Minute(systime) * 100) + Second(systime)
+End Function
+'
+Function GetFailureText(count)
+	txt = count & " failure"
+	If count <> 1 Then
+		txt = txt & "s"
+	End If
+	GetFailureText = txt & " occurred."
+End Function
+'
+Function GetFileText(file)
+	If objFSO.FileExists(file) Then
+		Set objFile = objFSO.GetFile(file)
+		Set objStream = objFile.OpenAsTextStream(ForReading)
+		GetFileText = objStream.ReadAll()
+		objStream.Close()
+		Set objStream = Nothing
+		Set objFile = Nothing
+	Else
+		GetFileText = ""
+	End If
+End Function
+'
+Sub SendTextMail(subj, body)
+	Set objMail = CreateObject("CDO.Message")
+	With objMail.Configuration.Fields
+		.Item(cdoSendUsingMethod) = cdoSendUsingPort
+		.Item(cdoSMTPServer) = "internet.winwholesale.com"
+		.Item(cdoSMTPServerPort) = 25
+		.Update
+	End With
+	With objMail.Fields
+		.Item("urn:schemas:mailheader:Mime-Version") = "1.0"
+		.Item("urn:schemas:mailheader:X-Mailer") = "tcAccessMonitor"
+		.Update
+	End With
+	With objMail
+		.Sender = "tcAccess Listener Monitor<consoles@winwholesale.com>"
+		.From = MFsystem & "_Mainframe<no-reply@winwholesale.com>"
+		.Organization = "Winsupply Group Services"
+		.ReplyTo = "Finance Programming<financeprogramming@winsupplyinc.com>"
+		.To = "Finance Programming<financeprogramming@winsupplyinc.com>; "
+		.CC = "Network Operations<networkops@winsupplyinc.com>; " _
+			& "Quality Assurance Help Desk<qahelpdesk@winwholesale.com>; "
+		.Subject = subj
+		.TextBody = body
+		.Send
+	End With
+	Set objMail = Nothing
+End Sub
+'  ]]>
+  </script>
+ </job>
+</package>
