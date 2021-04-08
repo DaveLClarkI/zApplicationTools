@@ -23,14 +23,14 @@ Author: Dave L Clark I
 '  <![CDATA[
 	Set objShell = CreateObject("WScript.Shell")
 	Set objFSO = CreateObject("Scripting.FileSystemObject")
-	MFsystem = "LIBRAP"
+	MFsystem = "TEST"
 '
 	error_count = 0
 	error_file = "C:\Temp\ErrorText.txt"
 	result_file = "C:\Temp\TCAMONTR.txt"
 	parms_file = "C:\Users\ibmconsole\AppData\Roaming\tcACCESS_Install64\Param\tcamontr.psq"
 	cmd = "tcACCESS /FSF " & MFsystem _
-				& " /ID TC$MON96 /PW MF$NM#CT" _
+				& " /ID userid /PW password" _
 				& " /ON /NK /NS /QU /OF" _
 				& " /RC " & error_file _
 				& " /PF " & parms_file
@@ -124,7 +124,7 @@ Sub SendTextMail(subj, body)
 	Set objMail = CreateObject("CDO.Message")
 	With objMail.Configuration.Fields
 		.Item(cdoSendUsingMethod) = cdoSendUsingPort
-		.Item(cdoSMTPServer) = "internet.winwholesale.com"
+		.Item(cdoSMTPServer) = "server.domain.com"
 		.Item(cdoSMTPServerPort) = 25
 		.Update
 	End With
@@ -134,13 +134,13 @@ Sub SendTextMail(subj, body)
 		.Update
 	End With
 	With objMail
-		.Sender = "tcAccess Listener Monitor<consoles@winwholesale.com>"
-		.From = MFsystem & "_Mainframe<no-reply@winwholesale.com>"
-		.Organization = "Winsupply Group Services"
-		.ReplyTo = "Finance Programming<financeprogramming@winsupplyinc.com>"
-		.To = "Finance Programming<financeprogramming@winsupplyinc.com>; "
-		.CC = "Network Operations<networkops@winsupplyinc.com>; " _
-			& "Quality Assurance Help Desk<qahelpdesk@winwholesale.com>; "
+		.Sender = "tcAccess Listener Monitor<consoles@domain.com>"
+		.From = MFsystem & "_Mainframe<no-reply@domain.com>"
+		.Organization = "Domain Group Services"
+		.ReplyTo = "Finance Programming<financeprogramming@domain.com>"
+		.To = "Finance Programming<financeprogramming@domain.com>; "
+		.CC = "Network Operations<networkops@domain.com>; " _
+			& "Quality Assurance Help Desk<qahelpdesk@domain.com>; "
 		.Subject = subj
 		.TextBody = body
 		.Send
