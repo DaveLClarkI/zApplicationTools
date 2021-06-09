@@ -1,0 +1,298 @@
+* ¦¦¦¦¦¦ SBF SOURCE VCA2MS                                                      
+VCA2    TITLE  'V C A 2 M S     ( 0 1 . 0 8 )   -   M A P S E T   F O RXVCA20001
+                  V C A T P G M   P R O G R A M             '           VCA20002
+VCA2MS  DFHMSD TYPE=&SYSPARM,                                          XVCA20003
+               STORAGE=AUTO,                                           XVCA20004
+               DATA=FIELD,                                             XVCA20005
+               DSATTS=(COLOR,HILIGHT),                                 XVCA20006
+               LANG=COBOL,                                             XVCA20007
+               MAPATTS=(COLOR,HILIGHT),                                XVCA20008
+               MODE=INOUT,                                             XVCA20009
+               TERM=3270,                                              XVCA20010
+               TIOAPFX=YES                                              VCA20011
+*                                                                       VCA20012
+        PRINT  ON,GEN                                                   VCA20013
+        TITLE  'D E T L M A P   ( 0 1 . 3 7 )   -   V S A M   C A T A LXVCA20014
+                O G   D E T A I L S   M A P                 '           VCA20015
+DETLMAP DFHMDI SIZE=(27,132)                                            VCA20016
+*              ROW=05,THRU=05,OCCURS=21                                 VCA20017
+        PRINT  ON,NOGEN                                                 VCA20018
+        DFHMDF POS=(01,001),LENGTH=008,ATTRB=(ASKIP,NORM),             XVCA20019
+               INITIAL='VCAT    ',                                     XVCA20020
+               COLOR=BLUE                                               VCA20021
+* CBLDNM LABEL=DETL-COMPANY                                             VCA20022
+F010020 DFHMDF POS=(01,020),LENGTH=040,ATTRB=(ASKIP,BRT),              XVCA20023
+               COLOR=TURQUOISE                                          VCA20024
+* CBLDNM LABEL=DETL-SYSDATE                                             VCA20025
+F010069 DFHMDF POS=(01,069),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCA20026
+               INITIAL='mm/dd/yyyy',                                   XVCA20027
+               COLOR=BLUE                                               VCA20028
+        DFHMDF POS=(01,089),LENGTH=005,ATTRB=(ASKIP,BRT),              XVCA20029
+               INITIAL='Line:',                                        XVCA20030
+               COLOR=TURQUOISE                                          VCA20031
+* CBLDNM LABEL=DETL-CURLINE                                             VCA20032
+F010095 DFHMDF POS=(01,095),LENGTH=006,ATTRB=(ASKIP,BRT),              XVCA20033
+               PICOUT='ZZ,ZZ9',                                        XVCA20034
+               COLOR=YELLOW                                             VCA20035
+        DFHMDF POS=(02,001),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCA20036
+               INITIAL='Term:',                                        XVCA20037
+               COLOR=BLUE                                               VCA20038
+* CBLDNM LABEL=DETL-TERMID                                              VCA20039
+F010139 DFHMDF POS=(02,007),LENGTH=008,ATTRB=(ASKIP,NORM),             XVCA20040
+               COLOR=BLUE                                               VCA20041
+* CBLDNM LABEL=DETL-TITLE                                               VCA20042
+F010152 DFHMDF POS=(02,020),LENGTH=040,ATTRB=(ASKIP,BRT,FSET)           VCA20043
+* CBLDNM LABEL=DETL-SYSTIME                                             VCA20044
+F010201 DFHMDF POS=(02,069),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCA20045
+               INITIAL='hh:mm xx',                                     XVCA20046
+               COLOR=BLUE                                               VCA20047
+        DFHMDF POS=(02,091),LENGTH=003,ATTRB=(ASKIP,BRT),              XVCA20048
+               INITIAL='of:',                                          XVCA20049
+               COLOR=TURQUOISE                                          VCA20050
+* CBLDNM LABEL=DETL-TOTLINE                                             VCA20051
+F010227 DFHMDF POS=(02,095),LENGTH=006,ATTRB=(ASKIP,BRT),              XVCA20052
+               PICOUT='ZZ,ZZ9',                                        XVCA20053
+               COLOR=YELLOW                                             VCA20054
+        DFHMDF POS=(03,001),LENGTH=001,ATTRB=(PROT,BRT),INITIAL=' '     VCA20055
+        DFHMDF POS=(04,001),LENGTH=100,ATTRB=(ASKIP,BRT),              XVCA20056
+               INITIAL='|...+....1....+....2....+....3....+....4....+..XVCA20057
+               ..5....+....6....+....7....+....8....+....9....+....|', XVCA20058
+               COLOR=TURQUOISE                                          VCA20059
+* CBLDNM LABEL=DETL-LINE                                                VCA20060
+F010529 DFHMDF POS=(05,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20061
+               COLOR=GREEN                                              VCA20062
+* CBLDNM LABEL=DETL-COUNT                                               VCA20063
+F010630 DFHMDF POS=(05,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20064
+               PICOUT='9999999',                                       XVCA20065
+               COLOR=BLUE                                               VCA20066
+* CBLDNM LABEL=DETL-LINE                                                VCA20067
+F010661 DFHMDF POS=(06,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20068
+               COLOR=GREEN                                              VCA20069
+* CBLDNM LABEL=DETL-COUNT                                               VCA20070
+F010762 DFHMDF POS=(06,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20071
+               PICOUT='9999999',                                       XVCA20072
+               COLOR=BLUE                                               VCA20073
+* CBLDNM LABEL=DETL-LINE                                                VCA20074
+F010793 DFHMDF POS=(07,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20075
+               COLOR=GREEN                                              VCA20076
+* CBLDNM LABEL=DETL-COUNT                                               VCA20077
+F010894 DFHMDF POS=(07,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20078
+               PICOUT='9999999',                                       XVCA20079
+               COLOR=BLUE                                               VCA20080
+* CBLDNM LABEL=DETL-LINE                                                VCA20081
+F010925 DFHMDF POS=(08,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20082
+               COLOR=GREEN                                              VCA20083
+* CBLDNM LABEL=DETL-COUNT                                               VCA20084
+F011026 DFHMDF POS=(08,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20085
+               PICOUT='9999999',                                       XVCA20086
+               COLOR=BLUE                                               VCA20087
+* CBLDNM LABEL=DETL-LINE                                                VCA20088
+F011057 DFHMDF POS=(09,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20089
+               COLOR=GREEN                                              VCA20090
+* CBLDNM LABEL=DETL-COUNT                                               VCA20091
+F011158 DFHMDF POS=(09,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20092
+               PICOUT='9999999',                                       XVCA20093
+               COLOR=BLUE                                               VCA20094
+* CBLDNM LABEL=DETL-LINE                                                VCA20095
+F011189 DFHMDF POS=(10,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20096
+               COLOR=GREEN                                              VCA20097
+* CBLDNM LABEL=DETL-COUNT                                               VCA20098
+F011290 DFHMDF POS=(10,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20099
+               PICOUT='9999999',                                       XVCA20100
+               COLOR=BLUE                                               VCA20101
+* CBLDNM LABEL=DETL-LINE                                                VCA20102
+F011321 DFHMDF POS=(11,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20103
+               COLOR=GREEN                                              VCA20104
+* CBLDNM LABEL=DETL-COUNT                                               VCA20105
+F011422 DFHMDF POS=(11,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20106
+               PICOUT='9999999',                                       XVCA20107
+               COLOR=BLUE                                               VCA20108
+* CBLDNM LABEL=DETL-LINE                                                VCA20109
+F011453 DFHMDF POS=(12,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20110
+               COLOR=GREEN                                              VCA20111
+* CBLDNM LABEL=DETL-COUNT                                               VCA20112
+F011554 DFHMDF POS=(12,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20113
+               PICOUT='9999999',                                       XVCA20114
+               COLOR=BLUE                                               VCA20115
+* CBLDNM LABEL=DETL-LINE                                                VCA20116
+F011585 DFHMDF POS=(13,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20117
+               COLOR=GREEN                                              VCA20118
+* CBLDNM LABEL=DETL-COUNT                                               VCA20119
+F011686 DFHMDF POS=(13,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20120
+               PICOUT='9999999',                                       XVCA20121
+               COLOR=BLUE                                               VCA20122
+* CBLDNM LABEL=DETL-LINE                                                VCA20123
+F011717 DFHMDF POS=(14,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20124
+               COLOR=GREEN                                              VCA20125
+* CBLDNM LABEL=DETL-COUNT                                               VCA20126
+F011818 DFHMDF POS=(14,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20127
+               PICOUT='9999999',                                       XVCA20128
+               COLOR=BLUE                                               VCA20129
+* CBLDNM LABEL=DETL-LINE                                                VCA20130
+F011849 DFHMDF POS=(15,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20131
+               COLOR=GREEN                                              VCA20132
+* CBLDNM LABEL=DETL-COUNT                                               VCA20133
+F011950 DFHMDF POS=(15,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20134
+               PICOUT='9999999',                                       XVCA20135
+               COLOR=BLUE                                               VCA20136
+* CBLDNM LABEL=DETL-LINE                                                VCA20137
+F011981 DFHMDF POS=(16,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20138
+               COLOR=GREEN                                              VCA20139
+* CBLDNM LABEL=DETL-COUNT                                               VCA20140
+F012082 DFHMDF POS=(16,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20141
+               PICOUT='9999999',                                       XVCA20142
+               COLOR=BLUE                                               VCA20143
+* CBLDNM LABEL=DETL-LINE                                                VCA20144
+F012113 DFHMDF POS=(17,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20145
+               COLOR=GREEN                                              VCA20146
+* CBLDNM LABEL=DETL-COUNT                                               VCA20147
+F012214 DFHMDF POS=(17,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20148
+               PICOUT='9999999',                                       XVCA20149
+               COLOR=BLUE                                               VCA20150
+* CBLDNM LABEL=DETL-LINE                                                VCA20151
+F012245 DFHMDF POS=(18,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20152
+               COLOR=GREEN                                              VCA20153
+* CBLDNM LABEL=DETL-COUNT                                               VCA20154
+F012346 DFHMDF POS=(18,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20155
+               PICOUT='9999999',                                       XVCA20156
+               COLOR=BLUE                                               VCA20157
+* CBLDNM LABEL=DETL-LINE                                                VCA20158
+F012377 DFHMDF POS=(19,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20159
+               COLOR=GREEN                                              VCA20160
+* CBLDNM LABEL=DETL-COUNT                                               VCA20161
+F012478 DFHMDF POS=(19,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20162
+               PICOUT='9999999',                                       XVCA20163
+               COLOR=BLUE                                               VCA20164
+* CBLDNM LABEL=DETL-LINE                                                VCA20165
+F012509 DFHMDF POS=(20,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20166
+               COLOR=GREEN                                              VCA20167
+* CBLDNM LABEL=DETL-COUNT                                               VCA20168
+F012610 DFHMDF POS=(20,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20169
+               PICOUT='9999999',                                       XVCA20170
+               COLOR=BLUE                                               VCA20171
+* CBLDNM LABEL=DETL-LINE                                                VCA20172
+F012641 DFHMDF POS=(21,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20173
+               COLOR=GREEN                                              VCA20174
+* CBLDNM LABEL=DETL-COUNT                                               VCA20175
+F012742 DFHMDF POS=(21,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20176
+               PICOUT='9999999',                                       XVCA20177
+               COLOR=BLUE                                               VCA20178
+* CBLDNM LABEL=DETL-LINE                                                VCA20179
+F012773 DFHMDF POS=(22,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20180
+               COLOR=GREEN                                              VCA20181
+* CBLDNM LABEL=DETL-COUNT                                               VCA20182
+F012874 DFHMDF POS=(22,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20183
+               PICOUT='9999999',                                       XVCA20184
+               COLOR=BLUE                                               VCA20185
+* CBLDNM LABEL=DETL-LINE                                                VCA20186
+F012905 DFHMDF POS=(23,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20187
+               COLOR=GREEN                                              VCA20188
+* CBLDNM LABEL=DETL-COUNT                                               VCA20189
+F013006 DFHMDF POS=(23,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20190
+               PICOUT='9999999',                                       XVCA20191
+               COLOR=BLUE                                               VCA20192
+* CBLDNM LABEL=DETL-LINE                                                VCA20193
+F013037 DFHMDF POS=(24,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20194
+               COLOR=GREEN                                              VCA20195
+* CBLDNM LABEL=DETL-COUNT                                               VCA20196
+F013138 DFHMDF POS=(24,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20197
+               PICOUT='9999999',                                       XVCA20198
+               COLOR=BLUE                                               VCA20199
+* CBLDNM LABEL=DETL-LINE                                                VCA20200
+F013169 DFHMDF POS=(25,001),LENGTH=100,ATTRB=(ASKIP,NORM),             XVCA20201
+               COLOR=GREEN                                              VCA20202
+* CBLDNM LABEL=DETL-COUNT                                               VCA20203
+F013270 DFHMDF POS=(25,102),LENGTH=007,ATTRB=(ASKIP,NORM),             XVCA20204
+               PICOUT='9999999',                                       XVCA20205
+               COLOR=BLUE                                               VCA20206
+* CBLDNM LABEL=DETL-MESSAGE                                             VCA20207
+F013301 DFHMDF POS=(26,001),LENGTH=078,ATTRB=(ASKIP,BRT),              XVCA20208
+               COLOR=RED                                                VCA20209
+        DFHMDF POS=(27,001),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCA20210
+               INITIAL='Keys:',                                        XVCA20211
+               COLOR=TURQUOISE                                          VCA20212
+        DFHMDF POS=(27,007),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCA20213
+               INITIAL='F3'                                             VCA20214
+        DFHMDF POS=(27,010),LENGTH=009,ATTRB=(ASKIP,NORM),             XVCA20215
+               INITIAL='= Return,',                                    XVCA20216
+               COLOR=PINK                                               VCA20217
+        DFHMDF POS=(27,030),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCA20218
+               INITIAL='F5'                                             VCA20219
+        DFHMDF POS=(27,033),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCA20220
+               INITIAL='= Refresh,',                                   XVCA20221
+               COLOR=PINK                                               VCA20222
+        DFHMDF POS=(27,044),LENGTH=005,ATTRB=(ASKIP,BRT),              XVCA20223
+               INITIAL='F6/F7'                                          VCA20224
+        DFHMDF POS=(27,050),LENGTH=011,ATTRB=(ASKIP,NORM),             XVCA20225
+               INITIAL='= Top/Prev,',                                  XVCA20226
+               COLOR=PINK                                               VCA20227
+        DFHMDF POS=(27,062),LENGTH=005,ATTRB=(ASKIP,BRT),              XVCA20228
+               INITIAL='F8/F9'                                          VCA20229
+        DFHMDF POS=(27,068),LENGTH=011,ATTRB=(ASKIP,NORM),             XVCA20230
+               INITIAL='= Next/Bot.',                                  XVCA20231
+               COLOR=PINK                                               VCA20232
+*                                                                       VCA20233
+        PRINT  ON,GEN                                                   VCA20234
+        TITLE  'G E N 2 W I N   ( 0 1 . 0 9 )   -   G E N E R A T I N GXVCA20235
+                . . .   M E S S A G E   W I N D O W         '           VCA20236
+GEN2WIN DFHMDI SIZE=(27,132)                                            VCA20237
+        PRINT  ON,NOGEN                                                 VCA20238
+        DFHMDF POS=(11,029),LENGTH=021,ATTRB=(ASKIP,NORM),             XVCA20239
+               XINIT=404040404040404040404040404040404040404040,       XVCA20240
+               COLOR=TURQUOISE,                                        XVCA20241
+               HILIGHT=REVERSE                                          VCA20242
+        DFHMDF POS=(11,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCA20243
+               COLOR=GREEN                                              VCA20244
+        DFHMDF POS=(12,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20245
+               XINIT=4040,                                             XVCA20246
+               COLOR=TURQUOISE,                                        XVCA20247
+               HILIGHT=REVERSE                                          VCA20248
+        DFHMDF POS=(12,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCA20249
+               XINIT=404040404040404040404040404040,                   XVCA20250
+               COLOR=RED,                                              XVCA20251
+               HILIGHT=BLINK                                            VCA20252
+        DFHMDF POS=(12,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20253
+               XINIT=4040,                                             XVCA20254
+               COLOR=TURQUOISE,                                        XVCA20255
+               HILIGHT=REVERSE                                          VCA20256
+        DFHMDF POS=(12,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCA20257
+               COLOR=GREEN                                              VCA20258
+        DFHMDF POS=(13,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20259
+               XINIT=4040,                                             XVCA20260
+               COLOR=TURQUOISE,                                        XVCA20261
+               HILIGHT=REVERSE                                          VCA20262
+        DFHMDF POS=(13,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCA20263
+               INITIAL=' Generating... ',                              XVCA20264
+               COLOR=RED,                                              XVCA20265
+               HILIGHT=BLINK                                            VCA20266
+        DFHMDF POS=(13,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20267
+               XINIT=4040,                                             XVCA20268
+               COLOR=TURQUOISE,                                        XVCA20269
+               HILIGHT=REVERSE                                          VCA20270
+        DFHMDF POS=(13,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCA20271
+               COLOR=GREEN                                              VCA20272
+        DFHMDF POS=(14,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20273
+               XINIT=4040,                                             XVCA20274
+               COLOR=TURQUOISE,                                        XVCA20275
+               HILIGHT=REVERSE                                          VCA20276
+        DFHMDF POS=(14,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCA20277
+               XINIT=404040404040404040404040404040,                   XVCA20278
+               COLOR=RED,                                              XVCA20279
+               HILIGHT=BLINK                                            VCA20280
+        DFHMDF POS=(14,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCA20281
+               XINIT=4040,                                             XVCA20282
+               COLOR=TURQUOISE,                                        XVCA20283
+               HILIGHT=REVERSE                                          VCA20284
+        DFHMDF POS=(14,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCA20285
+               COLOR=GREEN                                              VCA20286
+        DFHMDF POS=(15,029),LENGTH=021,ATTRB=(ASKIP,NORM),             XVCA20287
+               XINIT=404040404040404040404040404040404040404040,       XVCA20288
+               COLOR=TURQUOISE,                                        XVCA20289
+               HILIGHT=REVERSE                                          VCA20290
+        DFHMDF POS=(15,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCA20291
+               COLOR=GREEN                                              VCA20292
+*                                                                       VCA20293
+        PRINT  ON,GEN                                                   VCA20294
+        TITLE  'V C A 2 M S     ( 0 1 . 0 8 )   -   M A P S E T   F O RXVCA20295
+                  V C A T P G M   P R O G R A M             '           VCA20296
+        DFHMSD TYPE=FINAL                                               VCA20297

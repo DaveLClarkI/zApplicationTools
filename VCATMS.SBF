@@ -1,0 +1,741 @@
+* ¦¦¦¦¦¦ SBF SOURCE VCATMS                                                      
+VCAT    TITLE  'V C A T M S     ( 0 1 . 3 2 )   -   M A P S E T   F O RXVCAT0001
+                  V C A T P G M   P R O G R A M             '           VCAT0002
+VCATMS  DFHMSD TYPE=&SYSPARM,                                          XVCAT0003
+               STORAGE=AUTO,                                           XVCAT0004
+               DATA=FIELD,                                             XVCAT0005
+               DSATTS=(COLOR,HILIGHT),                                 XVCAT0006
+               LANG=COBOL,                                             XVCAT0007
+               MAPATTS=(COLOR,HILIGHT),                                XVCAT0008
+               MODE=INOUT,                                             XVCAT0009
+               TERM=3270,                                              XVCAT0010
+               TIOAPFX=YES                                              VCAT0011
+*                                                                       VCAT0012
+        PRINT  ON,GEN                                                   VCAT0013
+        TITLE  'L I S T M A P   ( 0 1 . 4 4 )   -   V S A M   C A T A LXVCAT0014
+                O G   L I S T I N G   M A P                 '           VCAT0015
+LISTMAP DFHMDI SIZE=(24,080)                                            VCAT0016
+*              ROW=07,THRU=07,OCCURS=15                                 VCAT0017
+        PRINT  ON,NOGEN                                                 VCAT0018
+        DFHMDF POS=(01,001),LENGTH=008,ATTRB=(ASKIP,NORM),             XVCAT0019
+               INITIAL='VCAT    ',                                     XVCAT0020
+               COLOR=BLUE                                               VCAT0021
+* CBLDNM LABEL=LIST-COMPANY                                             VCAT0022
+F010020 DFHMDF POS=(01,020),LENGTH=040,ATTRB=(ASKIP,BRT),              XVCAT0023
+               INITIAL='              Primus, Inc.',                   XVCAT0024
+               COLOR=TURQUOISE                                          VCAT0025
+* CBLDNM LABEL=LIST-SYSDATE                                             VCAT0026
+F010069 DFHMDF POS=(01,069),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0027
+               INITIAL='mm/dd/yyyy',                                   XVCAT0028
+               COLOR=BLUE                                               VCAT0029
+        DFHMDF POS=(02,001),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0030
+               INITIAL='No Policy ',                                   XVCAT0031
+               COLOR=BLUE                                               VCAT0032
+* CBLDNM LABEL=LIST-TITLE                                               VCAT0033
+F010100 DFHMDF POS=(02,020),LENGTH=040,ATTRB=(ASKIP,BRT),              XVCAT0034
+               INITIAL='          VSAM Catalog Listing'                 VCAT0035
+* CBLDNM LABEL=LIST-SYSTIME                                             VCAT0036
+F010149 DFHMDF POS=(02,069),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0037
+               INITIAL='hh:mm xx',                                     XVCAT0038
+               COLOR=BLUE                                               VCAT0039
+        DFHMDF POS=(03,001),LENGTH=001,ATTRB=(PROT,BRT),INITIAL=' '     VCAT0040
+* CBLDNM LABEL=USER-ID                                                  VCAT0041
+F010163 DFHMDF POS=(03,003),LENGTH=003,ATTRB=(ASKIP,DRK),              XVCAT0042
+               COLOR=BLUE                                               VCAT0043
+        DFHMDF POS=(03,007),LENGTH=001,ATTRB=(PROT,BRT),INITIAL=' '     VCAT0044
+        DFHMDF POS=(04,001),LENGTH=013,ATTRB=(ASKIP,NORM),             XVCAT0045
+               INITIAL='Catalog Name:',                                XVCAT0046
+               COLOR=TURQUOISE                                          VCAT0047
+* CBLDNM LABEL=LIST-CATNAME                                             VCAT0048
+F010255 DFHMDF POS=(04,015),LENGTH=044,ATTRB=(UNPROT,NORM,FSET,IC),    XVCAT0049
+               COLOR=YELLOW,                                           XVCAT0050
+               HILIGHT=UNDERLINE                                        VCAT0051
+        DFHMDF POS=(04,060),LENGTH=001,ATTRB=(ASKIP,BRT),INITIAL=' '    VCAT0052
+        DFHMDF POS=(05,001),LENGTH=001,ATTRB=(ASKIP,BRT),INITIAL=' '    VCAT0053
+        DFHMDF POS=(05,013),LENGTH=001,ATTRB=(ASKIP,BRT),INITIAL=' '    VCAT0054
+* CBLDNM LABEL=LIST-OLDNAME                                             VCAT0055
+F010335 DFHMDF POS=(05,015),LENGTH=044,ATTRB=(ASKIP,DRK,FSET),         XVCAT0056
+               COLOR=YELLOW,                                           XVCAT0057
+               HILIGHT=UNDERLINE                                        VCAT0058
+        DFHMDF POS=(05,060),LENGTH=001,ATTRB=(ASKIP,BRT),INITIAL=' '    VCAT0059
+        DFHMDF POS=(06,001),LENGTH=001,ATTRB=(ASKIP,BRT),              XVCAT0060
+               INITIAL='O',                                            XVCAT0061
+               COLOR=TURQUOISE,                                        XVCAT0062
+               HILIGHT=UNDERLINE                                        VCAT0063
+        DFHMDF POS=(06,003),LENGTH=044,ATTRB=(ASKIP,BRT),              XVCAT0064
+               INITIAL='             Catalog Entry Name             ', XVCAT0065
+               COLOR=TURQUOISE,                                        XVCAT0066
+               HILIGHT=UNDERLINE                                        VCAT0067
+        DFHMDF POS=(06,048),LENGTH=004,ATTRB=(ASKIP,BRT),              XVCAT0068
+               INITIAL='Type',                                         XVCAT0069
+               COLOR=TURQUOISE,                                        XVCAT0070
+               HILIGHT=UNDERLINE                                        VCAT0071
+        DFHMDF POS=(06,053),LENGTH=016,ATTRB=(ASKIP,BRT),              XVCAT0072
+               INITIAL='  Last Updated  ',                             XVCAT0073
+               COLOR=TURQUOISE,                                        XVCAT0074
+               HILIGHT=UNDERLINE                                        VCAT0075
+        DFHMDF POS=(06,070),LENGTH=009,ATTRB=(ASKIP,BRT),              XVCAT0076
+               INITIAL=' Records ',                                    XVCAT0077
+               COLOR=TURQUOISE,                                        XVCAT0078
+               HILIGHT=UNDERLINE                                        VCAT0079
+        DFHMDF POS=(06,080),LENGTH=000,ATTRB=(ASKIP,BRT)                VCAT0080
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0081
+F010481 DFHMDF POS=(07,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0082
+               COLOR=YELLOW                                             VCAT0083
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0084
+F010483 DFHMDF POS=(07,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0085
+               COLOR=YELLOW                                             VCAT0086
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0087
+F010528 DFHMDF POS=(07,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0088
+               COLOR=YELLOW                                             VCAT0089
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0090
+F010533 DFHMDF POS=(07,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0091
+               PICOUT='99/99/9999',                                    XVCAT0092
+               COLOR=YELLOW                                             VCAT0093
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0094
+F010544 DFHMDF POS=(07,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0095
+               PICOUT='99B99',                                         XVCAT0096
+               COLOR=YELLOW                                             VCAT0097
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0098
+F010550 DFHMDF POS=(07,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0099
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0100
+               COLOR=YELLOW                                             VCAT0101
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0102
+F010561 DFHMDF POS=(08,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0103
+               COLOR=YELLOW                                             VCAT0104
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0105
+F010563 DFHMDF POS=(08,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0106
+               COLOR=YELLOW                                             VCAT0107
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0108
+F010608 DFHMDF POS=(08,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0109
+               COLOR=YELLOW                                             VCAT0110
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0111
+F010613 DFHMDF POS=(08,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0112
+               PICOUT='99/99/9999',                                    XVCAT0113
+               COLOR=YELLOW                                             VCAT0114
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0115
+F010624 DFHMDF POS=(08,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0116
+               PICOUT='99B99',                                         XVCAT0117
+               COLOR=YELLOW                                             VCAT0118
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0119
+F010630 DFHMDF POS=(08,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0120
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0121
+               COLOR=YELLOW                                             VCAT0122
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0123
+F010641 DFHMDF POS=(09,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0124
+               COLOR=YELLOW                                             VCAT0125
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0126
+F010643 DFHMDF POS=(09,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0127
+               COLOR=YELLOW                                             VCAT0128
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0129
+F010688 DFHMDF POS=(09,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0130
+               COLOR=YELLOW                                             VCAT0131
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0132
+F010693 DFHMDF POS=(09,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0133
+               PICOUT='99/99/9999',                                    XVCAT0134
+               COLOR=YELLOW                                             VCAT0135
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0136
+F010704 DFHMDF POS=(09,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0137
+               PICOUT='99B99',                                         XVCAT0138
+               COLOR=YELLOW                                             VCAT0139
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0140
+F010710 DFHMDF POS=(09,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0141
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0142
+               COLOR=YELLOW                                             VCAT0143
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0144
+F010721 DFHMDF POS=(10,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0145
+               COLOR=YELLOW                                             VCAT0146
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0147
+F010723 DFHMDF POS=(10,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0148
+               COLOR=YELLOW                                             VCAT0149
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0150
+F010768 DFHMDF POS=(10,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0151
+               COLOR=YELLOW                                             VCAT0152
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0153
+F010773 DFHMDF POS=(10,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0154
+               PICOUT='99/99/9999',                                    XVCAT0155
+               COLOR=YELLOW                                             VCAT0156
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0157
+F010784 DFHMDF POS=(10,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0158
+               PICOUT='99B99',                                         XVCAT0159
+               COLOR=YELLOW                                             VCAT0160
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0161
+F010790 DFHMDF POS=(10,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0162
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0163
+               COLOR=YELLOW                                             VCAT0164
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0165
+F010801 DFHMDF POS=(11,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0166
+               COLOR=YELLOW                                             VCAT0167
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0168
+F010803 DFHMDF POS=(11,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0169
+               COLOR=YELLOW                                             VCAT0170
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0171
+F010848 DFHMDF POS=(11,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0172
+               COLOR=YELLOW                                             VCAT0173
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0174
+F010853 DFHMDF POS=(11,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0175
+               PICOUT='99/99/9999',                                    XVCAT0176
+               COLOR=YELLOW                                             VCAT0177
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0178
+F010864 DFHMDF POS=(11,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0179
+               PICOUT='99B99',                                         XVCAT0180
+               COLOR=YELLOW                                             VCAT0181
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0182
+F010870 DFHMDF POS=(11,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0183
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0184
+               COLOR=YELLOW                                             VCAT0185
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0186
+F010881 DFHMDF POS=(12,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0187
+               COLOR=YELLOW                                             VCAT0188
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0189
+F010883 DFHMDF POS=(12,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0190
+               COLOR=YELLOW                                             VCAT0191
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0192
+F010928 DFHMDF POS=(12,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0193
+               COLOR=YELLOW                                             VCAT0194
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0195
+F010933 DFHMDF POS=(12,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0196
+               PICOUT='99/99/9999',                                    XVCAT0197
+               COLOR=YELLOW                                             VCAT0198
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0199
+F010944 DFHMDF POS=(12,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0200
+               PICOUT='99B99',                                         XVCAT0201
+               COLOR=YELLOW                                             VCAT0202
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0203
+F010950 DFHMDF POS=(12,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0204
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0205
+               COLOR=YELLOW                                             VCAT0206
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0207
+F010961 DFHMDF POS=(13,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0208
+               COLOR=YELLOW                                             VCAT0209
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0210
+F010963 DFHMDF POS=(13,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0211
+               COLOR=YELLOW                                             VCAT0212
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0213
+F011008 DFHMDF POS=(13,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0214
+               COLOR=YELLOW                                             VCAT0215
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0216
+F011013 DFHMDF POS=(13,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0217
+               PICOUT='99/99/9999',                                    XVCAT0218
+               COLOR=YELLOW                                             VCAT0219
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0220
+F011024 DFHMDF POS=(13,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0221
+               PICOUT='99B99',                                         XVCAT0222
+               COLOR=YELLOW                                             VCAT0223
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0224
+F011030 DFHMDF POS=(13,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0225
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0226
+               COLOR=YELLOW                                             VCAT0227
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0228
+F011041 DFHMDF POS=(14,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0229
+               COLOR=YELLOW                                             VCAT0230
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0231
+F011043 DFHMDF POS=(14,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0232
+               COLOR=YELLOW                                             VCAT0233
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0234
+F011088 DFHMDF POS=(14,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0235
+               COLOR=YELLOW                                             VCAT0236
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0237
+F011093 DFHMDF POS=(14,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0238
+               PICOUT='99/99/9999',                                    XVCAT0239
+               COLOR=YELLOW                                             VCAT0240
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0241
+F011104 DFHMDF POS=(14,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0242
+               PICOUT='99B99',                                         XVCAT0243
+               COLOR=YELLOW                                             VCAT0244
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0245
+F011110 DFHMDF POS=(14,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0246
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0247
+               COLOR=YELLOW                                             VCAT0248
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0249
+F011121 DFHMDF POS=(15,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0250
+               COLOR=YELLOW                                             VCAT0251
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0252
+F011123 DFHMDF POS=(15,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0253
+               COLOR=YELLOW                                             VCAT0254
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0255
+F011168 DFHMDF POS=(15,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0256
+               COLOR=YELLOW                                             VCAT0257
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0258
+F011173 DFHMDF POS=(15,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0259
+               PICOUT='99/99/9999',                                    XVCAT0260
+               COLOR=YELLOW                                             VCAT0261
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0262
+F011184 DFHMDF POS=(15,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0263
+               PICOUT='99B99',                                         XVCAT0264
+               COLOR=YELLOW                                             VCAT0265
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0266
+F011190 DFHMDF POS=(15,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0267
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0268
+               COLOR=YELLOW                                             VCAT0269
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0270
+F011201 DFHMDF POS=(16,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0271
+               COLOR=YELLOW                                             VCAT0272
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0273
+F011203 DFHMDF POS=(16,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0274
+               COLOR=YELLOW                                             VCAT0275
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0276
+F011248 DFHMDF POS=(16,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0277
+               COLOR=YELLOW                                             VCAT0278
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0279
+F011253 DFHMDF POS=(16,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0280
+               PICOUT='99/99/9999',                                    XVCAT0281
+               COLOR=YELLOW                                             VCAT0282
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0283
+F011264 DFHMDF POS=(16,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0284
+               PICOUT='99B99',                                         XVCAT0285
+               COLOR=YELLOW                                             VCAT0286
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0287
+F011270 DFHMDF POS=(16,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0288
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0289
+               COLOR=YELLOW                                             VCAT0290
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0291
+F011281 DFHMDF POS=(17,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0292
+               COLOR=YELLOW                                             VCAT0293
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0294
+F011283 DFHMDF POS=(17,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0295
+               COLOR=YELLOW                                             VCAT0296
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0297
+F011328 DFHMDF POS=(17,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0298
+               COLOR=YELLOW                                             VCAT0299
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0300
+F011333 DFHMDF POS=(17,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0301
+               PICOUT='99/99/9999',                                    XVCAT0302
+               COLOR=YELLOW                                             VCAT0303
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0304
+F011344 DFHMDF POS=(17,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0305
+               PICOUT='99B99',                                         XVCAT0306
+               COLOR=YELLOW                                             VCAT0307
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0308
+F011350 DFHMDF POS=(17,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0309
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0310
+               COLOR=YELLOW                                             VCAT0311
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0312
+F011361 DFHMDF POS=(18,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0313
+               COLOR=YELLOW                                             VCAT0314
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0315
+F011363 DFHMDF POS=(18,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0316
+               COLOR=YELLOW                                             VCAT0317
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0318
+F011408 DFHMDF POS=(18,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0319
+               COLOR=YELLOW                                             VCAT0320
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0321
+F011413 DFHMDF POS=(18,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0322
+               PICOUT='99/99/9999',                                    XVCAT0323
+               COLOR=YELLOW                                             VCAT0324
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0325
+F011424 DFHMDF POS=(18,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0326
+               PICOUT='99B99',                                         XVCAT0327
+               COLOR=YELLOW                                             VCAT0328
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0329
+F011430 DFHMDF POS=(18,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0330
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0331
+               COLOR=YELLOW                                             VCAT0332
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0333
+F011441 DFHMDF POS=(19,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0334
+               COLOR=YELLOW                                             VCAT0335
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0336
+F011443 DFHMDF POS=(19,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0337
+               COLOR=YELLOW                                             VCAT0338
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0339
+F011488 DFHMDF POS=(19,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0340
+               COLOR=YELLOW                                             VCAT0341
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0342
+F011493 DFHMDF POS=(19,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0343
+               PICOUT='99/99/9999',                                    XVCAT0344
+               COLOR=YELLOW                                             VCAT0345
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0346
+F011504 DFHMDF POS=(19,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0347
+               PICOUT='99B99',                                         XVCAT0348
+               COLOR=YELLOW                                             VCAT0349
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0350
+F011510 DFHMDF POS=(19,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0351
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0352
+               COLOR=YELLOW                                             VCAT0353
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0354
+F011521 DFHMDF POS=(20,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0355
+               COLOR=YELLOW                                             VCAT0356
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0357
+F011523 DFHMDF POS=(20,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0358
+               COLOR=YELLOW                                             VCAT0359
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0360
+F011568 DFHMDF POS=(20,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0361
+               COLOR=YELLOW                                             VCAT0362
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0363
+F011573 DFHMDF POS=(20,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0364
+               PICOUT='99/99/9999',                                    XVCAT0365
+               COLOR=YELLOW                                             VCAT0366
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0367
+F011584 DFHMDF POS=(20,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0368
+               PICOUT='99B99',                                         XVCAT0369
+               COLOR=YELLOW                                             VCAT0370
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0371
+F011590 DFHMDF POS=(20,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0372
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0373
+               COLOR=YELLOW                                             VCAT0374
+* CBLDNM LABEL=LIST-SELECT                                              VCAT0375
+F011601 DFHMDF POS=(21,001),LENGTH=001,ATTRB=(UNPROT,NORM),            XVCAT0376
+               COLOR=YELLOW                                             VCAT0377
+* CBLDNM LABEL=LIST-ENTNAME                                             VCAT0378
+F011603 DFHMDF POS=(21,003),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0379
+               COLOR=YELLOW                                             VCAT0380
+* CBLDNM LABEL=LIST-ENTTYPE                                             VCAT0381
+F011648 DFHMDF POS=(21,048),LENGTH=004,ATTRB=(ASKIP,NORM),             XVCAT0382
+               COLOR=YELLOW                                             VCAT0383
+* CBLDNM LABEL=LIST-LASTUPD                                             VCAT0384
+F011653 DFHMDF POS=(21,053),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0385
+               PICOUT='99/99/9999',                                    XVCAT0386
+               COLOR=YELLOW                                             VCAT0387
+* CBLDNM LABEL=LIST-LASTUPT                                             VCAT0388
+F011664 DFHMDF POS=(21,064),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0389
+               PICOUT='99B99',                                         XVCAT0390
+               COLOR=YELLOW                                             VCAT0391
+* CBLDNM LABEL=LIST-RECOUNT                                             VCAT0392
+F011670 DFHMDF POS=(21,070),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0393
+               PICOUT='Z,ZZZ,ZZ9-',                                    XVCAT0394
+               COLOR=YELLOW                                             VCAT0395
+* CBLDNM LABEL=LIST-MESSAGE                                             VCAT0396
+F011681 DFHMDF POS=(22,001),LENGTH=078,ATTRB=(ASKIP,BRT),              XVCAT0397
+               COLOR=RED                                                VCAT0398
+        DFHMDF POS=(23,001),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0399
+               INITIAL='Opts:',                                        XVCAT0400
+               COLOR=TURQUOISE                                          VCAT0401
+        DFHMDF POS=(23,007),LENGTH=001,ATTRB=(ASKIP,BRT),              XVCAT0402
+               INITIAL='B'                                              VCAT0403
+        DFHMDF POS=(23,009),LENGTH=013,ATTRB=(ASKIP,NORM),             XVCAT0404
+               INITIAL='= Basic Info,',                                XVCAT0405
+               COLOR=PINK                                               VCAT0406
+        DFHMDF POS=(23,023),LENGTH=001,ATTRB=(ASKIP,BRT),              XVCAT0407
+               INITIAL='D'                                              VCAT0408
+        DFHMDF POS=(23,025),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0409
+               INITIAL='= Details,',                                   XVCAT0410
+               COLOR=PINK                                               VCAT0411
+        DFHMDF POS=(23,036),LENGTH=001,ATTRB=(ASKIP,BRT),              XVCAT0412
+               INITIAL='M'                                              VCAT0413
+        DFHMDF POS=(23,038),LENGTH=012,ATTRB=(ASKIP,NORM),             XVCAT0414
+               INITIAL='= Space Map,',                                 XVCAT0415
+               COLOR=PINK                                               VCAT0416
+        DFHMDF POS=(23,051),LENGTH=003,ATTRB=(ASKIP,BRT),              XVCAT0417
+               INITIAL='E/P'                                            VCAT0418
+        DFHMDF POS=(23,055),LENGTH=021,ATTRB=(ASKIP,NORM),             XVCAT0419
+               INITIAL='= Edit/Purge Dataset.',                        XVCAT0420
+               COLOR=PINK                                               VCAT0421
+        DFHMDF POS=(24,001),LENGTH=005,ATTRB=(ASKIP,NORM),             XVCAT0422
+               INITIAL='Keys:',                                        XVCAT0423
+               COLOR=TURQUOISE                                          VCAT0424
+        DFHMDF POS=(24,007),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0425
+               INITIAL='F3'                                             VCAT0426
+        DFHMDF POS=(24,010),LENGTH=006,ATTRB=(ASKIP,NORM),             XVCAT0427
+               INITIAL='= End,',                                       XVCAT0428
+               COLOR=PINK                                               VCAT0429
+        DFHMDF POS=(24,017),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0430
+               INITIAL='F4'                                             VCAT0431
+        DFHMDF POS=(24,020),LENGTH=009,ATTRB=(ASKIP,NORM),             XVCAT0432
+               INITIAL='= Prompt,',                                    XVCAT0433
+               COLOR=PINK                                               VCAT0434
+        DFHMDF POS=(24,030),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0435
+               INITIAL='F5'                                             VCAT0436
+        DFHMDF POS=(24,033),LENGTH=010,ATTRB=(ASKIP,NORM),             XVCAT0437
+               INITIAL='= Refresh,',                                   XVCAT0438
+               COLOR=PINK                                               VCAT0439
+        DFHMDF POS=(24,044),LENGTH=005,ATTRB=(ASKIP,BRT),              XVCAT0440
+               INITIAL='F6/F7'                                          VCAT0441
+        DFHMDF POS=(24,050),LENGTH=011,ATTRB=(ASKIP,NORM),             XVCAT0442
+               INITIAL='= Top/Prev,',                                  XVCAT0443
+               COLOR=PINK                                               VCAT0444
+        DFHMDF POS=(24,062),LENGTH=005,ATTRB=(ASKIP,BRT),              XVCAT0445
+               INITIAL='F8/F9'                                          VCAT0446
+        DFHMDF POS=(24,068),LENGTH=011,ATTRB=(ASKIP,NORM),             XVCAT0447
+               INITIAL='= Next/Bot.',                                  XVCAT0448
+               COLOR=PINK                                               VCAT0449
+        DFHMDF POS=(24,080),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0450
+*                                                                       VCAT0451
+        PRINT  ON,GEN                                                   VCAT0452
+        TITLE  'L I S T X X X   ( 0 1 . 0 9 )   -   V S A M   C A T A LXVCAT0453
+                O G   L I S T I N G   M A P                 '           VCAT0454
+LISTXXX DFHMDI SIZE=(24,080)                                            VCAT0455
+        PRINT  ON,NOGEN                                                 VCAT0456
+        DFHMDF POS=(04,015),LENGTH=044,ATTRB=(ASKIP,NORM),             XVCAT0457
+               COLOR=YELLOW                                             VCAT0458
+        DFHMDF POS=(07,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0459
+               COLOR=YELLOW                                             VCAT0460
+        DFHMDF POS=(08,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0461
+               COLOR=YELLOW                                             VCAT0462
+        DFHMDF POS=(09,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0463
+               COLOR=YELLOW                                             VCAT0464
+        DFHMDF POS=(10,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0465
+               COLOR=YELLOW                                             VCAT0466
+        DFHMDF POS=(11,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0467
+               COLOR=YELLOW                                             VCAT0468
+        DFHMDF POS=(12,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0469
+               COLOR=YELLOW                                             VCAT0470
+        DFHMDF POS=(13,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0471
+               COLOR=YELLOW                                             VCAT0472
+        DFHMDF POS=(14,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0473
+               COLOR=YELLOW                                             VCAT0474
+        DFHMDF POS=(15,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0475
+               COLOR=YELLOW                                             VCAT0476
+        DFHMDF POS=(16,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0477
+               COLOR=YELLOW                                             VCAT0478
+        DFHMDF POS=(17,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0479
+               COLOR=YELLOW                                             VCAT0480
+        DFHMDF POS=(18,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0481
+               COLOR=YELLOW                                             VCAT0482
+        DFHMDF POS=(19,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0483
+               COLOR=YELLOW                                             VCAT0484
+        DFHMDF POS=(20,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0485
+               COLOR=YELLOW                                             VCAT0486
+        DFHMDF POS=(21,001),LENGTH=001,ATTRB=(ASKIP,NORM),             XVCAT0487
+               COLOR=YELLOW                                             VCAT0488
+*                                                                       VCAT0489
+        PRINT  ON,GEN                                                   VCAT0490
+        TITLE  'G E N R W I N   ( 0 1 . 0 5 )   -   G E N E R A T I N GXVCAT0491
+                . . .   M E S S A G E   W I N D O W         '           VCAT0492
+GENRWIN DFHMDI SIZE=(24,080)                                            VCAT0493
+        PRINT  ON,NOGEN                                                 VCAT0494
+        DFHMDF POS=(10,029),LENGTH=021,ATTRB=(ASKIP,NORM),             XVCAT0495
+               XINIT=404040404040404040404040404040404040404040,       XVCAT0496
+               COLOR=TURQUOISE,                                        XVCAT0497
+               HILIGHT=REVERSE                                          VCAT0498
+        DFHMDF POS=(10,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCAT0499
+               COLOR=YELLOW                                             VCAT0500
+        DFHMDF POS=(11,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0501
+               XINIT=4040,                                             XVCAT0502
+               COLOR=TURQUOISE,                                        XVCAT0503
+               HILIGHT=REVERSE                                          VCAT0504
+        DFHMDF POS=(11,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCAT0505
+               XINIT=404040404040404040404040404040,                   XVCAT0506
+               COLOR=RED,                                              XVCAT0507
+               HILIGHT=BLINK                                            VCAT0508
+        DFHMDF POS=(11,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0509
+               XINIT=4040,                                             XVCAT0510
+               COLOR=TURQUOISE,                                        XVCAT0511
+               HILIGHT=REVERSE                                          VCAT0512
+        DFHMDF POS=(11,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCAT0513
+               COLOR=YELLOW                                             VCAT0514
+        DFHMDF POS=(12,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0515
+               XINIT=4040,                                             XVCAT0516
+               COLOR=TURQUOISE,                                        XVCAT0517
+               HILIGHT=REVERSE                                          VCAT0518
+        DFHMDF POS=(12,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCAT0519
+               INITIAL=' Generating... ',                              XVCAT0520
+               COLOR=RED,                                              XVCAT0521
+               HILIGHT=BLINK                                            VCAT0522
+        DFHMDF POS=(12,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0523
+               XINIT=4040,                                             XVCAT0524
+               COLOR=TURQUOISE,                                        XVCAT0525
+               HILIGHT=REVERSE                                          VCAT0526
+        DFHMDF POS=(12,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCAT0527
+               COLOR=YELLOW                                             VCAT0528
+        DFHMDF POS=(13,029),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0529
+               XINIT=4040,                                             XVCAT0530
+               COLOR=TURQUOISE,                                        XVCAT0531
+               HILIGHT=REVERSE                                          VCAT0532
+        DFHMDF POS=(13,032),LENGTH=015,ATTRB=(ASKIP,BRT),              XVCAT0533
+               XINIT=404040404040404040404040404040,                   XVCAT0534
+               COLOR=RED,                                              XVCAT0535
+               HILIGHT=BLINK                                            VCAT0536
+        DFHMDF POS=(13,048),LENGTH=002,ATTRB=(ASKIP,NORM),             XVCAT0537
+               XINIT=4040,                                             XVCAT0538
+               COLOR=TURQUOISE,                                        XVCAT0539
+               HILIGHT=REVERSE                                          VCAT0540
+        DFHMDF POS=(13,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCAT0541
+               COLOR=YELLOW                                             VCAT0542
+        DFHMDF POS=(14,029),LENGTH=021,ATTRB=(ASKIP,NORM),             XVCAT0543
+               XINIT=404040404040404040404040404040404040404040,       XVCAT0544
+               COLOR=TURQUOISE,                                        XVCAT0545
+               HILIGHT=REVERSE                                          VCAT0546
+        DFHMDF POS=(14,051),LENGTH=000,ATTRB=(ASKIP,NORM),             XVCAT0547
+               COLOR=YELLOW                                             VCAT0548
+*                                                                       VCAT0549
+        PRINT  ON,GEN                                                   VCAT0550
+        TITLE  'V C A T W I N   ( 0 1 . 1 0 )   -   C O M P A N Y   N UXVCAT0551
+                M B E R   P R O M P T   W I N D O W         '           VCAT0552
+VCATWIN DFHMDI SIZE=(24,080)                                            VCAT0553
+*              ROW=06,THRU=06,OCCURS=06                                 VCAT0554
+        PRINT  ON,NOGEN                                                 VCAT0555
+        DFHMDF POS=(05,012),LENGTH=050,ATTRB=(ASKIP,BRT),              XVCAT0556
+               INITIAL='   Press ENTER to select the line at the cursorXVCAT0557
+               .  ',                                                   XVCAT0558
+               COLOR=TURQUOISE,                                        XVCAT0559
+               HILIGHT=REVERSE                                          VCAT0560
+        DFHMDF POS=(05,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0561
+        DFHMDF POS=(06,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0562
+               XINIT=4040,                                             XVCAT0563
+               COLOR=TURQUOISE,                                        XVCAT0564
+               HILIGHT=REVERSE                                          VCAT0565
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0566
+F040415 DFHMDF POS=(06,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0567
+               COLOR=YELLOW                                             VCAT0568
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0569
+F040451 DFHMDF POS=(06,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0570
+               COLOR=BLUE                                               VCAT0571
+        DFHMDF POS=(06,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0572
+               XINIT=4040,                                             XVCAT0573
+               COLOR=TURQUOISE,                                        XVCAT0574
+               HILIGHT=REVERSE                                          VCAT0575
+        DFHMDF POS=(06,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0576
+        DFHMDF POS=(07,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0577
+               XINIT=4040,                                             XVCAT0578
+               COLOR=TURQUOISE,                                        XVCAT0579
+               HILIGHT=REVERSE                                          VCAT0580
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0581
+F040495 DFHMDF POS=(07,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0582
+               COLOR=YELLOW                                             VCAT0583
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0584
+F040531 DFHMDF POS=(07,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0585
+               COLOR=BLUE                                               VCAT0586
+        DFHMDF POS=(07,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0587
+               XINIT=4040,                                             XVCAT0588
+               COLOR=TURQUOISE,                                        XVCAT0589
+               HILIGHT=REVERSE                                          VCAT0590
+        DFHMDF POS=(07,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0591
+        DFHMDF POS=(08,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0592
+               XINIT=4040,                                             XVCAT0593
+               COLOR=TURQUOISE,                                        XVCAT0594
+               HILIGHT=REVERSE                                          VCAT0595
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0596
+F040575 DFHMDF POS=(08,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0597
+               COLOR=YELLOW                                             VCAT0598
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0599
+F040611 DFHMDF POS=(08,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0600
+               COLOR=BLUE                                               VCAT0601
+        DFHMDF POS=(08,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0602
+               XINIT=4040,                                             XVCAT0603
+               COLOR=TURQUOISE,                                        XVCAT0604
+               HILIGHT=REVERSE                                          VCAT0605
+        DFHMDF POS=(08,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0606
+        DFHMDF POS=(09,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0607
+               XINIT=4040,                                             XVCAT0608
+               COLOR=TURQUOISE,                                        XVCAT0609
+               HILIGHT=REVERSE                                          VCAT0610
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0611
+F040655 DFHMDF POS=(09,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0612
+               COLOR=YELLOW                                             VCAT0613
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0614
+F040691 DFHMDF POS=(09,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0615
+               COLOR=BLUE                                               VCAT0616
+        DFHMDF POS=(09,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0617
+               XINIT=4040,                                             XVCAT0618
+               COLOR=TURQUOISE,                                        XVCAT0619
+               HILIGHT=REVERSE                                          VCAT0620
+        DFHMDF POS=(09,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0621
+        DFHMDF POS=(10,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0622
+               XINIT=4040,                                             XVCAT0623
+               COLOR=TURQUOISE,                                        XVCAT0624
+               HILIGHT=REVERSE                                          VCAT0625
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0626
+F040735 DFHMDF POS=(10,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0627
+               COLOR=YELLOW                                             VCAT0628
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0629
+F040771 DFHMDF POS=(10,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0630
+               COLOR=BLUE                                               VCAT0631
+        DFHMDF POS=(10,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0632
+               XINIT=4040,                                             XVCAT0633
+               COLOR=TURQUOISE,                                        XVCAT0634
+               HILIGHT=REVERSE                                          VCAT0635
+        DFHMDF POS=(10,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0636
+        DFHMDF POS=(11,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0637
+               XINIT=4040,                                             XVCAT0638
+               COLOR=TURQUOISE,                                        XVCAT0639
+               HILIGHT=REVERSE                                          VCAT0640
+* CBLDNM LABEL=VCAT-NAME                                                VCAT0641
+F040815 DFHMDF POS=(11,015),LENGTH=035,ATTRB=(UNPROT,NORM),            XVCAT0642
+               COLOR=YELLOW                                             VCAT0643
+* CBLDNM LABEL=VCAT-FILE                                                VCAT0644
+F040851 DFHMDF POS=(11,051),LENGTH=008,ATTRB=(ASKIP,DRK,FSET),         XVCAT0645
+               COLOR=BLUE                                               VCAT0646
+        DFHMDF POS=(11,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0647
+               XINIT=4040,                                             XVCAT0648
+               COLOR=TURQUOISE,                                        XVCAT0649
+               HILIGHT=REVERSE                                          VCAT0650
+        DFHMDF POS=(11,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0651
+        DFHMDF POS=(12,012),LENGTH=050,ATTRB=(ASKIP,BRT),              XVCAT0652
+               INITIAL='   Keys: PF3 = Exit    PF7/PF8 = Prev/Next PageXVCAT0653
+                  ',                                                   XVCAT0654
+               COLOR=TURQUOISE,                                        XVCAT0655
+               HILIGHT=REVERSE                                          VCAT0656
+        DFHMDF POS=(12,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0657
+*                                                                       VCAT0658
+        PRINT  ON,GEN                                                   VCAT0659
+        TITLE  'V C A T E R R   ( 0 1 . 1 1 )   -   C O M P A N Y   N UXVCAT0660
+                M B E R   P R O M P T   W I N D O W         '           VCAT0661
+VCATERR DFHMDI SIZE=(24,080)                                            VCAT0662
+        PRINT  ON,NOGEN                                                 VCAT0663
+        DFHMDF POS=(05,012),LENGTH=050,ATTRB=(ASKIP,BRT),              XVCAT0664
+               INITIAL='   Press ENTER to select the line at the cursorXVCAT0665
+               .  ',                                                   XVCAT0666
+               COLOR=RED,                                              XVCAT0667
+               HILIGHT=REVERSE                                          VCAT0668
+        DFHMDF POS=(05,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0669
+        DFHMDF POS=(06,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0670
+               XINIT=4040,                                             XVCAT0671
+               COLOR=RED,                                              XVCAT0672
+               HILIGHT=REVERSE                                          VCAT0673
+        DFHMDF POS=(06,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0674
+        DFHMDF POS=(06,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0675
+               XINIT=4040,                                             XVCAT0676
+               COLOR=RED,                                              XVCAT0677
+               HILIGHT=REVERSE                                          VCAT0678
+        DFHMDF POS=(06,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0679
+        DFHMDF POS=(07,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0680
+               XINIT=4040,                                             XVCAT0681
+               COLOR=RED,                                              XVCAT0682
+               HILIGHT=REVERSE                                          VCAT0683
+        DFHMDF POS=(07,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0684
+        DFHMDF POS=(07,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0685
+               XINIT=4040,                                             XVCAT0686
+               COLOR=RED,                                              XVCAT0687
+               HILIGHT=REVERSE                                          VCAT0688
+        DFHMDF POS=(07,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0689
+        DFHMDF POS=(08,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0690
+               XINIT=4040,                                             XVCAT0691
+               COLOR=RED,                                              XVCAT0692
+               HILIGHT=REVERSE                                          VCAT0693
+        DFHMDF POS=(08,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0694
+        DFHMDF POS=(08,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0695
+               XINIT=4040,                                             XVCAT0696
+               COLOR=RED,                                              XVCAT0697
+               HILIGHT=REVERSE                                          VCAT0698
+        DFHMDF POS=(08,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0699
+        DFHMDF POS=(09,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0700
+               XINIT=4040,                                             XVCAT0701
+               COLOR=RED,                                              XVCAT0702
+               HILIGHT=REVERSE                                          VCAT0703
+        DFHMDF POS=(09,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0704
+        DFHMDF POS=(09,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0705
+               XINIT=4040,                                             XVCAT0706
+               COLOR=RED,                                              XVCAT0707
+               HILIGHT=REVERSE                                          VCAT0708
+        DFHMDF POS=(09,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0709
+        DFHMDF POS=(10,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0710
+               XINIT=4040,                                             XVCAT0711
+               COLOR=RED,                                              XVCAT0712
+               HILIGHT=REVERSE                                          VCAT0713
+        DFHMDF POS=(10,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0714
+        DFHMDF POS=(10,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0715
+               XINIT=4040,                                             XVCAT0716
+               COLOR=RED,                                              XVCAT0717
+               HILIGHT=REVERSE                                          VCAT0718
+        DFHMDF POS=(10,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0719
+        DFHMDF POS=(11,012),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0720
+               XINIT=4040,                                             XVCAT0721
+               COLOR=RED,                                              XVCAT0722
+               HILIGHT=REVERSE                                          VCAT0723
+        DFHMDF POS=(11,015),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0724
+        DFHMDF POS=(11,060),LENGTH=002,ATTRB=(ASKIP,BRT),              XVCAT0725
+               XINIT=4040,                                             XVCAT0726
+               COLOR=RED,                                              XVCAT0727
+               HILIGHT=REVERSE                                          VCAT0728
+        DFHMDF POS=(11,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0729
+        DFHMDF POS=(12,012),LENGTH=050,ATTRB=(ASKIP,BRT),              XVCAT0730
+               INITIAL='   Keys: PF3 = Exit    PF7/PF8 = Prev/Next PageXVCAT0731
+                  ',                                                   XVCAT0732
+               COLOR=RED,                                              XVCAT0733
+               HILIGHT=REVERSE                                          VCAT0734
+        DFHMDF POS=(12,063),LENGTH=000,ATTRB=(PROT,BRT)                 VCAT0735
+*                                                                       VCAT0736
+        PRINT  ON,GEN                                                   VCAT0737
+        TITLE  'V C A T M S     ( 0 1 . 3 2 )   -   M A P S E T   F O RXVCAT0738
+                  V C A T P G M   P R O G R A M             '           VCAT0739
+        DFHMSD TYPE=FINAL                                               VCAT0740
