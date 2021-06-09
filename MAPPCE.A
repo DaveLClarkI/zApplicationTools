@@ -1,0 +1,43 @@
+PCEADR   DSECT              PARTITION CONTROL BLOCK EXTENSION           02-MAPPC
+PCEPWECB DS  0XL4         ABNORMAL TERMINATION ECB TO POST POWER        02-MAPPC
+*                         FOR DEALLOCATION
+PCELEN   DS  H            LENGTH OF PCE                                 02-MAPPC
+PCEFLAG  DS  X            FLAG BYTE                                     02-MAPPC
+PCEPWPST EQU   X'80'        0  POSTED, WHEN ABNORMAL TERMINATION        02-MAPPC
+*                              OF PARTITION OR CLEAN UP PROCESSING
+*                              COMPLETED.
+PCEDYNP  EQU   X'40'        1  DYNAMIC PARTITION IDENTIFICATION         02-MAPPC
+PCEPREP  EQU   X'20'        2  PREPARATION ACTIVE                       02-MAPPC
+PCECLEAN EQU   X'10'        3  CLEAN UP ACTIVE                          02-MAPPC
+PCEINIT  EQU   X'08'        4  PARTITION INITIALIZATION ACTIVE          02-MAPPC
+PCEPRTYC EQU   X'04'        5  PRIORITY CHANGED (SET IN POWER           02-MAPPC
+*                              PCE ONLY !)
+PCEICNCL EQU   X'02'        6  INITIALIZATION CANCELLED                 02-MAPPC
+PCEIOPCN EQU   X'01'        7  INIT CANCELLED BY OPERATOR      @DY46408 02-MAPPC
+PCEFLAG1 DS  X            FLAG BYTE                                     02-MAPPC
+PCEDOPR  EQU   X'80'        0  PROCESS PREPARATION                      02-MAPPC
+PCERESEC EQU   X'40'        1  RESET SECURITY INITIALIZATION   @D52VDMZ 02-MAPPC
+PCEDOCL  EQU   X'20'        2  PROCESS CLEAN UP                         02-MAPPC
+PCESGERR EQU   X'10'        3  SYSTEM GETVIS ERROR DURING               02-MAPPC
+*                              IJBSINP INITIALIZATION
+PCEPHOLD EQU   X'08'        4  HOLD PARTITION DURING CLEAN UP           02-MAPPC
+*                              (DYNCLASS ID=HOLD)
+PCEPWAIT EQU   X'04'        5  PARTITION IS WAITING BECAUSE OF HOLD     02-MAPPC
+PCEPROK  EQU   X'02'        6  PREPARATION DONE FOR PARTITION           02-MAPPC
+PCEDOSEC EQU   X'01'        7  DO SECURITY INITIALIZATION      @D52VDIS 02-MAPPC
+PCEKEY   DS  X            PARTITION'S STORAGE KEY                       02-MAPPC
+PCEHCNT  DS  X            DYNCLASS ID=HOLD COUNT                        02-MAPPC
+         DS  2X           NOT USED                                      02-MAPPC
+PCEPIK   DS  H            PARTITION'S IDENTIFICATION KEY                02-MAPPC
+PCELID   DS  CL2          PARTITION'S SYSLOG ID                         02-MAPPC
+PCECOMRA DS  A            PARTITION'S COMREG ADDRESS                    02-MAPPC
+PCEALUB  DS  A            PARTITION'S LUBTAB ADDRESS                    02-MAPPC
+PCEADIB  DS  A            PARTITION'S DIB ADDRESS                       02-MAPPC
+PCEPIB   DS  A            PARTITION'S PIB ADDRESS                       02-MAPPC
+PCEPIB2  DS  A            PARTITION'S PIB2 ADDRESS                      02-MAPPC
+PCECLASS DS  A            PARTITION'S CLASS INFORMATION                 02-MAPPC
+PCEPOWJB DS  A            VSE/POWER JOB INFORMATION ADDRESS             02-MAPPC
+         DS  D            RESERVED FOR FUTURE USE              @D91GDMZ 02-MAPPC
+         DS  D            RESERVED FOR FUTURE USE              @D91GDMZ 02-MAPPC
+PCELENQ  EQU   *-PCEADR     EQUATE FOR PCE LENGTH                       02-MAPPC
+*------- END OF PCB ------------------------------------------*

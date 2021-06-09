@@ -1,0 +1,23 @@
+***********************************************************************
+* WARNING: THE FOLLOWING MAPPING REFERS TO AN INTERNAL SUPERVISOR     *
+*          CONTROL BLOCK. IT MAY CHANGE ANY TIME AND IS NOT COMMITTED *
+*          AS AN INTERFACE OF ANY LEVEL.                              *
+***********************************************************************
+***********************************************************************
+* PJBADR   - DSECT OF VSE/POWER JOB INFORMATION                       *
+***********************************************************************
+PJBADR   DSECT              DSECT FOR VSE/POWER JOB INFORMATION         01-MAPPO
+PJBPNAME DS    CL8          VSE/POWER JOB NAME                          01-MAPPO
+PJBPTIME DS    CL8          VSE/POWER JOB START TIME                    01-MAPPO
+PJBJTIME DS    CL8          VSE/AF JOB STEP START (// EXEC)             01-MAPPO
+PJBJRET  DS    F            VSE/AF JOB - MAX. RETURN CODE               01-MAPPO
+PJBPNUM  DS    H            VSE/POWER JOB NUMBER                        01-MAPPO
+PJBPCLS  DS    CL1          VSE/POWER JOB CLASS                @D81ADMZ 01-MAPPO
+         DS    X            RESERVED                           @D81ADMZ 01-MAPPO
+PJBRUTKN DS    A            ADDRESS OF USER TOKEN              @D52VDMZ 01-MAPPO
+PJBPUSER DS    CL8          VSE/POWER JOB : FROM USERID        @D61NDMZ 01-MAPPO
+PJBJOBUS DS    CL16         * $$ JOB 'USER' = INFO             @DY44052 01-MAPPO
+PJBPTKN  DS    XL4          VSE/POWER JOB TKN VALUE            @D91ZDMW 01-MAPPO
+         DS    CL8          RESERVED                           @D91ZDMW 01-MAPPO
+PJBLNG   EQU   *-PJBADR     LENGTH OF TABLE                             01-MAPPO
+*------- END OF VSE/POWER JOB INFORMATION --------------------*

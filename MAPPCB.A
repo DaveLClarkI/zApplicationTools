@@ -1,0 +1,265 @@
+PCBADR   DSECT                                                          01-MAPPC
+PCBLNGTH DS    H             TOTAL LENGTH OF PCB               @D14CDFG 01-MAPPC
+PCBFLAG  DS    X             FLAG BYTE                         @D34UDFR 01-MAPPC
+BALANCED EQU   X'80'           0  BALANCED PARTITION           @D34UDFR 01-MAPPC
+PERACT   EQU   X'40'           1  PER ACTIVE FOR THIS PART.    @D14BDFG 01-MAPPC
+SUPPRPFH EQU   X'20'           2  SUPPRESS PAGE FAULT HANDLING @D36IDFR 01-MAPPC
+*                                   ON REQUEST OF LOAD LEVELING@DY43684
+SUPPFTPI EQU   X'10'           3  SUPPRESS PAGE FAULT HANDLING @DY43684 01-MAPPC
+*                                   ON REQUEST OF TPIN         @DY43684
+PCBCLFLG EQU   X'08'           4  CLASS PCB                    @D51IDMZ 01-MAPPC
+PCBMVSEM EQU   X'04'           5  MVS EMULATION MODE           @D61ADMZ 01-MAPPC
+*                              6  RESERVED                     @D14CDFG
+PWSRVFLG EQU   X'01'           7  SOME TASK WAITING FOR POWER  @D14CDFG 01-MAPPC
+PCBFLAG1 DS    X             FLAG BYTE                         @D64ADOW 01-MAPPC
+OPCANCLD EQU   X'80'           0 PARTITION CANCELED BY OPERATOR@D64ADOW 01-MAPPC
+PCBTASKO EQU   X'08'           4 WHEN MORE TASKS SUPP IS ACTIVE@D82ADHH 01-MAPPC
+*                                  USE OLD TASKS FOR SUBTASKS  @D82ADHH
+PCBTASKN EQU   X'04'           4 WHEN MORE TASKS SUPP IS ACTIVE@DY47187 01-MAPPC
+*                                  USE ANY TASKS FOR SUBTASKS  @DY47187
+PCBPMASK DS    F             PARTITIONS PRIORITY MASK          @D14BDFR 01-MAPPC
+PCBANPCB DS    F             POINTS TO NEXT PCB IN SAME CLASS  @D51IDMZ 01-MAPPC
+PCBID    DS    H             PCB ID RELATING TO CLASS          @D51IDMZ 01-MAPPC
+PCB#SUBT DS    H             MAX NUMBER OF SUBTASKS IN PARTITIO@D66ODOW 01-MAPPC
+PCBRCNT  DS    F             REACTIVATION COUNT                @D51IDRP 01-MAPPC
+RUNTIME  DS    F             TIME COUNTER FOR PBAL AND JA      @D14BDFR 01-MAPPC
+PBALTIME DS    F             INITIAL VALUE OF PART.BAL.TIME    @D14BDFR 01-MAPPC
+PCBJAPTR DS    F             PCB POINTER FOR TIME ACCOUNTING   @D14BDFR 01-MAPPC
+PCBPIK   DS    H             PARTITION IDENTIFICATION KEY      @D14BDRP 01-MAPPC
+PCBLCTSS DS    H             ACTIVE LENGTH CODE FOR TIDSTR     @D14BDFR 01-MAPPC
+PCBAPCE  DS    F             ADDR OF CORRESPONDING PCE         @D91GDMZ 01-MAPPC
+PCBIMASK DS    F  *###       RESERVED FOR FUTURE USE           @D66ODOW 01-MAPPC
+PCBCEND  EQU   *             END OF COMMON PART (PCB <-> CPCB) @D52VDMZ 01-MAPPC
+TIDSTR   DS    32X           TABLE OF PRIORITY OWNER           @D36IDFR 01-MAPPC
+PCBVRTAL DS    F             VIRT. ADDR OF PASN-AL OF PART.    @D52VDMZ 01-MAPPC
+PCBNTASK DS    H             COUNTER OF USED SUBTASKS          @D14BDFR 01-MAPPC
+CDLDTID  DS    H             TID OF CDLOAD OWNER WITHIN PART.  @D36IDFR 01-MAPPC
+PCBPSCB  DS    A             SCB POINTER OF ALLOCATION SPACE   @D14NDFG 01-MAPPC
+PCBASCB  DS    A             SCB POINTER OF ACTIVE SPACE       @D14NDFG 01-MAPPC
+*------- BEGIN OF SMCB ---------------------------------------*
+SMCBADR  DS    0F            BEGIN OF SMCB                     @D51IDMZ 01-MAPPC
+SMAXPFIX DS    F             PART.:PFIX (24BIT) LIMIT IN PAGES @D52VDMZ 01-MAPPC
+*                            SYST.:SVA(24) PFIX LIMIT IN PAGES @D52VDMZ
+SMPFIX   DS    F             PART.:PFIX (24BIT) COUNT IN PAGES @D52VDMZ 01-MAPPC
+*                            SYST.:SVA(24) PFIX COUNT IN PAGES @D52VDMZ
+SMAXPFX3 DS    F             PART.:PFIX (31BIT) LIMIT IN PAGES @D52VDMZ 01-MAPPC
+*                            SYST.:SVA(31) PFIX LIMIT IN PAGES @D52VDMZ
+SMPFIX3  DS    F             PART.:PFIX (31BIT) COUNT IN PAGES @D52VDMZ 01-MAPPC
+*                            SYST.:SVA(31) PFIX COUNT IN PAGES @D52VDMZ
+SMPSAVE  DS    F             PARTITION: SAVE AREA ADDRESS      @D14NDFG 01-MAPPC
+PCBAPBEG EQU   SMPSAVE                                         @D14CDFG 01-MAPPC
+SMVGVIS  DS    F             PARTITION: ADDRESS OF GETVIS AREA @D35EDUL 01-MAPPC
+SMVPBEG  DS    F             PARTITION: VIRTUAL BEGIN ADDRESS  @D35EDUL 01-MAPPC
+SMVPEND  DS    F             PARTITION: VIRTUAL END ADDRESS+1  @D35EDUL 01-MAPPC
+SMRPBEG  DS    F             PARTITION: REAL BEGIN ADDRESS     @D14BDRP 01-MAPPC
+SMRPEND  DS    F             PARTITION: REAL END ADDRESS + 1   @D14BDRP 01-MAPPC
+SMCBLNG  EQU   *-SMAXPFIX    LENGTH OF SMCB                    @D35EDUL 01-MAPPC
+*------- END OF SMCB -----------------------------------------*
+PCBAPEND DS    F             END ADDRESS+1 OF USER KEY AREA    @D14BDFD 01-MAPPC
+PCBSSCNT DS    X             SUBSYSTEM COUNTER WITHIN PART.    @D35XDFG 01-MAPPC
+PCBSSFL2 DS    X             FLAGS FOR SUBSYSTEM PROPERTIES    @D31LDMZ 01-MAPPC
+PCBARIPL EQU   X'80'         REIPL MACRO ALLOWED BY SUBSYSTEM  @D31LDMZ 01-MAPPC
+PCBSSFL1 DS    X             SUBSYSTEM FLAG BYTE               @D14CDFG 01-MAPPC
+USESYS   EQU   X'80'           0  USER SUB SYSTEM              @D51IDMZ 01-MAPPC
+IBMSYS   EQU   X'40'           1  IBM SUBSYSTEM                @D51IDMZ 01-MAPPC
+PSFV     EQU   X'20'           2  PRINTER SUPPORT FACILITY     @D31IDMZ 01-MAPPC
+DSNX     EQU   X'10'           3  DSNX PARTITION               @D31EMMZ 01-MAPPC
+ICKDSF   EQU   X'08'           4  DEVICE SUPPORT FACILITY      @D31LDGN 01-MAPPC
+CUSTOM   EQU   X'04'           5  CUSTOMIZATION SERVICE        @D31LDGN 01-MAPPC
+NETVIEW  EQU   X'02'           6  NETVIEW PARTITION            @D31LDGN 01-MAPPC
+NPDA     EQU   X'01'           7  NPDA PARTITION               @D14CDFG 01-MAPPC
+PCBSSFLG DS    X             SUBSYSTEM FLAG BYTE               @D35XDFG 01-MAPPC
+PWR      EQU   X'80'           0  POWER PARTITION              @D36ZDFG 01-MAPPC
+VTAM     EQU   X'40'           1  VTAM PARTITION               @D36ZDFG 01-MAPPC
+ICCF     EQU   X'20'           2  ICCF PARTITION               @D36ZDFG 01-MAPPC
+CICS     EQU   X'10'           3  CICS PARTITION               @D36ZDFG 01-MAPPC
+VCNA     EQU   X'08'           4  VCNA PARTITION               @D37CDFG 01-MAPPC
+OCCF     EQU   X'04'           5  OCCF PARTITION               @D37CDFG 01-MAPPC
+DS2      EQU   X'02'           6  DS2  PARTITION               @D37CDFG 01-MAPPC
+SSX      EQU   X'01'           7  IUI FUNCTION ACTIVE          @D37CDAP 01-MAPPC
+CHPTENT  DS    0XL6          CHECKPOINT-PFIX ENTRY             @D36IDFR 01-MAPPC
+CHPTPAGE DS    F             1ST CHKPT.PAGE NOT YET HANDL.     @D36IDFR 01-MAPPC
+CHPTCNT  DS    H             REMAIN.NUMB.OF PFIXED PAGES       @D36IDFR 01-MAPPC
+PCBSSFL3 DS    X             SUBSYSTEM FLAG BYTE               @D64ADMZ 01-MAPPC
+PCBSSFL4 DS    X             SUBSYSTEM FLAG BYTE               @D64ADMZ 01-MAPPC
+SECS     EQU   X'01'           7  SECURITY SERVER              @D64ADMZ 01-MAPPC
+TSER     EQU   X'02'           6  VIRTUAL TAPE SERVER          @D66VDAP 01-MAPPC
+TCPS     EQU   X'04'           5  TCP/IP SERVER                @@DCR036 01-MAPPC
+PCBOCPTR DS    F             POINTER TO OC EXIT CONTROL BLOCK  @D62ADOW 01-MAPPC
+         DS    CL24          RESERVED                          @D62NDOW 01-MAPPC
+PCPUTIME DS    2F            PARTITION CPU TIME COUNTER        @D14BDFR 01-MAPPC
+POVHTIME DS    2F            PARTITION OVERHEAD TIME COUNTER   @D14BDFR 01-MAPPC
+PBNDTIME DS    2F            PARTITION ALLBOUND TIME COUNTER   @D14BDFR 01-MAPPC
+PCBRQ    DS    0X                                              @D14BDFR 01-MAPPC
+SRQGTV   DS    8X            GETVIS RESOURCE GATE              @D14BDFR 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQGTV DS    XL2           GETVIS RESOURCE GATE              @D66ODOW 01-MAPPC
+SRQCDL   DS    8X            CDLOAD RESOURCE GATE              @D14BDFR 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQCDL DS    XL2           CDLOAD RESOURCE GATE              @D66ODOW 01-MAPPC
+SRQPFX   DS    8X            PFIX RESOURCE GATE                @D14BDFR 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQPFX DS    XL2           PFIX RESOURCE GATE                @D66ODOW 01-MAPPC
+SRQIVMTS DS    8X            GATE TASKS BELONGING TO....       @D31ZDMZ 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQIVM DS    XL2           ... THE SAME PARTITION            @D66ODOW 01-MAPPC
+SRQDYSGV DS    8X            SPACE GETVIS RESOURCE GATE        @D51IDMZ 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQDYG DS    XL2           SPACE GETVIS RESOURCE GATE        @D66ODOW 01-MAPPC
+SRQPTERM DS    8X            DUMP GATE                         @D52VDMZ 01-MAPPC
+         ORG   *-2                                             @D66ODOW 01-MAPPC
+PCBRQTRM DS    XL2                                             @D66ODOW 01-MAPPC
+PCBCNT   DS    F             ADDRESS OF USAGE AND SIO COUNTERS @D14BDFG 01-MAPPC
+PCBAPHOT DS    F             ADDRESS OF PHO TIB                @D51IDMZ 01-MAPPC
+PFTERSVD DS    D             PFTE ADDRESS OF RESERVED PF    Z  @D82HAUL 01-MAPPC
+FIXTIB   DS    F             TIB OF PFIX/GETREAL REQUESTOR  Z  @D82HAUL 01-MAPPC
+FIXTYPE  DS    X             TYPE OF PFIX REQUEST          370 @D36IDFR 01-MAPPC
+GTRBIT   EQU   X'80'           GETREAL REQUEST             370 @D36IDFG 01-MAPPC
+GTRSBIT  EQU   GTRBIT+X'04'    IND. FOR SPECIAL GETREAL REQUEST@D52VDMZ 01-MAPPC
+RSTRTBIT EQU   X'40'           RESTART REQUEST             370 @D36IDFG 01-MAPPC
+DATOFF   EQU   X'20'           CALLED WITH DAT OFF             @D52VDMZ 01-MAPPC
+SVC55BIT EQU   X'10'           GETREAL CALLED BY SVC 55    370 @D52VDMZ 01-MAPPC
+         DS    2X            RESERVED                          @D14NDFG 01-MAPPC
+PCBVTCNT DS    X             TASKS WITH OPEN VTAM ACBS    VTAM @D36ZDFG 01-MAPPC
+PCBIVMPT DS    F             PTR TO PARTITION IAF CONTROL BLOCK@D31ZDMZ 01-MAPPC
+PCBDYSPC DS    F             PTR TO DYN.SPACE GETVIS CONTROL INFO.     X01-MAPPC
+                             USED FOR DYNAMIC PARTITIONS ONLY  @D51IDMZ
+PCBPSPID DS    0CL8          DEFAULT SUBPOOL ID FOR STATIC OR DYNAMIC  X01-MAPPC
+                             PARTITIONS IN SVA                 @D51IDMZ
+         DS    CL6           SUBPOOL NAME                      @D51IDMZ 01-MAPPC
+PCBPSPIN DS    H             SUBPOOL INDEX                              01-MAPPC
+PCBASTE  DS    F             VIRTUAL ADDRESS OF ASTE           @D52VDMZ 01-MAPPC
+PCBASTER DS    F             REAL ADDRESS OF ASTE              @D52VDMZ 01-MAPPC
+PCBACPCB DS    F             ADDR OF CLASSPCB. FOR STATIC PARTITONS ITSX01-MAPPC
+                             THE ADDRESS OF THE PCB            @D51IDMZ
+PCBAPPCB DS    F             POINTS TO PREVIOUS PCB IN SAME CL.@D51IDMZ 01-MAPPC
+PCBCMASK DS    F             POSITION OF PARTITON WITHIN CLASS @D51IDMZ 01-MAPPC
+PCBSADMP DS    X             PRTY OF PARTITION WHEN PRINTING SA DUMP,  X01-MAPPC
+                             SPECIFIED IN OPTION SADUMP        @D51IDMZ
+PCBGVFLG DS    X             PARTITION  GETVIS FLAGS           @D52VDMZ 01-MAPPC
+PCBSTLMT EQU   X'80'         SETLIMIT SIZE SPECIFIED           @D52VDMZ 01-MAPPC
+PCBSADM1 DS    X             PTRY FOR DATA SPACE DUMP          @D52VDMZ 01-MAPPC
+PCBSADM2 DS    X             PRTY FOR PRIVATE MOBJECTS DUMP    @D91GDMZ 01-MAPPC
+PCBSGRAD DS    F             SGETVIS/SFREEVIS RETURN ADDRESS   @D51IDMZ 01-MAPPC
+PCBREPQ  DS    2F            REPLICA QUEUE HEADER              @D51IDMZ 01-MAPPC
+PCBTSIO  DS    F             TOTAL SIO COUNT SINCE IPL         @D51IDMZ 01-MAPPC
+PCBASIO  DS    F             TOTAL SIO UP TO LAST ACCT. INTERV.@D51IDMZ 01-MAPPC
+PCBNFSTR DS    F             STRT ADDR OF NON FIXED CNTR.BLOCKS@D51IDMZ 01-MAPPC
+* PFIX/PFREE AREA                                              @D51IDMZ
+* PCBRPCBG AND PCBRPCED MOVED TO PCE SINCE DW NOW              @D91GDMZ
+PCBPXBAL DS    F             RETURN TO IIARV64                 @D91GDMZ 01-MAPPC
+         DS    F             RESERVED FOR FUTURE USE           @D91GDMZ 01-MAPPC
+PCBRPCNO DS    F             CURRENT NUMBER OF PFIX            @D52VDMZ 01-MAPPC
+PCBRPCMX DS    F             CURRENT MAXIMUM NUMBER OF PFIX    @D52VDMZ 01-MAPPC
+PCBPXLST DS    A             ADDRESS OF PFIX PARAMETER LIST    @D52VDMZ 01-MAPPC
+PCBPGSER DS    0F            FUNCTION AND OPTIONS              @D52VDMZ 01-MAPPC
+PCBPXREQ DS    X             REQUEST BYTE                      @D52VDMZ 01-MAPPC
+PCBPXFRM EQU   X'80'         ADDRESSING MODE OF REQUESTOR      @D52VDMZ 01-MAPPC
+PCBPXERR EQU   X'40'         ERROR INDICATION                  @D52VDMZ 01-MAPPC
+PCBPXI64 EQU   X'20'         REQUEST FROM IARV64               @D91GDMZ 01-MAPPC
+*        EQU   X'10'         RESERVED                          @D52VDMZ
+PCBPXPX  EQU   X'08'         REQUEST IS FOR PREFIX (2 PAGES)   @D81ADUL 01-MAPPC
+PCBPXDOF EQU   X'04'         PFREE CALLED BY PFIX              @D52VDMZ 01-MAPPC
+PCBPXRET EQU   X'02'         PFIX WITH RETURN                  MD61NDMZ 01-MAPPC
+PCBPXNOG EQU   X'01'         SVA PFIX WITHOUT GATE HANDLING    @D52VDMZ 01-MAPPC
+PCBPXOPT DS    X             OPTION BYTE                       @D52VDMZ 01-MAPPC
+PCBPXABO EQU   X'80'         PFIX ABOVE 16 MB                  @D52VDMZ 01-MAPPC
+PCBPXO2G EQU   X'40'         PFIX ABOVE 2G                     @D91GDMZ 01-MAPPC
+*        EQU   X'20'         RESERVED                          @D52VDMZ
+*        EQU   X'10'         RESERVED                          @D52VDMZ
+PCBPXAR5 EQU   X'08'         1 = PFIX AREA 5 (64-BIT)          @D91GDMZ 01-MAPPC
+PCBPXAR1 EQU   X'04'         1 = PFIX 24 BIT AREA              @D52VDMZ 01-MAPPC
+PCBPXAR2 EQU   X'02'         1 = ALLOC R AREA                  @D52VDMZ 01-MAPPC
+PCBPXAR3 EQU   X'01'         1 = PFIX 31 BIT AREA              @D52VDMZ 01-MAPPC
+         DS    X             RESERVED                          @D52VDMZ 01-MAPPC
+PCBPXFCT DS    X             FUNCTION BYTE                     @D52VDMZ 01-MAPPC
+*        EQU   X'80'         RESERVED                          @D52VDMZ
+*        EQU   X'40'         RESERVED                          @D52VDMZ
+*        EQU   X'20'         RESERVED                          @D52VDMZ
+*        EQU   X'10'         RESERVED                          @D52VDMZ
+*        EQU   X'08'         RESERVED                          @D91GDMZ
+*        EQU   X'04'         RESERVED                          @D52VDMZ
+PCBPXFRE EQU   X'02'         PFREE REQUEST                     @D52VDMZ 01-MAPPC
+PCBPXFIX EQU   X'01'         PFIX REQUEST                      @D52VDMZ 01-MAPPC
+PCBAPOSL DS    F             ADDR OF POSL OF PART-FOR SWAPPING @D52VDMZ 01-MAPPC
+PCBARPSL DS    F             ADDR OF RPSL OF PART-FOR SWAPPING @D52VDMZ 01-MAPPC
+PCBSAAPT DS    F             ADDR OF ALLOCATED SAACOMM         @D52VDMZ 01-MAPPC
+PCBMSAAE EQU   X'80'         MASTER SAACOMM ALLOCATED TO PART. @D52VDMZ 01-MAPPC
+PCBUCNTL DS    F             POINTER TO USER CONTROL BLOCK     @D52VDMZ 01-MAPPC
+PCBNXGNP DS    F             NUMBER USED FOR GEN. OF DS NAME   @D52VDMZ 01-MAPPC
+PCBCNTDS DS    F             NUMBER OF OWNED DATA SPACES       @D52VDMZ 01-MAPPC
+PCBPICNT DS    F             NO OF PAGE IN PER PART.           @D52VDMZ 01-MAPPC
+PCBTOKEN DS    F             UNIQUE ID OF DYN. PART.           @D52VDMZ 01-MAPPC
+PCBATRAX DS    F             ADDRESS OF TRACE TABLE            @D61HDMZ 01-MAPPC
+PCBCR09  DS    F             CONTROL REGISTER 9                @D61HDMZ 01-MAPPC
+PCBCR10  DS    F             CONTROL REGISTER 10               @D61HDMZ 01-MAPPC
+PCBCR11  DS    F             CONTROL REGISTER 11               @D61HDMZ 01-MAPPC
+PCBDSPAC DS    F             DSPACE SET BY EXEC                @D61NDMZ 01-MAPPC
+PCBTSCP  DS    F             ADDRESS OF RELATED TSCP           @D61NDMZ 01-MAPPC
+PCBAPCBX DS    F             ADDR OF PCB EXTENSION             @D61ADMZ 01-MAPPC
+         DS    F             RESERVED FOR FUTURE USE           @D61ADMZ 01-MAPPC
+PCBPOEXQ DS    F             PTR TO POST EXIT QUEUE            @D61ADMZ 01-MAPPC
+         DS    F             RESERVED FOR FUTURE USE           @D61NDMZ 01-MAPPC
+         DS    F             RESERVED FOR FUTURE USE           @D61NDMZ 01-MAPPC
+         DS    F             RESERVED FOR FUTURE USE           @D61NDMZ 01-MAPPC
+PCBRPCBG DS    D          BEGIN AND END ADDRESS OF CURRENT..   @D91GDMZ 01-MAPPC
+PCBRPCED DS    D          . PFIX AREA. MOVED SINCE DW NOW.     @D91GDMZ 01-MAPPC
+***************************************************************
+*        SUPERVISOR - MAPPCE   - 5686-CF9-06                  *@D91GDMZ
+*        LICENSED MATERIALS - PROPERTY OF IBM                 *
+*        "RESTRICTED MATERIALS OF IBM"                        *
+*        5686-CF9                                             *
+*        (C) COPYRIGHT IBM CORP. 1990, 2010                   *
+***************************************************************
+
+***********************************************************************
+* WARNING: THE FOLLOWING MAPPING REFERS TO AN INTERNAL SUPERVISOR     *
+*          CONTROL BLOCK. IT MAY CHANGE ANY TIME AND IS NOT COMMITTED *
+*          AS AN INTERFACE OF ANY LEVEL.                              *
+***********************************************************************
+PCEADR   DS    0F           PARTITION CONTROL BLOCK EXTENSION           02-MAPPC
+PCEPWECB DS  0XL4         ABNORMAL TERMINATION ECB TO POST POWER        02-MAPPC
+*                         FOR DEALLOCATION
+PCELEN   DS  H            LENGTH OF PCE                                 02-MAPPC
+PCEFLAG  DS  X            FLAG BYTE                                     02-MAPPC
+PCEPWPST EQU   X'80'        0  POSTED, WHEN ABNORMAL TERMINATION        02-MAPPC
+*                              OF PARTITION OR CLEAN UP PROCESSING
+*                              COMPLETED.
+PCEDYNP  EQU   X'40'        1  DYNAMIC PARTITION IDENTIFICATION         02-MAPPC
+PCEPREP  EQU   X'20'        2  PREPARATION ACTIVE                       02-MAPPC
+PCECLEAN EQU   X'10'        3  CLEAN UP ACTIVE                          02-MAPPC
+PCEINIT  EQU   X'08'        4  PARTITION INITIALIZATION ACTIVE          02-MAPPC
+PCEPRTYC EQU   X'04'        5  PRIORITY CHANGED (SET IN POWER           02-MAPPC
+*                              PCE ONLY !)
+PCEICNCL EQU   X'02'        6  INITIALIZATION CANCELLED                 02-MAPPC
+PCEIOPCN EQU   X'01'        7  INIT CANCELLED BY OPERATOR      @DY46408 02-MAPPC
+PCEFLAG1 DS  X            FLAG BYTE                                     02-MAPPC
+PCEDOPR  EQU   X'80'        0  PROCESS PREPARATION                      02-MAPPC
+PCERESEC EQU   X'40'        1  RESET SECURITY INITIALIZATION   @D52VDMZ 02-MAPPC
+PCEDOCL  EQU   X'20'        2  PROCESS CLEAN UP                         02-MAPPC
+PCESGERR EQU   X'10'        3  SYSTEM GETVIS ERROR DURING               02-MAPPC
+*                              IJBSINP INITIALIZATION
+PCEPHOLD EQU   X'08'        4  HOLD PARTITION DURING CLEAN UP           02-MAPPC
+*                              (DYNCLASS ID=HOLD)
+PCEPWAIT EQU   X'04'        5  PARTITION IS WAITING BECAUSE OF HOLD     02-MAPPC
+PCEPROK  EQU   X'02'        6  PREPARATION DONE FOR PARTITION           02-MAPPC
+PCEDOSEC EQU   X'01'        7  DO SECURITY INITIALIZATION      @D52VDIS 02-MAPPC
+PCEKEY   DS  X            PARTITION'S STORAGE KEY                       02-MAPPC
+PCEHCNT  DS  X            DYNCLASS ID=HOLD COUNT                        02-MAPPC
+         DS  2X           NOT USED                                      02-MAPPC
+PCEPIK   DS  H            PARTITION'S IDENTIFICATION KEY                02-MAPPC
+PCELID   DS  CL2          PARTITION'S SYSLOG ID                         02-MAPPC
+PCECOMRA DS  A            PARTITION'S COMREG ADDRESS                    02-MAPPC
+PCEALUB  DS  A            PARTITION'S LUBTAB ADDRESS                    02-MAPPC
+PCEADIB  DS  A            PARTITION'S DIB ADDRESS                       02-MAPPC
+PCEPIB   DS  A            PARTITION'S PIB ADDRESS                       02-MAPPC
+PCEPIB2  DS  A            PARTITION'S PIB2 ADDRESS                      02-MAPPC
+PCECLASS DS  A            PARTITION'S CLASS INFORMATION                 02-MAPPC
+PCEPOWJB DS  A            VSE/POWER JOB INFORMATION ADDRESS             02-MAPPC
+         DS  D            RESERVED FOR FUTURE USE              @D91GDMZ 02-MAPPC
+         DS  D            RESERVED FOR FUTURE USE              @D91GDMZ 02-MAPPC
+PCELENQ  EQU   *-PCEADR     EQUATE FOR PCE LENGTH                       02-MAPPC
+SPCBLNG  EQU   *-PCBADR      LENGTH OF SYSTEM PCB              @D36ZDFG 01-MAPPC
+PCBVMLNG EQU   *-PCBADR      LENGTH OF PCB FOR VM              @D14ZDJB 01-MAPPC
+PCBLNG   EQU   *-PCBADR      LENGTH OF PCB                     @D14CDFG 01-MAPPC
+*------- END OF PCB ------------------------------------------*

@@ -1,0 +1,342 @@
+SYSS00   DSECT                                                 @D36ZDAZ 01-SGLOW
+Y0       EQU   *                  RELOCATABLE ZERO             @D36IDEM 01-SGLOW
+         USING *,R0               LOW CORE BASE                @D36IDEM 01-SGLOW
+         DC    4F'0'              RESERVED FOR NON SUPVR USAGE @DM08380 01-SGLOW
+* FOR ADDRESSING USE LABEL CVTPTR DEFINED IN CVT               @D61NDMZ
+         DS    A                  POINTER TO CVT               @D61NDMZ 01-SGLOW
+CRADDR   DS    A                  ADDRESS OF CURRENT COMREG    @DA27107 01-SGLOW
+EXOLDP   DS    0D                 EXTERNAL OLD PSW          18 @D81ADMZ 01-SGLOW
+         DC    X'00080000'        BIT 12 MUST BE SET FOR LPSW  @D81ADMZ 01-SGLOW
+EXOLDPA  DC    F'0'               EXTERNAL OLD PSW ADDRESS     @D81ADMZ 01-SGLOW
+SVOLDP   DS    2F'0'              SVC OLD PSW               20 @D81ADMZ 01-SGLOW
+SVOLDADR EQU   SVOLDP+4           SVC OLD PSW  ADDRESS         @D81ADMZ 01-SGLOW
+SVOLDKEY EQU   SVOLDP+1           LOCATION OF KEY              @D35CDEM 01-SGLOW
+*
+PCOLDP   DC    2F'0'              PROGRAM CHECK OLD PSW     28          01-SGLOW
+PCOLDPS  EQU   PCOLDP                                          @D52VDOW 01-SGLOW
+         ORG   PCOLDP+1           LOCATION OF KEY              @D52VDOW 01-SGLOW
+PCOLDKEY DC    X'00'              KEY                          @D52VDOW 01-SGLOW
+PCOLDKYS EQU   PCOLDKEY                                        @D52VDOW 01-SGLOW
+         ORG   PCOLDP+4           ADDRESS IN PC OLD PSW        @D52VDOW 01-SGLOW
+PCKADR   DC    F'0'               ADDRESS                      @D52VDOW 01-SGLOW
+PCKADRS  EQU   PCKADR                                          @D52VDOW 01-SGLOW
+*
+MCOLDP   DC    2F'0'              MACHINE CHECK OLD PSW     30          01-SGLOW
+         ORG   MCOLDP+4           ADDRESS IN PC OLD PSW        @D52VDOW 01-SGLOW
+MCKADR   DC    F'0'               ADDRESS IN MC OLD PSW        @D21YDGN 01-SGLOW
+IOOPSW   DS    2F'0'              I/O OLD PSW               38 @D81ADMZ 01-SGLOW
+CSW      DC    2F'0'              CHANNEL STATUS WORD       40          01-SGLOW
+CCWDRS   EQU   CSW+1              CSW CCW ADDRESS                       01-SGLOW
+DEVSTA   EQU   CSW+4              DEVICE STATUS IN CSW                  01-SGLOW
+CHNSTA   EQU   CSW+5              CHANNEL STATUS IN CSW                 01-SGLOW
+CSWCNT   EQU   CSW+6              RESIDUAL COUNT                        01-SGLOW
+CAW      DC    F'0'               CHANNEL ADDRESS WORD      48          01-SGLOW
+         DC    F'0'               JOB DURATION              4C          01-SGLOW
+         DC    F'0'               RESERVED                  50 @D14NDFG 01-SGLOW
+         DC    F'0'               RESERVED                  54 @D51KDTP 01-SGLOW
+XTNPSW   DS    D                                               @D36ZDAZ 01-SGLOW
+SCNPSW   DS    D                                               @D36ZDAZ 01-SGLOW
+PCNPSW   DS    D                                               @D36ZDAZ 01-SGLOW
+MCNPSW   DS    D                                               @D36ZDAZ 01-SGLOW
+IONPSW   DS    D                                               @D36ZDAZ 01-SGLOW
+ASYSCOM  DS    A                  ADDRESS OF SYSCOM         80 @D14NDFG 01-SGLOW
+EXTINF   DC    H'0'               FOR SAVING INTERRUPT INFO 84          01-SGLOW
+EXTINTC  DC    H'0'               EXTERNAL INTERRUPT CODE   86          01-SGLOW
+SVCINF   DC    H'0'               FOR SAVING INTERRUPT INFO 88          01-SGLOW
+SVCILC   EQU   SVCINF+1           ILC ON SVC IN BITS 5 AND 6            01-SGLOW
+SVCINTC  DC    H'0'               SVC INTERRUPTION CODE     8A          01-SGLOW
+SVCCODE  EQU   SVCINTC+1          FOR SAVING INTERRUPT INFO             01-SGLOW
+PGMINF   DC    H'0'               FOR SAVING INTERRUPT INFO 8C          01-SGLOW
+PGMILC   EQU   PGMINF+1           ILC ON PROGRAM CHECK IN BITS 5 AND 6  01-SGLOW
+PGMINTC  DC    H'0'               PROGRAM INTERRUPTION CODE 8E          01-SGLOW
+DATEXC   DC    0F'0'              DATA EXCEPTION CODE       90 @D81ADMZ 01-SGLOW
+TRADDR   DC    F'0'               EMULATED TRANS. EXCEPTION 90 @D81ADMZ 01-SGLOW
+MONCLASS DC    H'0'               MONITOR CLASS             94 @D35ZDEM 01-SGLOW
+PERCODE  DC    H'0'               PER CODE                  96 @D61NDMZ 01-SGLOW
+PERADDRZ DS    0D                 PER ADDR USED BY HARDWARE 98 @D81ADMZ 01-SGLOW
+PERADDR  DS    0F                 SIMULATED /390 LOCATION   98 @D81ADMZ 01-SGLOW
+         DC    F'0'               PER ADDRESS BYTE 0-3      98 @D81ADMZ 01-SGLOW
+PERADDRU DC    F'0'               PER ADDRESS 4-7 (USED)    9C @D61NDMZ 01-SGLOW
+         ORG   PERADDRU                                        @D81ADMZ 01-SGLOW
+MONCADR  DS    F'0'               SIMULATE /390 LOCATION    9C @D81ADMZ 01-SGLOW
+ACCIDEXC DC    X'0'               ACCESS REGISTER ID        A0 @D51KDTP 01-SGLOW
+ACCIDPER DC    X'0'               ACCESS REGISTER ID (PER)  A1 @D51KDTP 01-SGLOW
+ACCIDOP  DC    X'00'                                        A2 @D51KDTP 01-SGLOW
+MCAMID   DC    X'00'              SET TO 01 WHEN MC OCCURS  A3 @D81ADMZ 01-SGLOW
+         DC    F'0'               NOT USED BY ARCHITECTURE  A4 @D51KDTP 01-SGLOW
+TRADDRZ  DS    0D                 TRANSLATION EXCEPTION     A8 @D81ADMZ 01-SGLOW
+         DC    F'0'               ZERO IN BASIC MODE        A8 @D81ADMZ 01-SGLOW
+TRADDRZU DC    F'0'               TRADDR BYTE 4-7 (USED)    AC @D81ADMZ 01-SGLOW
+MONCADRZ DS    0D                 MONITOR CODE USED BY HW   B0 @D81ADMZ 01-SGLOW
+         DC    F'0'               MONCADR UNUSED  IN 31-BIT B0 @D81ADMZ 01-SGLOW
+MONCADRU DC    F'0'               MCALL ADDR.FLD(MC-CODE)   B4 @D81ADMZ 01-SGLOW
+IOINF    DC    H'0'               SAVED INTERRUPT INFO      B8 @D149DWK 01-SGLOW
+CHNADR   DC    H'0'               I/O ADDRESS               BA @D149DWK 01-SGLOW
+DEVADR   EQU   CHNADR+1           DEVICE ADDRESS               @D35CDEM 01-SGLOW
+INTPARM  DS    F                  XA I/O INT PARM           BC @D51GDTP 01-SGLOW
+INTIWORD DS    F                  INT. IDENTIFICATION WORD  C0 @D67BDMZ 01-SGLOW
+ADAPTERI EQU   X'80'              ADAPTER INTERRUPTION IND.    @D67BDMZ 01-SGLOW
+         DS    F                  RESERVED                  C4 @D51GDTP 01-SGLOW
+FLCFACL  DS    0XL16'00'          STFLE OUTPUT              C8 @D91BDMZ 01-SGLOW
+STFLFAC  DS    0F                 STFL FACILITY INDICATIONS C8 @D83BDMZ 01-SGLOW
+STFLFAC0 DS    0X                 STFL BYTE 0               C8 @D83BDMZ 01-SGLOW
+FLCFACL0 DS    X                  Z/OS NAME                    @D91GDMZ 01-SGLOW
+STFZAMIN EQU   X'40'              Z/ARCHITECTURE MODE INST.    @D83BDMZ 01-SGLOW
+FLCFZARI EQU   X'40'              Z/OS NAME                    @D91GDMZ 01-SGLOW
+STFZAMAC EQU   X'20'              Z/ARCHITECTURE MODE ACTIVE   @D83BDMZ 01-SGLOW
+FLCFZARA EQU   X'20'              Z/OS NAME                    @D91GDMZ 01-SGLOW
+STFLFAC1 DS    0X                 STFL BYTE 1               C9 @D83BDMZ 01-SGLOW
+FLCFACL1 DS    X                  Z/OS NAME                    @D91GDMZ 01-SGLOW
+STFENDAT EQU   X'80'              ENHANCED DAT INSTALLED       @D83BDMZ 01-SGLOW
+FLCFEDAT EQU   X'80'              Z/OS NAME                    @D91GDMZ 01-SGLOW
+STFLFAC2 DS    0X                 STFL BYTE 2               CA @D83BDMZ 01-SGLOW
+FLCFACL2 DS    X                  Z/OS NAME                    @D91GDMZ 01-SGLOW
+FLCFEIMM EQU   X'04'          EXTENDED IMMEDIATE WHEN Z/ARCH   @D91GDMZ 01-SGLOW
+STFLFAC3 DS    0X                 STFL BYTE 3               CB @D83BDMZ 01-SGLOW
+FLCFACL3 DS    X                  Z/OS NAME BYTE 3             @D91GDMZ 01-SGLOW
+FLCFACL4 DS    X                  STFLE BYTE 4              CC @D91GDMZ 01-SGLOW
+FLCFACL5 DS    X                  STFLE BYTE 5              CD @D91GDMZ 01-SGLOW
+FLCFACL6 DS    X                  STFLE BYTE 6              CE @D91GDMZ 01-SGLOW
+FLCFACL7 DS    X                  STFLE BYTE 7              CF @D91GDMZ 01-SGLOW
+FLCFACL8 DS    X                  STFLE BYTE 8              D0 @D91GDMZ 01-SGLOW
+FLCFACL9 DS    X                  STFLE BYTE 9              D1 @D91GDMZ 01-SGLOW
+         DS    XL6                RESERVED               D2-D7 @D51GDTP 01-SGLOW
+         DC    XL8'0'             NOT USED BY HARDWARE      D8 @D81ADMZ 01-SGLOW
+         DC    XL8'0'             NOT USED BY HARDWARE      E0 @D81ADMZ 01-SGLOW
+MCIC     DS    0XL8               MACHINE CHECK INTRPT.CODE E8 @D14ADWK 01-SGLOW
+MCICB00  DC    X'00'              MCIC BYTE 0                  @D14ADWK 01-SGLOW
+SDBIT    EQU   X'80'              0  SYSTEM DAMAGE             @D14ADWK 01-SGLOW
+PDBIT    EQU   X'40'              1  INSTR.PROCESSING DAMAGE   @D14ADWK 01-SGLOW
+SRBIT    EQU   X'20'              2  SYSTEM RECOVERY           @D14ADWK 01-SGLOW
+TDBIT    EQU   X'10'              3  INTERVAL TIMER DAMAGE     @D14ADWK 01-SGLOW
+CDBIT    EQU   X'08'              4  TIMING FACILITY DAMAGE    @D14ADWK 01-SGLOW
+EDBIT    EQU   X'04'              5  EXTERNAL DAMAGE           @D14ADWK 01-SGLOW
+VFBIT    EQU   X'02'              6  VECTOR FACILITY           @D51GDTP 01-SGLOW
+DGBIT    EQU   X'01'              7  DEGRADATION               @D14ADWK 01-SGLOW
+MCICB01  DC    X'00'              MCIC BYTE 1                  @D14ADWK 01-SGLOW
+WABIT    EQU   X'80'              8  WARNING                   @D14ADWK 01-SGLOW
+CPBIT    EQU   X'40'              9  CHANNEL REPORT PENDING    @D51GDTP 01-SGLOW
+SPBIT    EQU   X'20'             10  SERVICE PROCESSOR DAMAGE  @D51GDTP 01-SGLOW
+CKBIT    EQU   X'10'             11  CHANNEL SUBSYSTEM DAMAGE  @D51GDTP 01-SGLOW
+*                                12  UNUSED                    @D51GDMZ
+VSBIT    EQU   X'04'             13  VECTOR FACILITY SOURCE    @D51GDMZ 01-SGLOW
+BUBIT    EQU   X'02'             14  BACKED UP                 @D14ADWK 01-SGLOW
+DLBIT    EQU   X'01'             15  DELAYED                   @D14ADWK 01-SGLOW
+MCICB02  DC    X'00'              MCIC BYTE 2                  @D14ADWK 01-SGLOW
+SEBIT    EQU   X'80'             16  STORAGE ERROR UNCORRECTED @D14ADWK 01-SGLOW
+SCBIT    EQU   X'40'             17  STORAGE ERROR CORRECTED   @D14ADWK 01-SGLOW
+KEBIT    EQU   X'20'             18  STOR.KEY ERROR UNCORRECTED@D14ADWK 01-SGLOW
+DSBIT    EQU   X'10'             19  STORAGE DEGRADATION       @D51GDTP 01-SGLOW
+WPBIT    EQU   X'08'             20  PSW EMPW VALIDITY         @D14ADWK 01-SGLOW
+MSBIT    EQU   X'04'             21  PSW MASK AND KEY VALIDITY @D14ADWK 01-SGLOW
+PMBIT    EQU   X'02'             22  PSW PROG.MASK AND CC VAL. @D14ADWK 01-SGLOW
+IABIT    EQU   X'01'             23  PSW INSTRUCTION ADDR.VAL. @D14ADWK 01-SGLOW
+MCICB03  DC    X'00'              MCIC BYTE 3                  @D14ADWK 01-SGLOW
+FABIT    EQU   X'80'             24  FAILING STORAGE ADDR.VAL. @D14ADWK 01-SGLOW
+RCBIT    EQU   X'40'             25  REGION CODE VALIDITY      @D14ADWK 01-SGLOW
+EDRBIT   EQU   X'20'             26  EXTERNAL DAMAGE CODE VAL. @D14ADWK 01-SGLOW
+FPBIT    EQU   X'10'             27  FLOATING POINT REG. VAL.  @D14ADWK 01-SGLOW
+GRBIT    EQU   X'08'             28  GENERAL REGISTER VALIDITY @D14ADWK 01-SGLOW
+CRBIT    EQU   X'04'             29  CONTROL REGISTER VALIDITY @D14ADWK 01-SGLOW
+LGBIT    EQU   X'02'             30  LOGOUT VALIDITY           @D14ADWK 01-SGLOW
+STBIT    EQU   X'01'             31  STORAGE LOGICAL VALIDITY  @D14ADWK 01-SGLOW
+MCICB04  DC    X'00'              MCIC BYTE 4                  @D51GDTP 01-SGLOW
+IEBIT    EQU   X'80'             32 INDIRECT STORAGE ERROR     @D51GDTP 01-SGLOW
+ARBITVAL EQU   X'40'             33 ACCESS-REGISTER VALIDITY   @D51KDTP 01-SGLOW
+DABIT    EQU   X'20'             34 DELAYED ACCESS EXCEPTION   @D51GDTP 01-SGLOW
+*                                35-39 UNUSED                  @D51GDTP
+MCICB05  DC    X'00'              MCIC BYTE 5                  @D14ADWK 01-SGLOW
+*                                40-43  UNUSED                 @D21BMGN
+MCICAREP EQU   X'08'             44  MCH CHK ALREADY RECORDED  @D21BMGN 01-SGLOW
+*                                45     UNUSED                 @D21BMGN
+CTBIT    EQU   X'02'             46  CPU TIMER VALIDITY        @D14ADWK 01-SGLOW
+CCBIT    EQU   X'01'             47  CLOCK COMPARATOR VALIDITY @D14ADWK 01-SGLOW
+MCELL    DC    XL2'00'           48-63 MC EXTENDED LOGOUT LEN. @D14ADWK 01-SGLOW
+         DC    4X'00'             NOT USED BY ARCHITECTURE  F0 @D14ADWK 01-SGLOW
+EDCODE   DS    0F                 EXTERNAL DAMAGE CODE      F4 @D14ADWK 01-SGLOW
+EDRCODE  DC    X'00'              ED REASON CODE            F4 @D14ADWK 01-SGLOW
+*                                 0-1   RESERVED               @D14ADWK
+ESRBIT   EQU   X'20'              2  SECONDARY REPORT          @D14ADWK 01-SGLOW
+EDCCNOPR EQU   X'10'              3  CHANNEL NOT OPERATIONAL   @D21YDGN 01-SGLOW
+EDCCNTFL EQU   X'08'              4  CHANNEL CONTROL FAILURE   @D21YDGN 01-SGLOW
+EDINSTIO EQU   X'04'              5  I/O INSTRUCTION TIMEOUT   @D21YDGN 01-SGLOW
+EDINTTIO EQU   X'02'              6  I/O INTERRUPTION TIMEOUT  @D21YDGN 01-SGLOW
+*                                 7     RESERVED               @D14ADWK
+EDRCODE1 DC    X'00'              ED REASON CODE BYTE 1     F5 @D51GDMZ 01-SGLOW
+EDXNBIT  EQU   X'80'              8  EXPANDED STORAGE NOT OPER.@D51GDTP 01-SGLOW
+EDXFBIT  EQU   X'40'              9  EXPANDED STORAGE CONT FAIL@D51GDTP 01-SGLOW
+*                                 10-11 RESERVED               @D51GDTP
+EDPLBIT  EQU   X'08'              12 POWER LOST RUNNING ON UPS @DY41089 01-SGLOW
+EDPRBIT  EQU   X'04'              13 POWER RESTORED RUNNING UTL@DY41089 01-SGLOW
+*                                 14-15 RESERVED               @D51GDTP
+         DC    2X'00'             RESERVED                  F6 @D51GDTP 01-SGLOW
+FSAZ     DS    0D                 FAILING STORAGE ADDRESS   F8 @D81ADMZ 01-SGLOW
+         DC    F'0'               FAILING STORAGE ADDRESS.. F8 @D14ADWK 01-SGLOW
+FSA      DC    F'0'               ... USED PART IN 31-BIT   FC @D81ADMZ 01-SGLOW
+FLOGA    DC    XL16'00'           NOT USED BY Z/ARCH.      100 @D81ADMZ 01-SGLOW
+*                                 LABEL MAINTAINED SINCE AREA  @D81ADMZ
+*                                 USED BY SUP. FUNCTIONS       @D81ADMZ
+BEARSAV  DC    XL8'00'            BREAKING-EVENT ADDR.REG. 110 @D82VAAV 01-SGLOW
+         DC    XL8'00'            NOT USED                 118 @D82VAAV 01-SGLOW
+RSTOPSWZ DC    XL16'00'           RESTART OLD PSW          120 @D81ADMZ 01-SGLOW
+EXOLDPZ  DC    XL16'00'           EXTERNAL OLD PSW         130 @D81ADMZ 01-SGLOW
+SVOLDPZ  DC    XL16'00'           SVC OLD PSW              140 @D81ADMZ 01-SGLOW
+PCOLDPZ  DC    XL16'00'           PROGRAM OLD PSW          150 @D81ADMZ 01-SGLOW
+PSWBIT31 EQU   X'01'              64 BIT MODE SET IN PSW       @D81ADMZ 01-SGLOW
+MCOLDPZ  DC    XL16'00'           MACHINE CHECK OLD PSW    160 @D81ADMZ 01-SGLOW
+IOOLDPZ  DC    XL16'00'           INPUT/OUTPUT OLD PSW     170 @D81ADMZ 01-SGLOW
+         DC    XL32'00'           NOT USED                 180 @D81ADMZ 01-SGLOW
+RSTNPSWZ DS    XL16               RESTART NEW PSW          1A0 @D36ZDAZ 01-SGLOW
+XTNPSWZ  DS    XL16               EXTERNAL NEW PSW         1B0 @D36ZDAZ 01-SGLOW
+SVCNPSWZ DS    XL16               SVC NEW PSW              1C0 @D36ZDAZ 01-SGLOW
+PCNPSWZ  DS    XL16               PROGRAM NEW PSW          1D0 @D36ZDAZ 01-SGLOW
+MCNPSWZ  DS    XL16               MACHINE CHECK NEW PSW    1E0 @D36ZDAZ 01-SGLOW
+IONPSWZ  DS    XL16               INPUT OUTPUT NEW PSW     1F0 @D36ZDAZ 01-SGLOW
+IJBPATCH DS    A                  ADDRESS OF PATCH AREA    200 @DA28061 01-SGLOW
+IJBPAT01 DC    CL28' '            CE PATCH AREA        204-21F @D37ZDJR 01-SGLOW
+IJBPAT02 DS    0H                                              @D61NDOW 01-SGLOW
+ORB$     DC    A(0)               ADDRESS OF ORB           220 @D51KDTP 01-SGLOW
+IRB$     DC    A(0)               ADDRESS OF IRB           224 @D51KDTP 01-SGLOW
+SCHIB$   DC    A(0)               ADDRESS OF SCHIB         228 @D51KDTP 01-SGLOW
+EXCSW    DC    0XL4               LIMITED CHANNEL LOGOUT   22C @D81ADMZ 01-SGLOW
+ECSWDET  DC    X'80'              ERROR DETECTOR               @D52VDMZ 01-SGLOW
+ECSWSTAT EQU   X'80'              0   ECSW STORED IF BIT=OFF   @D14ADWK 01-SGLOW
+*                                 1-2 STORAGE CONTROL UNIT     @D14ADWK
+ECSWSCUS EQU   X'10'              3   SCU STORED               @D14ADWK 01-SGLOW
+ECSWDCPU EQU   X'08'              4   ERROR DETECTED BY CPU    @D14ADWK 01-SGLOW
+ECSWDCHN EQU   X'04'              5   ERROR DETECTED BY CHANNEL@D14ADWK 01-SGLOW
+ECSWDSCU EQU   X'02'              6   ERROR DETECTED BY SCU    @D14ADWK 01-SGLOW
+ECSWDSTO EQU   X'01'              7   ERROR DETECTED BY STORAGE@D14ADWK 01-SGLOW
+ECSWSRC  DC    X'00'              SOURCE OF ERROR              @D14ADWK 01-SGLOW
+ECSWSCPU EQU   X'80'              8   SOURCE IS CPU            @D14ADWK 01-SGLOW
+ECSWSCHN EQU   X'40'              9   SOURCE IS CHANNEL        @D14ADWK 01-SGLOW
+ECSWSSCU EQU   X'20'             10   SOURCE IS STORAGE CONTROL@D14ADWK 01-SGLOW
+ECSWSSTO EQU   X'10'             11   SOURCE IS STORAGE        @D14ADWK 01-SGLOW
+ECSWSCNU EQU   X'08'             12   SOURCE IS CONTROL UNIT   @D14ADWK 01-SGLOW
+*                                13-14 RESERVED                @D14ADWK
+ECSWVLOG EQU   X'01'             15   CHANNEL LOGOUT STORED    @D14ADWK 01-SGLOW
+ECSWVAL  DC    X'00'              FIELD VALIDITY FLAG          @D14ADWK 01-SGLOW
+*                                16-18 RESERVED                @D14ADWK
+ECSWVSEQ EQU   X'10'             19   VALID SEQUENCE CODE      @D14ADWK 01-SGLOW
+ECSWVUNS EQU   X'08'             20   VALID UNIT STATUS        @D14ADWK 01-SGLOW
+ECSWVCAK EQU   X'04'             21   VALID CCW ADDRESS AND KEY@D14ADWK 01-SGLOW
+ECSWVCHA EQU   X'02'             22   VALID CHANNEL ADDRESS    @D14ADWK 01-SGLOW
+ECSWVUNA EQU   X'01'             23   VALID UNIT ADDRESS       @D14ADWK 01-SGLOW
+ECSWTSC  DC    X'00'              TERMINATION AND SEQUENCE CODE@D14ADWK 01-SGLOW
+*                                24+25 TERMINATION CODE        @D14ADWK
+*                                  00  INTERFACE DISCONNECT    @D14ADWK
+ECSWTSER EQU   X'80'               10  SELCTIVE RESET          @D14ADWK 01-SGLOW
+ECSWTSSN EQU   X'40'               01  STOP,STACK OR NORM.TERM.@D14ADWK 01-SGLOW
+ECSWTSYR EQU   X'C0'               11  SYSTEM RESET            @D14ADWK 01-SGLOW
+ECSWAREP EQU   X'20'             26  CH CHECK ALREADY RECORDED @D21BMGN 01-SGLOW
+ECSWTNOP EQU   X'10'             27  INTERFACE INOPERATIVE     @D14ADWK 01-SGLOW
+ECSWTIOA EQU   X'08'             28  IO ERROR ALERT            @D14ADWK 01-SGLOW
+*                                29-31 SEQUENCE CODE           @D14ADWK
+ECSWTSC0 EQU   X'00'              000  ERROR DURING TIO CLRIO  @D14ADWK 01-SGLOW
+ECSWTSC1 EQU   X'01'              001  CMD OUT-STATUS IN ERROR @D14ADWK 01-SGLOW
+ECSWTSC2 EQU   X'02'              010  NO DATA TRANSFER        @D14ADWK 01-SGLOW
+ECSWTSC3 EQU   X'03'              011  DATA TRANSFER ERROR     @D14ADWK 01-SGLOW
+ECSWTSC4 EQU   X'04'              100  CMD OUT NOT ACCEPTED    @D14ADWK 01-SGLOW
+ECSWTSC5 EQU   X'05'              101  UNPREDICT.DATA TRANSFER @D14ADWK 01-SGLOW
+*                                 110  RESERVED                @D14ADWK
+ECSWTSC7 EQU   X'07'              111  NO OTHER CODES APPLY    @D14ADWK 01-SGLOW
+WORKPSW  DC    2F'0'              USED BY DISPATCHER       230 @D67BDOW 01-SGLOW
+XASUBSCH DC    X'0001'            SUBCHANNEL               238 @D51KDTP 01-SGLOW
+XASUBSC1 DC    X'0000'              NUMBER                 23A @D51GDTP 01-SGLOW
+         DC    H'0'               RESERVED                 23C @D51KDTP 01-SGLOW
+CHNADRSA DC    X'FFFF'            CHNADR SAVE AREA         23E @DA27107 01-SGLOW
+SUPFLAG  DS    X                  SUPERV. COMMUN. FLAG     240 @D14NDFG 01-SGLOW
+VMPMA    EQU   X'80'              RUNNING WITH PMA (UNDER VM)  @D21YDRP 01-SGLOW
+PMRINIT  EQU   X'40'              PAGE MANAGER INITIALIZED     @D35CDEM 01-SGLOW
+SUPNFIX  EQU   X'20'              SUPERVISOR PAGEABLE          @D35CDEM 01-SGLOW
+VMSYS    EQU   X'10'              SYSTEM RUNNING UNDER VM      @D14ZDJB 01-SGLOW
+BFYSYS   EQU   X'08'              BFY CONTROLLED PROCESSOR     @D21BMGN 01-SGLOW
+TDACT    EQU   X'04'              TURBO DISPATCHER ACTIVE      @D61RDMZ 01-SGLOW
+SUPVFLAG DS    X                  SUPERVISOR CONTROL FLAG  241 @DA27971 01-SGLOW
+JAACT    EQU   X'80'              JOB ACCOUNTING ACTIVE        @DA27971 01-SGLOW
+PBALACT  EQU   X'40'              PART.BAL.ACTIVE              @D14BDFR 01-SGLOW
+M255TASK EQU   X'20'              MORE THAN 255 TASKS IN SYSTEM@D66ODOW 01-SGLOW
+MPACT    EQU   X'10'              MORE THAN ONE CPU ACTIVE     @D61RDMZ 01-SGLOW
+XAACTIVE EQU   X'02'              XA/ESA CAPABLE               @D52VDMZ 01-SGLOW
+*TFREEPH EQU   X'01'              TFREE USER PHASE AREA        @D14BDFR
+RID      DS    H                  ROUTINE IDENTIFIER       242 @D14NDFG 01-SGLOW
+SYSTEMID EQU   X'00'              NON INTERRUPTABLE ROUTINE ID @D31BDMZ 01-SGLOW
+REENTRID EQU   X'04'              REENTRANT ROUTINE ID         @D31BDMZ 01-SGLOW
+USERTID  EQU   X'08'              USER/SYSTEM TASK ID          @D31BDMZ 01-SGLOW
+APPENDID EQU   X'0C'              I/O APPENDAGE                @D31BDMZ 01-SGLOW
+RESVCID  EQU   X'10'              RESVC AND HANDLE PAGE FAULTS @D31BDMZ 01-SGLOW
+DISPID   EQU   X'14'              NO RETURN REQUIRED, E.G. DISP@D31BDMZ 01-SGLOW
+PFARID   EQU   X'18'              PAGE FAULT APPENDAGE ID      @D31BDMZ 01-SGLOW
+SUBSYSID EQU   X'1C'              SUBSYSTEM HOOK ID            @D31BDMZ 01-SGLOW
+IUCVRID  EQU   X'20'              IUCV-VCNA APPENDAGE ID       @D61NDMZ 01-SGLOW
+ETSSID   EQU   SUBSYSID                                        @D31BDMZ 01-SGLOW
+         DS    CL4                USED BY SUPERVISOR   244-247 @D31EDMZ 01-SGLOW
+APIBTAB  DS    A                  ADDR OF PIB TABLE        248 @D31EDMZ 01-SGLOW
+ASYSPCB  DS    A                  A(SYSTEM PCB)            24C @D14NDFG 01-SGLOW
+ASCBATAB DS    A                  A(SCB ADDRESS VECTOR)    250 @D14NDFG 01-SGLOW
+SCBPTR   DS    A                  A(CURRENT SCB)           254 @D14NDFG 01-SGLOW
+TDTBYTES DS    CL4                TD INFORMATION           258 @DY43919 01-SGLOW
+         ORG   *-4                                             @DY43919 01-SGLOW
+TDTFLAG2 DS    CL1                TIBFLAG2 OF DISPATCHER TASK  @DY43919 01-SGLOW
+         DS    CL2                RESERVED                     @DY43919 01-SGLOW
+TDTVERS  DS    CL1                TURBO DISPATCHER VERSION     @DY43919 01-SGLOW
+TDCPUPTR DS    A                  A(CURRENT CPU C.BLK) 25C-25F @D61NDMZ 01-SGLOW
+TCBPTR   DS    A                  A(CURRENT TCB)           260 @D14NDFG 01-SGLOW
+TIBPTR   DS    A                  A(CURRENT TIB)           264 @D14NDFG 01-SGLOW
+PIBPTR2  DS    A                  A(CURRENT PIB2)          268 @D51IDMZ 01-SGLOW
+PCBPTR   DS    A                  A(CURRENT PCB)           26C @D14NDFG 01-SGLOW
+XXARPTR  DS    A                  ADDRESS OF DEBUG BUFFER  270 @DA27971 01-SGLOW
+         DS    A                  RESERVED FOR FUTURE USE  274 @D61NDMZ 01-SGLOW
+AFLIH    DS    A                  ADDR OF FIRST LEVEL IHH  278 @D31EDMZ 01-SGLOW
+DISPAD   DS    A                  DISPATCHER ADDRESS       27C @D14NDFG 01-SGLOW
+ERA      DS    CL64               USED BY SUPERVISOR   280-2BF @D14NDFG 01-SGLOW
+ERAR9    EQU   ERA+0*4            SAVE AREA FOR R9             @D61NDGL 01-SGLOW
+ERARA    EQU   ERA+1*4            SAVE AREA FOR RA             @D61NDGL 01-SGLOW
+ERARB    EQU   ERA+2*4            SAVE AREA FOR RB             @D61NDGL 01-SGLOW
+ERARC    EQU   ERA+3*4            SAVE AREA FOR RC             @D61NDGL 01-SGLOW
+ERARD    EQU   ERA+4*4            SAVE AREA FOR RD             @D61NDGL 01-SGLOW
+ERARE    EQU   ERA+5*4            SAVE AREA FOR RE             @D61NDGL 01-SGLOW
+ERARF    EQU   ERA+6*4            SAVE AREA FOR RF             @D61NDGL 01-SGLOW
+ERAR0    EQU   ERA+7*4            SAVE AREA FOR R0             @D61NDGL 01-SGLOW
+ERAR1    EQU   ERA+8*4            SAVE AREA FOR R1             @D61NDGL 01-SGLOW
+ERAR2    EQU   ERA+9*4            SAVE AREA FOR R2             @D61NDGL 01-SGLOW
+ERAR3    EQU   ERA+10*4           SAVE AREA FOR R3             @D61NDGL 01-SGLOW
+ERAR4    EQU   ERA+11*4           SAVE AREA FOR R4             @D61NDGL 01-SGLOW
+ERAR5    EQU   ERA+12*4           SAVE AREA FOR R5             @D61NDGL 01-SGLOW
+ERAR6    EQU   ERA+13*4           SAVE AREA FOR R6             @D61NDGL 01-SGLOW
+ERAR7    EQU   ERA+14*4           SAVE AREA FOR R7             @D61NDGL 01-SGLOW
+ERAR8    EQU   ERA+15*4           SAVE AREA FOR R8             @D61NDGL 01-SGLOW
+ATIBATAB DS    A                  TIB ADDRESS TABLE        2C0 @D14NDFG 01-SGLOW
+APCBATAB DS    A                  PCB ADDRESS TABLE        2C4 @D14NDFG 01-SGLOW
+NPSQE    DS    F                  # OF PAGE-FRAMES AVAIL   2C8 @D51GDMZ 01-SGLOW
+         DS    H                  USED BY SUPERVISOR   2CC-2CD @D14NDFG 01-SGLOW
+SVSRVLVL DS    CL34               SUPERV.SERVICE LEVEL 2CE-2EF @DA27971 01-SGLOW
+SVSRVREL EQU   22                 OFFSET OF RELEASE INFO.      @D64ADMZ 01-SGLOW
+*                                 IN MACRO SGSRVLVL
+SVUSERID DS    CL16                                    2F0-2FF @DA27971 01-SGLOW
+VSEPTLCW DS    0CL8               VSE PT WORK AREA     300-307 @D65CDOW 01-SGLOW
+SADUMPLA DS    CL256              SA-DUMP LOAD AREA    300-3FF @DA27971 01-SGLOW
+         ORG   *-256                                           @D65CDOW 01-SGLOW
+         ORG   ,                                               @D65CDOW 01-SGLOW
+************************************************************** @D31UDRP
+*                                                            * @D31UDRP
+*      LICENSED MATERIALS - PROPERTY OF IBM                  * @D31UDRP
+*      "RESTRICTED MATERIALS OF IBM"                         * @D82HAUL
+*      5686-CF9                                              * @D92XXHH
+*      COPYRIGHT IBM CORP. 1977, 2013                        * @D92XXHH
+*                                                            * @D31UDRP
+************************************************************** @D31UDRP
+APARGEN  DC    XL4'12162015'          DATE OF LAST CHANGE      @DY47639 02-SGSRV
+         DS    CL12               RESERVED             404-40F @DY43858 01-SGLOW
+         DS    A                  RESERVED                     @D61ADMZ 01-SGLOW
+         DS    A                  RESERVED                     @D61ADMZ 01-SGLOW
+         DS    A                  RESERVED                     @D61ADMZ 01-SGLOW
+         DS    A                  RESERVED                     @D61ADMZ 01-SGLOW
+A$Y$COM  EQU   X'0420'            START OF SYSCOM              @D61NDMZ 01-SGLOW
+ERR40E   EQU   X'40'              VTAM CANCEL CODES            @D64ADOW 01-SGLOW
+ERR41E   EQU   X'41'              ...                          @D64ADOW 01-SGLOW
+ERR45E   EQU   X'45'              AMODE/RMODE VIOLATION        @D64ADOW 01-SGLOW
+ERR47E   EQU   X'47'              CANCEL WTH ADDITIONAL ERR INF@D64ADOW 01-SGLOW
+ERR48E   EQU   X'48'              CANCEL WITH ABEND CODE       @D64ADOW 01-SGLOW
+ERR49E   EQU   X'49'              MVS ABEND MACRO ISSUED       @D64ADOW 01-SGLOW
+ERR4AE   EQU   X'4A'              X-MEM PROVIDER TERMINATION   @D64ADOW 01-SGLOW
