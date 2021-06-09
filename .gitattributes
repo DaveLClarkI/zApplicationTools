@@ -4,3 +4,4 @@
 *.CBL linguist-language=COBOL
 *.JCL linguist-language=JCL
 *.PROC linguist-language=JCL
+*.SBF linguist-language=Assembly
