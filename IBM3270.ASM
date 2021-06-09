@@ -1,6 +1,8 @@
 3270     TITLE 'IBM3270  - IBM 3270 INFORMATION DISPLAY SYSTEM - DATA SX00000100
                TREAM CONTROL CHARACTER LITERALS'                        00000200
          PRINT ON,NOGEN                                                 00000300
+*IBM3270  AMODE 31
+*IBM3270  RMODE ANY
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000400
 *                                                                     * 00000500
 * CLARKE Industries, Inc.                             Written by:     * 00000600
