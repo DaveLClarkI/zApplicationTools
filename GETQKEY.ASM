@@ -76,12 +76,12 @@ GETQKEY  RMODE ANY
 *        operator  must be one of {EQ|NE|LT|LE|GT|GE}; and,           * 00002500
 *        value     must be a self-defining term (whose byte length    * 00002500
 *                  matches the length of the data area) -- such as:   * 00002500
-*                    C'aaaaaaaa'    (up to 10 characters)             * 00002500
-*                    B'11111111'    (8, 16, 24, or 32 binary bits)    * 00002500
-*                    P'±1234567.89' (signed decimal, up to 15 digits) * 00002500
-*                    H'±12345'      (a 2-byte signed binary value)    * 00002500
-*                    F'±123456789'  (a 4-byte signed binary value)    * 00002500
-*                    D'±123456789'  (an 8-byte signed binary value).  * 00002500
+*                    C'aaaaaaaaaa'  (up to 10 characters)             * 00002500
+*                    B'11111111'    (up to 8, 16, 24, or 32 bit data) * 00002500
+*                    P'±1234567.89' (signed decimal, up to 19 digits) * 00002500
+*                    H'±12345'      (signed integer, up to 5 digits)  * 00002500
+*                    F'±123456789'  (signed integer, up to 10 digits) * 00002500
+*                    D'±1234567890' (signed integer, up to 19 digits).* 00002500
 *                                                                     * 00002500
 * =================================================================== * 00002600
 *                                                                     * 00002700
@@ -439,7 +439,9 @@ R15      EQU   15                      ENTRY REG
          AGO   .CHKNEXT
 .SETXK4B DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',BL4&V,XL6'0'
          AGO   .CHKNEXT
-.SETXKYP AIF   (&L GT 7).SETXK8P
+.SETXKYP AIF   (&L GT 9).SETXK0P
+         AIF   (&L GT 8).SETXK9P
+         AIF   (&L GT 7).SETXK8P
          AIF   (&L GT 6).SETXK7P
          AIF   (&L GT 5).SETXK6P
          AIF   (&L GT 4).SETXK5P
@@ -461,6 +463,10 @@ R15      EQU   15                      ENTRY REG
 .SETXK7P DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',PL7&V,XL3'0'
          AGO   .CHKNEXT
 .SETXK8P DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',PL8&V,XL2'0'
+         AGO   .CHKNEXT
+.SETXK9P DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',PL9&V,XL1'0'
+         AGO   .CHKNEXT
+.SETXK0P DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',PL10&V
          AGO   .CHKNEXT
 .SETXKYC DC    C'&A',H'&O',H'&L',C'&P',CL2'&T:',CL10&V
          AGO   .CHKNEXT
@@ -491,7 +497,7 @@ R15      EQU   15                      ENTRY REG
          AIF   (&C GE &MAX).DONE
 &C       SETA  &C+1
 &STR     SETC  '     C&C'
-         DC    C'  ',H'0',H'0',C'  ',CL10' '&STR
+         DC    C'  ',H'0',H'0',C'  ',CL12' '&STR
          AGO   .FILLUP
 .DONE    ANOP
          MEND
