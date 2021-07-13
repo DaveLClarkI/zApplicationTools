@@ -96,7 +96,7 @@ GETQKEY  RMODE ANY
 *    03  GETQKEY                   PIC  X(8)    VALUE 'GETQKEY'.      * 00002500
 *    03  GETQKEY-PARMS.                                               * 00002500
 *      05  QKEY-ALTLBL             PIC  X(8)    VALUE SPACES.         * 00002500
-*      05  QKEY-SPECREQ            REDEFINES    QKEY-AIXLBL.          * 00002500
+*      05  QKEY-SPECREQ            REDEFINES    QKEY-ALTLBL.          * 00002500
 *        88  QKEY-TABLREQ                       VALUE '*ADDRESS'.     * 00002500
 *        07  QKEY-SPECKEY          PIC  X(4).                         * 00002500
 *          88  QKEY-TABLRET                     VALUE '*AD='.         * 00002500
