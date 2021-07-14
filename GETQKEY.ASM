@@ -45,7 +45,7 @@ GETQKEY  RMODE ANY
 * EXEC CICS LINK PROGRAM(GETQKEY) COMMAREA(GETQKEY-PARMS)             * 00002500
 *                                                                     * 00002500
 *                                                                     * 00002500
-*      To code the alernate index table,  at the end of this routine, * 00002500
+*      To code the alternate index table, at the end of this routine, * 00002500
 * you can specify up to  nine non-contiguous data areas from the base * 00002500
 * record (to be concatenated,  in  order  from left to right,  as the * 00002500
 * alternate  index  key)  and  up  to  nine  either  INCLUDE  or OMIT * 00002500
@@ -56,22 +56,37 @@ GETQKEY  RMODE ANY
 * ignore  these  conditions  when  accessing  and/or  maintaining the * 00002500
 * associated alternate index.                                         * 00002500
 *                                                                     * 00002500
-*      Alternate index key syntax is as follows:                      * 00002500
+*      Alternate index entry syntax is as follows (an upper-case word * 00002500
+* is required  as-is,  a  lower-case  word  requires your replacement * 00002500
+* value, commas/parentheses are required, and continuation characters * 00002500
+* are in column 72):                                                  * 00002500
+*                                                                     * 00002500
+* altname ALTIDX BASELBL=basename,                                  X *
+*                BASERECL=reclen,                                   X *
+*                BASEKEY=(offset,length),                           X *
+*                                                                     * 00002500
+*                                                                     * 00002500
+*      Required alternate index key syntax is as follows:             * 00002500
 *                                                                     * 00002500
 * AIXKEYS=((offset,length) < ,(offset,length) < ... > > )             * 00002500
 *                                                                     * 00002500
 *                                                                     * 00002500
-*      Include/omit syntax is as follows:                             * 00002500
+*      Optional include/omit syntax is as follows:                    * 00002500
 *                                                                     * 00002500
 * {INCLUDE|OMIT}=(condition < ,{AND|OR},condition < ... > > )         * 00002500
 *                                                                     * 00002500
 *                                                                     * 00002500
-*      The "condition" syntax is as follows:                          * 00002500
+*      If coded, the include/omit "condition" syntax is as follows:   * 00002500
 *                                                                     * 00002500
 * (offset,length,operator,value)                                      * 00002500
 *                                                                     * 00002500
 *                                                                     * 00002500
-* Where: offset    to the data area (zero-based) in the base record;  * 00002500
+* Where: <>        indicates optional operands;                       *
+*        {|}       indicates mutually exclusive operands;             *
+*        altname   is the alternate index label (up to 7 characters); * 00002500
+*        basename  is the base cluster label (up to 7 characters);    * 00002500
+*        reclen    is the base cluster record length (up to 32kb-10); * 00002500
+*        offset    to the data area (zero-based) in the base record;  * 00002500
 *        length    is the byte-length of that data area;              * 00002500
 *        operator  must be one of {EQ|NE|LT|LE|GT|GE}; and,           * 00002500
 *        value     must be a self-defining term (whose byte length    * 00002500
@@ -79,9 +94,21 @@ GETQKEY  RMODE ANY
 *                    C'aaaaaaaaaa'  (up to 10 characters)             * 00002500
 *                    B'11111111'    (up to 8, 16, 24, or 32 bit data) * 00002500
 *                    P'±1234567.89' (signed decimal, up to 19 digits) * 00002500
-*                    H'±12345'      (signed integer, up to 5 digits)  * 00002500
-*                    F'±123456789'  (signed integer, up to 10 digits) * 00002500
-*                    D'±1234567890' (signed integer, up to 19 digits).* 00002500
+*                    H'±12345'      (signed integer, up to 32kb-1);   * 00002500
+*                    F'±123456789'  (signed integer, up to 2gb-1);    * 00002500
+*                    D'±1234567890' (signed integer, up to 8eb-1).    * 00002500
+*                                                                     * 00002500
+* NOTE:  There is no support for grouping conditions with parentheses * 00002500
+* for the purpose  of  altering AND|OR precedence processing.   Thus, * 00002500
+* simply code conditions  with  the  understanding  that  an AND will * 00002500
+* accumulate as part of one Boolean test  and an OR will start a new, * 00002500
+* exclusive Boolean test.                                             * 00002500
+*                                                                     * 00002500
+* ALSO:  When using the NE (not-equal) operator, you can have trouble * 00002500
+* with condition results if that operator is combined with the use of * 00002500
+* the OR separator.   Meaning,  the Boolean results can end up always * 00002500
+* being true on either side  of  the OR.   The NE operator works well * 00002500
+* with the AND separator.  Just avoid it with the OR separator.       * 00002500
 *                                                                     * 00002500
 * =================================================================== * 00002600
 *                                                                     * 00002700
@@ -265,8 +292,8 @@ R15      EQU   15                      ENTRY REG
 .*
          AIF   (T'&BASERECL EQ 'O').ERRRECL
          AIF   (&BASERECL LT 1).ERRRECR
-         AIF   (&BASERECL LE 32767).BASERCL
-.ERRRECR MNOTE 8,'BASE RECORD LENGTH < 1 OR > 32767'
+         AIF   (&BASERECL LE 32758).BASERCL
+.ERRRECR MNOTE 8,'BASE RECORD LENGTH < 1 OR > 32758 (32kb-10)'
          MEXIT
 .ERRRECL MNOTE 12,'BASE RECORD LENGTH OMITTED'
          MEXIT
