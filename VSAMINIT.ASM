@@ -1,4 +1,4 @@
-INIT     TITLE 'VSAMINIT - ADD/DEL A RECORD TO INITIALIZE VSAM FILE'
+INIT     TITLE 'VSAMINIT - ADD/DEL A RECORD TO INITIALIZE A VSAM FILE'
          PRINT ON,GEN
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
@@ -20,10 +20,10 @@ INIT     TITLE 'VSAMINIT - ADD/DEL A RECORD TO INITIALIZE VSAM FILE'
 *      This routine will initialize the specified (and newly defined) * 00002000
 * VSAM dataset with a binary zeroes record.  VSAM catalog information * 00002100
 * is used to determine the length of the record written.  If the VSAM * 00002200
-* dataset is a KSDS cluster,  then  this routine will also delete the * 00002300
-* initialization record after it  is written.   In either case,  this * 00002400
-* allows subsequent programs (and  particularly  CICS) to not have to * 00002500
-* open the cluster in LOAD mode.                                      * 00002500
+* dataset is a KSDS cluster,  then  this routine will also optionally * 00002300
+* delete the initialization record  after  it is written.   In either * 00002400
+* case,  this allows subsequent  programs  (and particularly CICS) to * 00002500
+* not have to open the cluster in LOAD mode.                          * 00002500
 *                                                                     * 00002500
 * =================================================================== * 00002600
 *                                                                     * 00002700
@@ -43,6 +43,20 @@ INIT     TITLE 'VSAMINIT - ADD/DEL A RECORD TO INITIALIZE VSAM FILE'
 *      For example:                                                   * 00002500
 *                                                                     * 00002500
 * // EXEC PGM=VSAMINIT,SIZE=*,PARM='MYDLBL'                           * 00002500
+*                                                                     * 00005100
+*                                                                     * 00005100
+*      Note that  the  above  does  not  give  the  oportunity to run * 00002500
+* BLDINDEX in the case that  there  is  an upgrade AIX built over the * 00002500
+* base cluster being initialized.   To allow that, you may specify an * 00002500
+* UPSI  switch   (before   separate   executions)   to   control  the * 00002500
+* initialization process.                                             * 00002500
+*                                                                     * 00002500
+*      For example:                                                   * 00002500
+*                                                                     * 00002500
+* // UPSI 00                   /* default, add+del */                 * 00002500
+* // UPSI 10                   /* add, only    */                     * 00002500
+* // UPSI 01                   /* delete, only */                     * 00002500
+* // UPSI 11                   /* add, only    */                     * 00002500
 *                                                                     * 00005100
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00005200
          EJECT                                                          00005300
@@ -66,9 +80,11 @@ ERRCODE  DS    X                       COMMON ERROR CODE
 CINUM    DS    XL3                     CATALOG CI NUMBER
 CATACB   DS    F                       CATALOG ACB ADDRESS
 OPT1     DS    X                       OPTION BITS
-SHWCATF  EQU   B'10000000'             GET SHOWCAT ERROR INFO
-ACBERRF  EQU   B'01000000'             GET ACB ERROR INFO
-RPLERRF  EQU   B'00100000'             GET RPL ERROR INFO
+ADDONLY  EQU   B'10000000'             ONLY ADD THE INIT RECORD
+DELONLY  EQU   B'01000000'             ONLY DEL THE INIT RECORD
+SHWCATF  EQU   B'00001000'             GET SHOWCAT ERROR INFO
+ACBERRF  EQU   B'00000100'             GET ACB ERROR INFO
+RPLERRF  EQU   B'00000010'             GET RPL ERROR INFO
 KSDS     EQU   B'00000001'             CURRENT FILE IS KSDS
 MBUF     DS    CL120                   MESSAGE BUFFER
 *
@@ -110,6 +126,7 @@ R15      EQU   15                 ENTRY REG
          COPY  IF                      IF/AND/ELSE/ENDIF CONSTRUCT
          COPY  SELECT                  SELECT/CASE/ENDSL CONSTRUCT
          PRINT ON
+COMREG   MAPCOMR EQU=YES               PARTITION COMMUNICATION REGION
          IKQACB DSECT=YES              VSAM ACB DSECT
          IKQRPL DSECT=YES              VSAM RPL DESCT
 * =================================================================== *
@@ -127,12 +144,13 @@ VSAMINIT HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)JAN10',            +
           MVC  MYDLBL,=CL8' '           SET INITIAL PADDING
           L    R1,0(,R1)                GET ADDRESS OF EXEC PARM
           IF   0(2,R1),(HT,CLC),=H'7'   IF LONGER THAN 7 BYTES
-           LA  R2,7                      DEFAULT TO 7
+           LHI R2,7                      DEFAULT TO 7
           ELSE                          ELSE
-           IF  R2,(Z,LH),0(,R1)          IF EXEC PARM LENGTH IS ZERO
+           LH  R2,0(,R1)                 GET EXEC PARM LENGTH
+           IF  R2,(Z,LTR),R2             IF EXEC PARM LENGTH IS ZERO
             MVC OPCODE,=CL8'EXECPARM'     INDICATE OPERATION PERFORMED
-            LA R0,1                       SET ERROR CODE
-            LA R15,8                      SET RETURN CODE
+            LHI R0,1                      SET ERROR CODE
+            LHI R15,8                     SET RETURN CODE
             B  ERRMSG                     GO PASS BACK RETURN CODE
            ENDIF                         ENDIF
           ENDIF                         ENDIF
@@ -140,12 +158,22 @@ VSAMINIT HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)JAN10',            +
           EX   R2,GETPARM               GET DLBL NAME FROM EXEC PARM
           IF   MYDLBL,(EQ,CLC),=CL8' '  IF DLBL NAME REMAINS BLANK
            MVC OPCODE,=CL8'EXECPARM'     INDICATE OPERATION PERFORMED
-           LA  R0,2                      SET ERROR CODE
-           LA  R15,8                     SET RETURN CODE
+           LHI R0,2                      SET ERROR CODE
+           LHI R15,8                     SET RETURN CODE
            B   ERRMSG                    GO PASS BACK RETURN CODE
 GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
           ENDIF                         ENDIF
          ENDIF                         ENDIF
+*
+         COMRG REG=(R1)                GET ADDR OF PARTITION COMREG
+         USING COMREG,R1               SET ADDRESSABILITY TO COMREG
+         SELECT                        DEFAULT IS BOTH ADD & DEL
+         CASE  UPSI,(ON,TM),ADDONLY    IF ADD-ONLY OPTION IS ON
+          OI   OPT1,ADDONLY             SIGNAL ADD-ONLY
+         CASE  UPSI,(ON,TM),DELONLY    IF DEL-ONLY OPTION IS ON
+          OI   OPT1,DELONLY             SIGNAL DEL-ONLY
+         ENDSL
+         DROP  R1                      REMOVE COMREG ADDRESSABILITY
 *
          XC    SHOWAREA,SHOWAREA       CLEAR SHOWCAT DISPLAY AREA
          LA    R2,L'SHOWAREA           GET LENGTH OF SHOWCAT AREA
@@ -163,7 +191,7 @@ GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
           LA   R1,L'INVDLBL             GET LENGTH OF MESSAGE
           LA   R2,INVDLBL               GET ADDRESS OF MESSAGE
           BAS  R7,PRTMSG                GO PRT MSG ON SYSLST
-          LA   R15,12                   SET RETURN CODE
+          LHI  R15,12                   SET RETURN CODE
           B    FINISH                   RETURN TO CALLER
          ENDIF                         ENDIF
          IF    SHOWAREA+12,EQ,C'D'     IF FIRST PAIR IS FOR DATA COMP.
@@ -186,7 +214,7 @@ GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
           LA   R1,L'INVDATA             GET LENGTH OF MESSAGE
           LA   R2,INVDATA               GET ADDRESS OF MESSAGE
           BAS  R7,PRTMSG                GO PRT MSG ON SYSLST
-          LA   R15,12                   SET RETURN CODE
+          LHI  R15,12                   SET RETURN CODE
           B    FINISH                   RETURN TO CALLER
          ENDIF                         ENDIF
 *
@@ -225,16 +253,7 @@ GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
          USING IKQRPL,R8                AND ESTABLISH ADDRESSABILITY
 *
          LR    R1,R8                   COPY RPL ADDR FOR MOD SHORT FORM
-         L     R0,KEYLN                STARTING WITH KEY LENGTH
-         IF    R0,(NZ,LTR),R0          IF KEY LENGTH NOT ZERO
-          A    R0,KEYOF                 ADD KEY OFFSET FOR REC LENGTH
-         ELSE                          ELSE
-          IF   MAXRL,(NL,CLC),=F'20'    IF MAX REC LENGTH => 20
-           L   R0,=F'20'                 SET REC LENGTH TO 20
-          ELSE                          ELSE
-           L   R0,MAXRL                  SET REC LENGTH TO MAX LENGTH
-          ENDIF                         ENDIF
-         ENDIF                         ENDIF
+         L     R0,MAXRL                GET MAXIMUM RECORD LENGTH
 *
          MODCB RPL=(1),RECLEN=(0)      SET REC LENGTH VIA SHORT FORM
          IF    R15,(NZ,LTR),R15        IF FAILED
@@ -243,22 +262,32 @@ GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
          ENDIF                         ENDIF
 *
          XC    KBUF,KBUF               INITIALIZE KEY BUFFER
-         MVC   RBUF+0(L'KBUF),KBUF      AND MOVE IT TO THE REC BUFFER
-         MVC   RBUF+L'KBUF(L'KBUF),KBUF     TWICE, TO INIT RECORD
+         LA    R4,RBUF                 GET ADDRESS OF REC BUF
+         L     R5,MAXRL                GET LENGTH OF REC NEEDED
+         LA    R6,KBUF                 GET ADDRESS OF KEY BUF
+         L     R7,KEYLN                GET LENGTH OF KEY NEEDED
+         ICM   R7,B'1000',KBUF         SET PAD CHARACTER                00029100
+         MVCL  R4,R6                   INITIALIZE RECORD BUFFER
 *
-         PUT   RPL=(R8)                WRITE INITIALIZING RECORD
-         IF    R15,(NZ,LTR),R15        IF FAILED
-          MVC  OPCODE,=CL8'PUTREC'      INDICATE OPERATION PERFORMED
-          OI   OPT1,RPLERRF             SIGNAL ERROR IN RPL
-          B    ERRMSG                   GO PASS BACK RETURN CODE
-         ENDIF                         ENDIF
-         LA    R1,L'RECADD             GET LENGTH OF MESSAGE
-         LA    R2,RECADD               GET ADDRESS OF MESSAGE
-         BAS   R7,PRTMSG               GO PRT MSG ON SYSLST
+         IF    OPT1,(NOT,TM),DELONLY   IF NOT DEL-ONLY
+*
+          PUT  RPL=(R8)                WRITE INITIALIZING RECORD
+          IF   R15,(NZ,LTR),R15        IF FAILED
+           MVC OPCODE,=CL8'PUTREC'      INDICATE OPERATION PERFORMED
+           OI  OPT1,RPLERRF             SIGNAL ERROR IN RPL
+           B   ERRMSG                   GO PASS BACK RETURN CODE
+          ENDIF                        ENDIF
+          LA   R1,L'RECADD             GET LENGTH OF MESSAGE
+          LA   R2,RECADD               GET ADDRESS OF MESSAGE
+          BAS  R7,PRTMSG               GO PRT MSG ON SYSLST
+*
+         ENDIF
 *
          BAS   R4,CLOSEACB             CLOSE THE ACB
 *
          IF    OPT1,(NOT,TM),KSDS,BC,COMPLETE  IF NOT KSDS, WE'RE DONE
+         ENDIF                         ENDIF
+         IF    OPT1,(ON,TM),ADDONLY,BC,COMPLETE  IF ADD-ONLY, WE DONE
          ENDIF                         ENDIF
 *
          MODCB ACB=(R9),AM=VSAM,MACRF=(IN)
@@ -297,7 +326,7 @@ GETPARM  MVC   MYDLBL(0),2(R1)         (SEE "EX" INSTRUCTION ABOVE)
 COMPLETE LA    R1,L'DONE               GET LENGTH OF MESSAGE
          LA    R2,DONE                 GET ADDRESS OF MESSAGE
          BAS   R7,PRTMSG               GO PRT MSG ON SYSLST
-         XR    R15,R15                 CLEAR RETURN CODE REGISTER
+         LHI   R15,0                   SET RETURN CODE ZERO
          B     FINISH                  RETURN TO CALLER
 * ------------------------------------------------------------------- *
 ERRMSG   DS    0H
@@ -363,7 +392,7 @@ FINISH   DS    0H
 OPENACB  DS    0H            OPEN ACB POINTED TO BY R9
 * ------------------------------------------------------------------- *
          OPEN  (R9)                    OPEN THE ACB
-         IF    R15,(NZ,LTR),R15        IF FAILED
+         IF    R15,(NZ,LTR),R15        IF ERROR
           MVC  OPCODE,=CL8'OPEN'        INDICATE OPERATION PERFORMED
           OI   OPT1,ACBERRF             SIGNAL ERROR IN ACB
           B    ERRMSG                   GO PASS BACK RETURN CODE
