@@ -1,0 +1,43 @@
+***********************************************************************         
+*                                                                     *         
+*   A M D S B    C A T A L O G   F I E L D   D E S C R I P T O R      *         
+*   ------------------------------------------------------------      *         
+*                                                                     *         
+***********************************************************************         
+AMDSBDS  DSECT                                                                  
+AMDSBID  DS    X                  IDENTIFIER                                    
+AMDDATTR DS    X                  ATTRIBUTES                                    
+AMDLEN   DS    FL2                LENGTH                                        
+AMDNEST  DS    0FL2               INDEX ENTRY COUNT                             
+AMDAKRKP DS    FL2                RELATIVE ALTERNATE KEY POSITION               
+AMDRKP   DS    FL2                RELATIVE PRIMARY KEY POSITION                 
+AMDKEYLN DS    FL2                KEY LENGTH                                    
+AMDPCTCA DS    X                  FREE CI PERCENTAGE IN CA                      
+AMDPCTCI DS    X                  FREE BYTE PERCENTAGE IN CI                    
+AMDCIPCA DS    FL2                NO. OF CIS IN CA                              
+AMDFSCA  DS    FL2                NO. OF FREE CIS IN CA                         
+AMDFSCI  DS    FL4                NO. OF FREE BYTES IN CI                       
+AMDCINV  DS    FL4                CI SIZE                                       
+AMDLRECL DS    FL4                MAXIMUM RECORD SIZE                           
+AMDHLRBA DS    0FL4               RBA OF HI LEVEL INDEX RECORD                  
+AMDSLOT  DS    FL4                NUMBER OF RECORD SLOTS PER CI                 
+AMDSSRBA DS    0FL4               RBA OF 1ST SEQUENCE SET RECORD (KSDS)         
+AMDMAXRR DS    FL4                MAX VALID RELATIVE RECORD (RRDS)              
+AMDPARDB DS    AL4                ADDR OF FIRST ARDB                            
+AMDATTR3 DS    X                  ATTRIBUTES                                    
+AMD      DS    XL7                RESERVED                                      
+AMDSTAT  DS    0XL48              DATASET STATISTICS                            
+AMDSTSP  DS    CL8                TIME STAMP                                    
+AMDNIL   DS    FL2                NUMBER OF INDEX LEVELS                        
+AMDNEXT  DS    FL2                NUMBER OF DATASET EXTENTS                     
+AMDDNLR  DS    FL4                NO. OF USER SUPPLIED RECORDS                  
+AMDDELR  DS    FL4                NO. OF DELETED RECORDS                        
+AMDIREC  DS    FL4                NO. OF INSERTED RECORDS                       
+AMDUPR   DS    FL4                NO. OF UPDATED RECORDS                        
+AMDRETR  DS    FL4                NO. OF RETRIEVED RECORDS                      
+AMDASPA  DS    FL4                NO. OF BYTES OF FREE SPACE                    
+AMDNCIS  DS    FL4                NO. OF CI SPLITS                              
+AMDNCAS  DS    FL4                NO. OF CA SPLITS                              
+AMDEXCP  DS    FL4                NO. OF EXCPS.                                 
+         DS    CL16               SPARE BYTES                                   
+AMDSBLEN EQU   *-AMDSBDS                                                        
