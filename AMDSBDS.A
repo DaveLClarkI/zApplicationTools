@@ -12,6 +12,7 @@ AMDNEST  DS    0FL2               INDEX ENTRY COUNT
 AMDAKRKP DS    FL2                RELATIVE ALTERNATE KEY POSITION               
 AMDRKP   DS    FL2                RELATIVE PRIMARY KEY POSITION                 
 AMDKEYLN DS    FL2                KEY LENGTH                                    
+AMDRCFRM DS    0X                 MSAM RECORD FORMAT BITS                       
 AMDPCTCA DS    X                  FREE CI PERCENTAGE IN CA                      
 AMDPCTCI DS    X                  FREE BYTE PERCENTAGE IN CI                    
 AMDCIPCA DS    FL2                NO. OF CIS IN CA                              
@@ -20,6 +21,7 @@ AMDFSCI  DS    FL4                NO. OF FREE BYTES IN CI
 AMDCINV  DS    FL4                CI SIZE                                       
 AMDLRECL DS    FL4                MAXIMUM RECORD SIZE                           
 AMDHLRBA DS    0FL4               RBA OF HI LEVEL INDEX RECORD                  
+AMDBLREC DS    0FL4               MSAM LOGICAL RECORD LENGTH                    
 AMDSLOT  DS    FL4                NUMBER OF RECORD SLOTS PER CI                 
 AMDSSRBA DS    0FL4               RBA OF 1ST SEQUENCE SET RECORD (KSDS)         
 AMDMAXRR DS    FL4                MAX VALID RELATIVE RECORD (RRDS)              
