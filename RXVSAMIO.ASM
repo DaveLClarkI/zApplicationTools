@@ -199,11 +199,15 @@ RXVSAMIO RMODE 24
 *      On input, the following stem variable elements are used:       *
 *                                                                     *
 *   ..._rln     value for the record length to be used for variable-  *
-*                 length record processing (_rmx is the default);     *
+*                 length record processing (_rmx is the default) but  *
+*                 this would also be used for the logical record      *
+*                 length when writing MSAM files;                     *
 *   ..._rmx     value for the maximum record length (at OPEN time,    *
 *                 this will be supplied automatically as a lookup     *
 *                 from the associated catalog -- it is highly         *
-*                 inadvisable that this value should be changed);     *
+*                 inadvisable that this value should be changed) but  *
+*                 this would also be the maximum block size when      *
+*                 processing MSAM files;                              *
 *                                                                     *
 *   ..._kln     value for the key length to be used for generic       *
 *                 point or read processing (_kmx is the default);     *
@@ -267,11 +271,11 @@ RXVSAMIO RMODE 24
 *                                                                     *
 * Note that if a non-binary  field  value  on disk is low-values (all *
 * binary zeroes), then this function returns the *NULL keyword as the *
-* associated variable value.   Signed binary field values, of course, *
-* return  a  zero  (0)  as  the  associated  variable  value  in this *
-* situation.  Conversely, the caller may pass the *NULL keyword, as a *
-* variable value,  to set  the  associated  field  on  disk to binary *
-* low-values regardless of the field's data type.                     *
+* associated variable value.   Binary field values, of course, return *
+* a zero (0)  as  the  associated  variable  value in this situation. *
+* Conversely,  the caller may pass  the *NULL keyword,  as a variable *
+* value,  to set the associated  field  on  disk to binary low-values *
+* regardless of the field's data type.                                *
 *                                                                     *
 * For complete functionality,  then,  if a  non-binary field value on *
 * disk is high-values (all  binary ones),  then this function returns *
@@ -304,8 +308,11 @@ RXVSAMIO RMODE 24
 *   ..._dsn     the data set name for the file;                       *
 *   ..._typ     the file type: KSDS, XLDS, ESDS, PATH, RRDS, VRDS,    *
 *                                          SAME, SAMI, or AIX;        *
-*   ..._rmx     the maximum record length for the file;               *
+*   ..._rmx     the maximum record length for the file                *
+*                 (for MSAM files this is the maximum block size --   *
+*                 see _rln for the MSAM logical record length);       *
 *   ..._kmx     the maximum key length for the file;                  *
+*                 (for RBA and RRN files this is always four);        *
 *   ..._rkp     the zero-offset relative key position in the record   *
 *                 (for RBA and RRN files this is always zero).        *
 *                                                                     *
@@ -340,8 +347,12 @@ RXVSAMIO RMODE 24
 *                   (or the maximum block size for MSAM files);       *
 *   ..._rav     the average record length for the file                *
 *                   (or the logical record length for MSAM files);    *
-*   ..._kmx     the maximum key length for the file;                  *
-*   ..._rkp     the zero-offset relative key position in the record;  *
+*   ..._rfm     the record format for MSAM files                      *
+*                   (F, FB, V, VB, or U);                             *
+*   ..._kmx     the maximum key length for the file                   *
+*                   (for RBA and RRN files this is always four);      *
+*   ..._rkp     the zero-offset relative key position in the record   *
+*                   (for RBA and RRN files this is always zero);      *
 *                                                                     *
 *   ..._crea    the creation date for the file;                       *
 *   ..._expd    the expiration date for the file;                     *
@@ -1351,6 +1362,23 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
 
           L    R8,FILEACB               GET ACB ADDRESS
           BAS  R6,OPENACB               OPEN THE ACB
+
+          IF   FILETYPE,(ON,TM),SAMD    IF SAM DATASET
+           XGR R2,R2                     CLEAR 64-BIT REGISTER
+           L   R8,FILEACB                GET ACB ADDRESS
+           USING IKQACB,R8               TEMPORARY ADDRESSABILITY
+           L   R1,ACBAMBL                GET AMBL ADDRESS
+           DROP R8                       REMOVE ADDRESSABILITY
+           L   R1,4(,R1)                 GET DATA AMDSB ADDRESS
+           USING AMDSBDS,R1              TEMPORARY ADDRESSABILITY
+           ICM R2,B'1111',AMDBLREC       GET MSAM LRECL VALUE
+           DROP R1                       REMOVE ADDRESSABILITY
+           LA  R1,CWORK                  POINT TO "RESULT" AREA
+           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           LA  R3,RECLEN                 POINT BACK TO VAR NAME
+           LHI R4,L'RECLEN               SET LENGTH OF VAR NAME
+           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+          ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,EQ,C'F',OR,REQUEST,EQ,C'B'  "FWDPOS" / "BWDPOS"

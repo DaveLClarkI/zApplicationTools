@@ -564,6 +564,8 @@ PARSE_FLDDEF DS 0H           PARSE FIELD DEFINITION IN UP TO 5 PIECES
 *
          LA    R3,VARDATA              POINT TO BEG. OF FIELD DEF.
          L     R4,SHVVALL              SET TOTAL LENGTH OF FIELD DEF.
+         LAY   R2,-1(,R4)              DECREMENT BEFORE EXECUTE
+         EX    R2,UCASE                TRANSLATE TO UPPER-CASE
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
          XR    R2,R2                   INITIALIZE LENGTH COUNTER
@@ -580,6 +582,7 @@ PARSE_FLDDEF DS 0H           PARSE FIELD DEFINITION IN UP TO 5 PIECES
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-7                   SET RETURN CODE
           B    RETERR                   GO RETURN ERROR
+UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
          ENDIF
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
          EX    R2,PARSE_MVC            SAVE FIELD NAME FROM DEFINITION

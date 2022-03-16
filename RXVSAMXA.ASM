@@ -377,13 +377,47 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R4,L'DATTAL              SET LENGTH OF VAR NAME
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
-          LA   R1,CWORK                 POINT TO "RESULT" AREA
           XGR  R2,R2                    CLEAR 64-BIT REGISTER
-          ICM  R2,B'1111',RECBUF+129    GET AVERAGE RECL VALUE
+          IF   FILETYPE,(NO,TM),SAMD    IF NOT SAM DATASET
+           ICM R2,B'1111',RECBUF+129     GET AVERAGE RECL VALUE
+          ELSE                          ELSE
+           L   R8,FILEACB                GET ACB ADDRESS
+           USING IKQACB,R8               TEMPORARY ADDRESSABILITY
+           L   R1,ACBAMBL                GET AMBL ADDRESS
+           DROP R8                       REMOVE ADDRESSABILITY
+           L   R1,4(,R1)                 GET DATA AMDSB ADDRESS
+           USING AMDSBDS,R1              TEMPORARY ADDRESSABILITY
+           ICM R2,B'1111',AMDBLREC       GET MSAM LRECL VALUE
+           DROP R1                       REMOVE ADDRESSABILITY
+          ENDIF                         ENDIF
+          LA   R1,CWORK                 POINT TO "RESULT" AREA
           BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECAVG                POINT BACK TO VAR NAME
           LHI  R4,L'RECAVG              SET LENGTH OF VAR NAME
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+
+          IF   FILETYPE,(ON,TM),SAMD    IF SAM DATASET
+           MVC CWORK(2),SPACES           INITIALIZE "RESULT" AREA
+           SELECT
+           WHEN FILETYPE,(ON,TM),SAMF    IF FIXED-LENGTH
+            MVI CWORK,C'F'                SET FIRST BYTE TO FIXED
+            IF  FILETYPE,(ON,TM),SAMB     IF BLOCKED
+             MVI CWORK+1,C'B'              ADD BLOCKED INDICATOR
+            ENDIF
+           WHEN FILETYPE,(ON,TM),SAMV    IF VARIABLE-LENGTH
+            MVI CWORK,C'V'                SET FIRST BYTE TO VARIABLE
+            IF  FILETYPE,(ON,TM),SAMB     IF BLOCKED
+             MVI CWORK+1,C'B'              ADD BLOCKED INDICATOR
+            ENDIF
+           WHEN OTHER                    ELSE
+            MVI CWORK,C'U'                SET AS UNDEFINED
+           ENDSL
+           LA  R1,CWORK                  POINT TO "RESULT" AREA
+           LHI R2,2                      SET VARIABLE LENGTH
+           LA  R3,RECFMT                 POINT BACK TO VAR NAME
+           LHI R4,L'RECFMT               SET LENGTH OF VAR NAME
+           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+          ENDIF                         ENDIF
 
           MVC  CINUM,FILEDCI            GET DATA COMP. CI
           BAS  R14,GET_VOLS             EXTRACT VOLUME LIST
@@ -397,19 +431,26 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          ENDIF
 
          L     R8,FILEACB              GET ACB ADDRESS
-         L     R8,4(,R8)               GET AMBL ADDRESS
+         USING IKQACB,R8               TEMPORARY ADDRESSABILITY
+         L     R8,ACBAMBL              GET AMBL ADDRESS
+         DROP  R8                      REMOVE ADDRESSABILITY
          L     R8,4(,R8)               GET DATA AMDSB ADDRESS
          USING AMDSBDS,R8              TEMPORARY ADDRESSABILITY
 
          MVC   CWORK,SPACES            CLEAR "RESULT" AREA
          LA    R1,CWORK                POINT TO "RESULT" AREA
-         LLGC  R2,AMDPCTCA             GET FREE CI PCT PER CA
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
-         MVC   CWORK+4(3),CWORK        JUSTIFY DATA TO THE RIGHT
-         MVC   CWORK(3),SPACES         CLEAR LEFT SIDE OF VALUE
-         LA    R1,CWORK                POINT TO "RESULT" AREA
-         LLGC  R2,AMDPCTCI             GET FREE BYTE PCT PER CI
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         IF    FILETYPE,(ON,TM),SAMD   IF SAM DATASET
+          MVI  0(R1),C'0'               CAN'T SPECIFY FOR SAMD
+          MVI  4(R1),C'0'               CAN'T SPECIFY FOR SAMD
+         ELSE                          ELSE
+          LLGC R2,AMDPCTCA              GET FREE CI PCT PER CA
+          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          MVC  CWORK+4(3),CWORK         JUSTIFY DATA TO THE RIGHT
+          MVC  CWORK(3),SPACES          CLEAR LEFT SIDE OF VALUE
+          LA   R1,CWORK                 POINT TO "RESULT" AREA
+          LLGC R2,AMDPCTCI              GET FREE BYTE PCT PER CI
+          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+         ENDIF                         ENDIF
          LHI   R2,7                    SET LENGTH OF VAR DATA
          LA    R3,DATFSP               POINT BACK TO VAR NAME
          LHI   R4,L'DATFSP             SET LENGTH OF VAR NAME
@@ -662,7 +703,9 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           ENDIF                         ENDIF
 
           L    R8,FILEACB               GET ACB ADDRESS
-          L    R8,4(,R8)                GET AMBL ADDRESS
+          USING IKQACB,R8               TEMPORARY ADDRESSABILITY
+          L    R8,ACBAMBL               GET AMBL ADDRESS
+          DROP R8                       REMOVE ADDRESSABILITY
           L    R8,8(,R8)                GET INDEX AMDSB ADDRESS
           USING AMDSBDS,R8              TEMPORARY ADDRESSABILITY
 
@@ -1083,6 +1126,7 @@ KEYMAX   DC    C'_KMX'                 key maximum length
 KEYPOS   DC    C'_RKP'                 relative key position
 RECMAX   DC    C'_RMX'                 record maximum length
 RECAVG   DC    C'_RAV'                 record average length
+RECFMT   DC    C'_RFM'                 record format (MSAM)
 *                       the following are all for dataset statistics
 DSCREA   DC    C'_CREA'                creation date
 DSEXPD   DC    C'_EXPD'                expiration date
