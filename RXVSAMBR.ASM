@@ -241,18 +241,17 @@ RXVSAMBR HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            B   RETERR                    GO RETURN ERROR
           ENDIF
 
-          IF   FLD_TYPE,NE,C'B'         IF NOT BINARY TYPE AND
-          AND  FLD_TYPE,NE,C'U'         NOT UNSIGNED BINARY TYPE
-           IF  VARDATA(5),(EQ,CLC),=C'*NULL'  IF LOW-VALUE REQUEST
-            LA R1,LOVAL                   SET TO LOW VALUES
-            L  R2,FLD_LENG                GET LENGTH OF FLD DATA
-            B  MOVE2REC                   SKIP OTHER CONVERSIONS
-           ENDIF                         ENDIF
-           IF  VARDATA(5),(EQ,CLC),=C'*HIGH'  IF HIGH-VALUE REQUEST
-            LA R1,HIVAL                   SET TO HIGH VALUES
-            L  R2,FLD_LENG                GET LENGTH OF FLD DATA
-            B  MOVE2REC                   SKIP OTHER CONVERSIONS
-           ENDIF                         ENDIF
+          IF   VARDATA(5),(EQ,CLC),=C'*NULL'  IF LOW-VALUE REQUEST
+          AND  SHVVALL,(EQ,CLC),=F'5'
+           LA  R1,LOVAL                  SET TO LOW VALUES
+           L   R2,FLD_LENG               GET LENGTH OF FLD DATA
+           B   MOVE2REC                  SKIP OTHER CONVERSIONS
+          ENDIF                         ENDIF
+          IF   VARDATA(5),(EQ,CLC),=C'*HIGH'  IF HIGH-VALUE REQUEST
+          AND  SHVVALL,(EQ,CLC),=F'5'
+           LA  R1,HIVAL                  SET TO HIGH VALUES
+           L   R2,FLD_LENG               GET LENGTH OF FLD DATA
+           B   MOVE2REC                  SKIP OTHER CONVERSIONS
           ENDIF                         ENDIF
 
           IF   FLD_TYPE,NE,C'C'         IF NOT CHAR TYPE
@@ -306,7 +305,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
            LA  R1,PWORK16+L'PWORK16      POINT PAST PACKED DATA
            SR  R1,R2                      AND ADJUST FOR LENGTH
 
-          WHEN FLD_TYPE,EQ,C'L'         "LZONED"
+          WHEN FLD_TYPE,EQ,C'I'         "IZONED"
            IF  FLD_LENG,(LT,CLC),=F'1',OR,  MIN ZONE LENGTH SUPPORTED  +
                FLD_LENG,(HT,CLC),=F'31'     MAX ZONE LENGTH SUPPORTED
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION

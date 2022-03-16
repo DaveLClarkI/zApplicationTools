@@ -236,8 +236,8 @@ RXVSAMXR HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           L    R5,FLD_OFFS              INDEX TO VAR DATA
           LA   R1,RECBUF(R5)            POINT BACK TO VAR DATA
           L    R2,FLD_LENG              SET LENGTH OF VAR DATA
-          IF   FLD_TYPE,NE,C'B'         IF NOT BINARY TYPE AND
-          AND  FLD_TYPE,NE,C'U'         NOT UNSIGNED BINARY TYPE
+          IF   FLD_TYPE,NE,C'B'         IF NOT BINARY TYPE
+          AND  FLD_TYPE,NE,C'U'         AND NOT UBIN TYPE
            SHI R2,1                      DECREMENT BEFORE EXECUTE
            LA  R3,LOVAL                  CHECK FOR LOW VALUES
            IF  R2,(EQ,EX),CHECK_IT       IF LOW-VALUES
@@ -293,7 +293,7 @@ ZAP_IT   ZAP   PWORK16,0(0,R1)         (SEE EXECUTE INSTRUCTION BELOW)
            L   R4,FLD_DECM               GET NO. OF DECIMAL PLACES
            BAS R5,REG2ZONE               CONVERT TO ZONED WITH DECIMAL
 
-          WHEN FLD_TYPE,EQ,C'L'         "LZONED"
+          WHEN FLD_TYPE,EQ,C'I'         "IZONED"
            IF  FLD_LENG,(LT,CLC),=F'1',OR,  MIN ZONE LENGTH SUPPORTED  +
                FLD_LENG,(HT,CLC),=F'31'     MAX ZONE LENGTH SUPPORTED
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
@@ -536,13 +536,6 @@ PARSE_FLDDEF DS 0H           PARSE FIELD DEFINITION IN UP TO 5 PIECES
          IF    R2,(LT,C),=F'0',OR,     IF FIELD OFFSET < ZERO          +
                R2,(HT,C),=F'255'       OR HIGHER THAN FLD MAX...
           MVC  MACRO,=CL8'PARSE3_Y'     LAST FAILED OPERATION
-          LR   R5,R7                    RETURN ELEMENT NUMBER
-          LHI  R15,-7                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
-         ENDIF
-         IF    R2,(NE,C),=F'0'         IF FIELD OFFSET NOT ZERO
-         AND   R7,(EQ,C),=F'1'         AND FIRST FLD DEFINITION...
-          MVC  MACRO,=CL8'PARSE3_Z'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-7                   SET RETURN CODE
           B    RETERR                   GO RETURN ERROR

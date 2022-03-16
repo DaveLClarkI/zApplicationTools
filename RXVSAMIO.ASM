@@ -42,7 +42,8 @@ RXVSAMIO RMODE 24
 *                                                                     *
 *                                USAGE                                *
 *                                                                     *
-*      So, the passed information has the following general syntax:   *
+*      The information passed on the  function call has the following *
+* general syntax:                                                     *
 *                                                                     *
 * Call RXVSAMIO ddname, request <, request_arg2 <, request_arg3 > >;  *
 *                                                                     *
@@ -58,15 +59,16 @@ RXVSAMIO RMODE 24
 * Call RXVSAMIO ddname, 'OPEN'                                        *
 *                       <, 'INPUT'|'UPDATE'|'OUTPUT'|'APPEND'|'RESET' *
 *                               <, 'SEQUENCE'|'RANDOM'|'DYNAMIC' > >; *
-*        Where: 'INPUT' and 'SEQUENCE' are the defaults, and          *
-*               'RESET' is the same as 'OUTPUT' but for REUSE.        *
+*        Where: 'INPUT' and 'SEQUENCE' are the defaults,              *
+*               'RESET' is the same as 'OUTPUT' but for REUSE, and    *
+*               'DYNAMIC' enables skip-sequential processing.         *
 *                                                                     *
 * Call RXVSAMIO ddname, { 'FWDPOS' | 'BWDPOS' }                       *
 *                               <, 'KEY' <, 'GTEQ'|'EQUAL' > |'RBA'>; *
-*        Where: this performs VSAM POINT function processing and only *
-*               sets file position and direction (no record read),    *
-*               can only be used in DYNAMIC access mode,              *
-*               and 'KEY' and 'GTEQ' are the defaults.                *
+*        Where: 'KEY' and 'GTEQ' are the defaults, and                *
+*               this performs VSAM POINT function processing -- only  *
+*               setting file position and direction (no record read,  *
+*               but 'GTEQ' is ignored for backward positioning).      *
 *                                                                     *
 * Call RXVSAMIO ddname, 'READ' <, 'NEXT'|'PREV'                       *
 *                                 |'KEY' <, 'EQUAL'|'GTEQ' > |'RBA'>; *
@@ -108,44 +110,44 @@ RXVSAMIO RMODE 24
 * definitions provide information  for  up  to  seven different field *
 * data types -- as follows:                                           *
 *                                                                     *
-*   CHAR    is for string data up to 256 bytes in length that does    *
-*              not require conversion.  For a key field, of course,   *
-*              this is limited to 255 bytes.  The COBOL equivalent    *
-*              is a PIC A or PIC X field and USAGE IS DISPLAY.        *
+*   CHAR    is string data up to 256 bytes in length that does not    *
+*              require conversion.  For a key field, of course, this  *
+*              is limited to 255 bytes.  The COBOL equivalent is a    *
+*              PIC A or PIC X field and USAGE IS DISPLAY.             *
 *                                                                     *
-*   HEX     is for string data up to 128 bytes in length that is      *
+*   HEX     is string data up to 128 bytes in length that is          *
 *              automatically converted to 2-byte (per character)      *
 *              hexadecimal format when returned to the caller and     *
 *              automatically converted back to 1-byte character       *
-*              format in the VSAM record.  The COBOL equivalent       *
-*              is a PIC X field and USAGE IS DISPLAY.                 *
+*              format in the VSAM record.  The COBOL equivalent is    *
+*              a PIC X field and USAGE IS DISPLAY.                    *
 *                                                                     *
-*   ZONED   is for signed, zoned-decimal data up to 31 bytes long     *
+*   ZONED   is a signed, zoned-decimal number up to 31 bytes long     *
 *              that is automatically converted to REXX format when    *
 *              returned to the caller and automatically converted     *
 *              back to signed, zoned-decimal format in the VSAM       *
-*              record.  The COBOL equivalent is a PIC S9 field        *
-*              with or without a V position and USAGE IS DISPLAY.     *
+*              record.  The COBOL equivalent is a PIC S9 field with   *
+*              or without a V position and USAGE IS DISPLAY.          *
 *                                                                     *
-*   LZONED  is for unsigned, zoned-decimal data up to 31 bytes long   *
+*   IZONED  is an unsigned, zoned-decimal integer up to 31 bytes long *
 *              that is automatically converted to REXX format (with   *
 *              left-zero padding, as needed) when returned to the     *
 *              caller and automatically converted back to unsigned,   *
-*              zoned-decimal format in the VSAM record.  For          *
-*              example, this type is useful for zoned date and time   *
-*              fields.  Packed date and time fields must use the      *
-*              "PACKED" data type.  The COBOL equivalent is a PIC 9   *
-*              field without a V position and USAGE IS DISPLAY.       *
+*              zoned-decimal format in the VSAM record.  For example, *
+*              this type is useful for zoned date and time fields.    *
+*              Packed date and time fields must use the "PACKED" data *
+*              type.  The COBOL equivalent is a PIC 9 field without   *
+*              a V position and USAGE IS DISPLAY.                     *
 *                                                                     *
-*   PACKED  is for signed, packed-decimal data up to 16 bytes long    *
+*   PACKED  is a signed, packed-decimal number up to 16 bytes long    *
 *              (31 digits plus a sign) that is automatically          *
-*              converted to REXX format when returned to the          *
-*              caller and automatically converted back to signed,     *
-*              packed-decimal format in the VSAM record.  The         *
-*              COBOL equivalent is a PIC S9 field with or without     *
-*              a V position and USAGE IS COMP-3 or PACKED-DECIMAL.    *
+*              converted to REXX format when returned to the caller   *
+*              and automatically converted back to signed,            *
+*              packed-decimal format in the VSAM record.  The COBOL   *
+*              equivalent is a PIC S9 field with or without a V       *
+*              position and USAGE IS COMP-3 or PACKED-DECIMAL.        *
 *                                                                     *
-*   BINARY  is for signed, binary data 2-, 4-, or 8-bytes in length   *
+*   BINARY  is a signed, binary integer 2-, 4-, or 8-bytes in length  *
 *              that is automatically converted to REXX format when    *
 *              returned to the caller and automatically converted     *
 *              back to signed, binary format in the VSAM record:      *
@@ -155,10 +157,11 @@ RXVSAMIO RMODE 24
 *              The COBOL equivalent is a PIC S9 field without a V     *
 *              position and USAGE IS COMP or USAGE IS BINARY.         *
 *                                                                     *
-*   UBIN    is for unsigned, binary data 1-, 2-, or 4-bytes in length *
-*              that is automatically converted to REXX format when    *
-*              returned to the caller and automatically converted     *
-*              back to unsigned, binary format in the VSAM record:    *
+*   UBIN    is an unsigned, binary integer 1-, 2-, or 4-bytes in      *
+*              length that is automatically converted to REXX         *
+*              format when returned to the caller and automatically   *
+*              converted back to unsigned, binary format in the       *
+*              VSAM record:                                           *
 *                 1-byte  is up to 255 max,                           *
 *                 2-bytes is up to 65,535 max, and                    *
 *                 4-bytes is up to 4,294,967,295 max.                 *
@@ -181,7 +184,7 @@ RXVSAMIO RMODE 24
 *      RXVSAMBR     RXVSAMIO -- Build Record Buffer Subroutine        *
 *      RXVSAMXA     RXVSAMIO -- Extract Dataset Attrs Subroutine      *
 *      RXVSAMXR     RXVSAMIO -- Extract Record Fields Subroutine      *
-*      RXVSAMIO     REXX Func To Access VSAM Files & Statistics       *
+*      RXVSAMIO     REXX Function For VSAM File I/O & Statistics      *
 *                                                                     *
 * This main program will not, however, then be available for just any *
 * program to call.   Only a REXX  procedure  will be able to call it. *
@@ -223,18 +226,20 @@ RXVSAMIO RMODE 24
 *                   word4 is the byte length of this key field,       *
 *                   word5 is the number of decimal digits (up to 15)  *
 *                           for 'PACKED' or 'ZONED' key fields (must  *
-*                           be zero for 'BINARY'/'LZONED' key fields) *
+*                           be zero for 'BINARY'/'IZONED' key fields) *
 *                 (define a single 'UBIN'-type, 0-offset, 4-byte,     *
 *                 0-decimal key field for RBA or RRN access);         *
 *   ..._key.key_name                                                  *
 *               contains the character or decimal value for the       *
 *                 associated key field (where "key_name" is one of    *
 *                 those found in word1 of the _key.n definitions      *
-*                 given and values are automatically converted by     *
-*                 this function before storing in the file and before *
-*                 storing in the associated stem variables -- such    *
-*                 that the caller only has to deal with them in       *
-*                 character and decimal formats, as appropriate);     *
+*                 given, undefined "key_name" fields default to all   *
+*                 binary zeroes, and supplied "key_name" values are   *
+*                 automatically converted by this function before     *
+*                 storing in the file and before storing in the       *
+*                 associated stem variables -- such that the caller   *
+*                 only has to deal with them in character and decimal *
+*                 formats, as appropriate);                           *
 *                                                                     *
 *   ..._fld.0   value specifies the number of contiguous fields that  *
 *                 make up a full record for this file;                *
@@ -249,7 +254,7 @@ RXVSAMIO RMODE 24
 *                   word4 is the byte length of this record field,    *
 *                   word5 is the number of decimal digits (up to 15)  *
 *                           for 'PACKED' or 'ZONED' fields (must be   *
-*                           zero for 'BINARY' and 'LZONED' fields);   *
+*                           zero for 'BINARY' and 'IZONED' fields);   *
 *   ..._fld.fld_name                                                  *
 *               contains the character or decimal value for the       *
 *                 associated record field (where "fld_name" is one of *
@@ -262,19 +267,19 @@ RXVSAMIO RMODE 24
 *                                                                     *
 * Note that if a non-binary  field  value  on disk is low-values (all *
 * binary zeroes), then this function returns the *NULL keyword as the *
-* associated variable value.   Binary field values, of course, return *
-* a zero (0)  as  the  associated  variable  value in this situation. *
-* Conversely,  the caller may pass  the *NULL keyword,  as a variable *
-* value,  to set the associated  field  on  disk to binary low-values *
-* regardless of the field's data type.                                *
+* associated variable value.   Signed binary field values, of course, *
+* return  a  zero  (0)  as  the  associated  variable  value  in this *
+* situation.  Conversely, the caller may pass the *NULL keyword, as a *
+* variable value,  to set  the  associated  field  on  disk to binary *
+* low-values regardless of the field's data type.                     *
 *                                                                     *
 * For complete functionality,  then,  if a  non-binary field value on *
 * disk is high-values (all  binary ones),  then this function returns *
-* the *HIGH keyword as  the associated variable value.   Binary field *
-* values,  of course, return a minus one (-1) as the associated vari- *
-* able value in this situation.  Conversely, the caller may pass the  *
-* *HIGH keyword,  as a variable value, to set the associated field on *
-* disk to binary high-values regardless of the field's data type.     *
+* the *HIGH keyword as the associated variable value.   Signed binary *
+* field values,  of course, return a minus one (-1) as the associated *
+* variable value in this situation.   Conversely, the caller may pass *
+* the *HIGH keyword, as a variable value, to set the associated field *
+* on disk to binary high-values regardless of the field's data type.  *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -305,8 +310,9 @@ RXVSAMIO RMODE 24
 *                 (for RBA and RRN files this is always zero).        *
 *                                                                     *
 *                                                                     *
-*      After  a  successful  READ,   the  following  additional  stem *
-* variable elements are returned (the key definition is unchanged):   *
+*      After a successful  READ,  the  following additional stem var- *
+* iable elements are  returned  (the  _key.key_name  values are never *
+* changed by this function):                                          *
 *                                                                     *
 *   ..._fld.fld_name                                                  *
 *               contains the character or decimal value for the       *
@@ -510,19 +516,21 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset for update */        *
 *   CALL RXVSAMIO 'MYFILE', 'OPEN', 'update', 'random';               *
 *                                                                     *
-*   myfile._key.FIELD_NAME_2 = "5712434-10"; /* order number */       *
-*   myfile._key.FIELD_NAME_3 = 12;           /* line number */        *
+*   If rc == 0 Then Do       /* random retrieval of record */         *
+*     myfile._key.FIELD_NAME_2 = "5712434-10"; /* order number */     *
+*     myfile._key.FIELD_NAME_3 = 12;           /* line number */      *
+*     CALL RXVSAMIO 'MYFILE', 'READ', 'key';                          *
+*   End                                                               *
 *                                                                     *
-*   CALL RXVSAMIO 'MYFILE', 'READ', 'key';                            *
 *   If rc == 16,                                                      *
-*   &  myfile._rc == 8,                                               *
+*   &  myfile._rc == 8,      /* not found? */                         *
 *   &  myfile._ec == 16 Then                                          *
-*     rc = 0;                /* not found */                          *
+*     rc = 0;                /* allow "not found" */                  *
 *   Else Do                                                           *
-*     If rc == 0,                                                     *
+*     If rc == 0,            /* correct record key? */                *
 *     &  myfile._fld.FIELD_NAME_2 == myfile._key.FIELD_NAME_2,        *
 *     &  myfile._fld.FIELD_NAME_3 == myfile._key.FIELD_NAME_3,        *
-*     Then Do                                                         *
+*     Then Do                /* delete the record */                  *
 *       CALL RXVSAMIO 'MYFILE', 'DELETE';                             *
 *     End                                                             *
 *   End                                                               *
@@ -532,7 +540,7 @@ RXVSAMIO RMODE 24
 *   End                                                               *
 *                                                                     *
 *                                                                     *
-*      ...and,  finally (using the  above  field  definitions and the *
+*      ...and,  again (using the  original  field definitions and the *
 * error reporting,  but with an RBA Key definition), the following is *
 * an example of  using  an  RBA  to  begin forward record processing. *
 * (Note that this same scenario would work for an RRDS dataset except *
@@ -548,8 +556,10 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset for input */         *
 *   CALL RXVSAMIO 'MYFILE', 'OPEN', 'input', 'dynamic';               *
 *                                                                     *
-*   myfile._key.MYFILE_RBA_ADR = 7504;   /* RBA in decimal */         *
-*   CALL RXVSAMIO 'MYFILE', 'FWDPOS', 'rba';                          *
+*   If rc == 0 Then Do       /* position for forward processing */    *
+*     myfile._key.MYFILE_RBA_ADR = 7504;   /* RBA in decimal */       *
+*     CALL RXVSAMIO 'MYFILE', 'FWDPOS', 'rba';                        *
+*   End                                                               *
 *                                                                     *
 *   If rc == 0 Then Do       /* begin dataset retrieval */            *
 *     Say "List of file keys:";                                       *
@@ -561,6 +571,62 @@ RXVSAMIO RMODE 24
 *         r = r + 1;                                                  *
 *         Say "Record" r", rba =" myfile._rba",",                     *
 *                         "key =" myfile._fld.FIELD_NAME_2,           *
+*                                 myfile._fld.FIELD_NAME_3;           *
+*       End                                                           *
+*     End                                                             *
+*   End                                                               *
+*                            /* if no errors, close the dataset */    *
+*   If rc == 0 | rc == -1 Then Do                                     *
+*     Call RXVSAMIO 'MYFILE', 'CLOSE';                                *
+*   End                                                               *
+*                                                                     *
+*                                                                     *
+*      ...and,  finally (using the  original  key & field definitions *
+* and the error reporting,  above),  the  following  is an example of *
+* starting at the end of a key range and reading backwards to process *
+* all records in the key range  in a generic manner.   If you have an *
+* exact (full) key  (or  if  the  entire  key  is  high-values -- for *
+* retrieving the last record in  the  file),  then you can just start *
+* there with BWDPOS.   Otherwise, you need to use FWDPOS to set up to *
+* get the next full key and then use BWDPOS to proceed backwards from *
+* there -- as demonstrated below.                                     *
+*                                                                     *
+*   desired_order_no = "5712434-10"; /* process this order */         *
+*                            /* open the dataset for input */         *
+*   CALL RXVSAMIO 'MYFILE', 'OPEN', 'input', 'dynamic';               *
+*                                                                     *
+*   If rc == 0 Then Do       /* point to next key range */            *
+*     myfile._key.FIELD_NAME_2 = desired_order_no;                    *
+*     myfile._key.FIELD_NAME_3 = '*HIGH';      /* end of range */     *
+*     CALL RXVSAMIO 'MYFILE', 'FWDPOS', 'key', 'gteq';                *
+*   End                                                               *
+*                                                                     *
+*   If rc == 0 Then Do       /* get record from next key range */     *
+*     Call RXVSAMIO 'MYFILE', 'READ', 'next';                         *
+*     If rc == 0 Then Do     /* reverse file direction */             *
+*       myfile._key.FIELD_NAME_2 = myfile._fld.FIELD_NAME_2           *
+*       myfile._key.FIELD_NAME_3 = myfile._fld.FIELD_NAME_3           *
+*       CALL RXVSAMIO 'MYFILE', 'BWDPOS', 'key';                      *
+*     End                                                             *
+*     If rc == 0 Then Do     /* get same record but in reverse */     *
+*       CALL RXVSAMIO 'MYFILE', 'READ', 'prev';                       *
+*     End                                                             *
+*   End                                                               *
+*                                                                     *
+*   If rc == 0 Then Do       /* get the desired key range */          *
+*     Say "List of file keys:";                                       *
+*     Say " ";                                                        *
+*     r = 0;                                                          *
+*     Do Until rc <> 0       /* rc of -1 indicates end-of-file */     *
+*       Call RXVSAMIO 'MYFILE', 'READ', 'prev'                        *
+*       If rc == 0,                                                   *
+*       &  myfile._fld.FIELD_NAME_2 <> desired_order_no,              *
+*       Then Do                                                       *
+*         rc == -1;          /* end of desired key range */           *
+*       End                                                           *
+*       If rc == 0 Then Do                                            *
+*         r = r + 1;                                                  *
+*         Say "Record" r", key =" myfile._fld.FIELD_NAME_2,           *
 *                                 myfile._fld.FIELD_NAME_3;           *
 *       End                                                           *
 *     End                                                             *
@@ -988,7 +1054,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           AND  RQARG2,NE,C'O'           OUTPUT
            MVI RQARG3,C'S'               FORCE TO SEQUENCE
            IF  RQARG2,NE,C'A'            APPEND
-           AND RQARG2,NE,C'R'            RESET
+           AND RQARG2(2),(NE,CLC),=C'RE' RESET
             LHI R5,2                      SET RETURN CODE
             B  R15ZERO                    GO RETURN ERROR
            ENDIF
@@ -997,7 +1063,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            MVI RQARG3,C'S'               DEFAULT=SEQUENCE
           ENDIF
           IF   RQARG3,NE,C'S'           SEQUENCE
-          AND  RQARG3,NE,C'R'           RANDOM
+          AND  RQARG3(2),(NE,CLC),=C'RA' RANDOM
           AND  RQARG3,NE,C'D'           DYNAMIC
            LHI R5,3                      SET RETURN CODE
            B   R15ZERO                   GO RETURN ERROR
@@ -1296,6 +1362,8 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            B   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
+          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
 
@@ -1314,7 +1382,6 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
            IF  FILETYPE,(O,TM),KSDS      IF KEY-SEQUENCED
            AND FILETYPE,(NO,TM),RRDS     AND NOT RELATIVE-RECORD
-            BAS R5,GET_MAXV               GET KEY AND REC MAX LENGTHS
             LA R1,KEYLEN                  POINT TO STEM ELEMENT NAME
             LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
             BAS R5,GET_STEM               GET GENERIC KEY LENGTH
@@ -1367,8 +1434,17 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
 
           IF   REQUEST,EQ,C'B'          BWDPOS
            OI  RPLOPT2,RPLBWD            SET BACKWARD PROCESSING
+           NI  RPLOPT2,X'FF'-RPLLRD      SET ANY RECORD PROCESSING
+           LA  R1,KEYBUF                 POINT TO KEY BUFFER
+           L   R2,KMAX                   SET LENGTH OF KEY BUFFER
+           SHI R2,1                      DECREMENT BEFORE EXECUTE
+           LA  R3,HIVAL                  CHECK FOR HIGH VALUES
+           IF  R2,(EQ,EX),CHECK_IT       IF HIGH-VALUES
+            OI RPLOPT2,RPLLRD             SET LAST RECORD PROCESSING
+           ENDIF                         ENDIF
           ELSE                          FWDPOS
            NI  RPLOPT2,X'FF'-RPLBWD      SET FORWARD PROCESSING
+           NI  RPLOPT2,X'FF'-RPLLRD      SET ANY RECORD PROCESSING
           ENDIF                         ENDIF
 
           DROP R8                       REMOVE ADDRESSABILITY
@@ -1380,6 +1456,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            BAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
            LHI R5,16                     SET RETURN CODE
            B   RETERR                    GO RETURN ERROR
+CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
@@ -1394,12 +1471,13 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
           ENDIF                         ENDIF
 
+          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
 
           IF   FILETYPE,(O,TM),KSDS     IF KEY-SEQUENCED
           AND  FILETYPE,(NO,TM),RRDS    AND NOT RELATIVE-RECORD
-           BAS R5,GET_MAXV               GET KEY AND REC MAX LENGTHS
            LA  R1,KEYLEN                 POINT TO STEM ELEMENT NAME
            LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
            BAS R5,GET_STEM               GET GENERIC KEY LENGTH
@@ -1436,8 +1514,10 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ELSE                          ELSE NEXT
             NI RPLOPT2,X'FF'-RPLBWD       SET FORWARD PROCESSING
            ENDIF                         ENDIF
+           NI  RPLOPT2,X'FF'-RPLLRD      SET ANY RECORD PROCESSING
           ELSE                          BY KEY/RBA
            NI  RPLOPT2,X'FF'-RPLBWD      SET FORWARD PROCESSING
+           NI  RPLOPT2,X'FF'-RPLLRD      SET ANY RECORD PROCESSING
            IF  RQARG2,EQ,C'R'            BY RBA
             NI RPLOPT1,X'FF'-RPLKEY       NOT KEY PROCESSING
             OI RPLOPT1,RPLADR             SET ADR PROCESSING
@@ -2477,6 +2557,8 @@ RETCODE  DS    F                       Return code
 RTVPLIST DC    A(LEVEL,NAME,TOKEN,RETCODE+X'80000000')
 CRTPLIST DC    A(LEVEL,NAME,TOKEN,PERSOPT,RETCODE+X'80000000')
 SUBRPLST DC    A(0,0)
+*
+HIVAL    DC    256X'FF'                CHECK KEY BUFFER
 *
          LTORG
          SPACE 3                                                        00053400

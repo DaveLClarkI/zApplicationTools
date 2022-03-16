@@ -227,10 +227,8 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,L'RECKEY              SET LENGTH OF ELEM NAME
           BAS  R5,GET_ELEM              RETRIEVE STEM ELEMENT ENTRY
           IF   SHVVALL,(NH,CLC),=F'0'   IF VAL LENGTH NOT > ZERO
-           MVC MACRO,=CL8'GETVAR'        LAST FAILED MACRO
-           LR  R5,R7                     RETURN ELEMENT NUMBER
-           LHI R15,-6                    SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           MVC SHVVALL,=F'5'             SET DEFAULT LENGTH
+           MVC VARDATA(5),=C'*NULL'      SET DEFAULT VALUE
           ENDIF                         ENDIF
 
           IF   KEY_LENG,(LT,CLC),=F'1',OR,  MIN CHAR LENGTH SUPPORTED  +
@@ -241,18 +239,17 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            B   RETERR                    GO RETURN ERROR
           ENDIF
 
-          IF   KEY_TYPE,NE,C'B'         IF NOT BINARY TYPE AND
-          AND  KEY_TYPE,NE,C'U'         NOT UNSIGNED BINARY TYPE
-           IF  VARDATA(5),(EQ,CLC),=C'*NULL'  IF LOW-VALUE REQUEST
-            LA R1,LOVAL                   SET TO LOW VALUES
-            L  R2,KEY_LENG                GET LENGTH OF KEY DATA
-            B  MOVE2KEY                   SKIP OTHER CONVERSIONS
-           ENDIF                         ENDIF
-           IF  VARDATA(5),(EQ,CLC),=C'*HIGH'  IF HIGH-VALUE REQUEST
-            LA R1,HIVAL                   SET TO HIGH VALUES
-            L  R2,KEY_LENG                GET LENGTH OF KEY DATA
-            B  MOVE2KEY                   SKIP OTHER CONVERSIONS
-           ENDIF                         ENDIF
+          IF   VARDATA(5),(EQ,CLC),=C'*NULL'  IF LOW-VALUE REQUEST
+          AND  SHVVALL,(EQ,CLC),=F'5'
+           LA  R1,LOVAL                  SET TO LOW VALUES
+           L   R2,KEY_LENG               GET LENGTH OF KEY DATA
+           B   MOVE2KEY                  SKIP OTHER CONVERSIONS
+          ENDIF                         ENDIF
+          IF   VARDATA(5),(EQ,CLC),=C'*HIGH'  IF HIGH-VALUE REQUEST
+          AND  SHVVALL,(EQ,CLC),=F'5'
+           LA  R1,HIVAL                  SET TO HIGH VALUES
+           L   R2,KEY_LENG               GET LENGTH OF KEY DATA
+           B   MOVE2KEY                  SKIP OTHER CONVERSIONS
           ENDIF                         ENDIF
 
           IF   KEY_TYPE,NE,C'C'         IF NOT CHAR TYPE
@@ -306,7 +303,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
            LA  R1,PWORK16+L'PWORK16      POINT PAST PACKED DATA
            SR  R1,R2                      AND ADJUST FOR LENGTH
 
-          WHEN KEY_TYPE,EQ,C'L'         "LZONED"
+          WHEN KEY_TYPE,EQ,C'I'         "IZONED"
            IF  KEY_LENG,(LT,CLC),=F'1',OR,  MIN ZONE LENGTH SUPPORTED  +
                KEY_LENG,(HT,CLC),=F'31'     MAX ZONE LENGTH SUPPORTED
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
