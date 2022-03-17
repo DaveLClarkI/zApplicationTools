@@ -108,7 +108,9 @@ RXVSAMIO RMODE 24
 * stem variable -- one set  for  the  key  layout and one set for the *
 * record layout.   This is documented under INPUT, below.  These data *
 * definitions provide information  for  up  to  seven different field *
-* data types -- as follows:                                           *
+* data types -- as follows  (note  that  these data type codes may be *
+* spelled out in the  data  definitions,  of course,  but only as few *
+* letters for uniqueness are actually checked):                       *
 *                                                                     *
 *   CHAR    is string data up to 256 bytes in length that does not    *
 *              require conversion.  For a key field, of course, this  *
@@ -229,8 +231,8 @@ RXVSAMIO RMODE 24
 *                   word3 is the key zero-offset of this key field,   *
 *                   word4 is the byte length of this key field,       *
 *                   word5 is the number of decimal digits (up to 15)  *
-*                           for 'PACKED' or 'ZONED' key fields (must  *
-*                           be zero for 'BINARY'/'IZONED' key fields) *
+*                           for 'PACKED' or 'ZONED' keys (must be     *
+*                           zero for 'IZONED'/'BIN'/'UBIN' fields);   *
 *                 (define a single 'UBIN'-type, 0-offset, 4-byte,     *
 *                 0-decimal key field for RBA or RRN access);         *
 *   ..._key.key_name                                                  *
@@ -258,7 +260,7 @@ RXVSAMIO RMODE 24
 *                   word4 is the byte length of this record field,    *
 *                   word5 is the number of decimal digits (up to 15)  *
 *                           for 'PACKED' or 'ZONED' fields (must be   *
-*                           zero for 'BINARY' and 'IZONED' fields);   *
+*                           zero for 'IZONED'/'BIN'/'UBIN' fields);   *
 *   ..._fld.fld_name                                                  *
 *               contains the character or decimal value for the       *
 *                 associated record field (where "fld_name" is one of *
