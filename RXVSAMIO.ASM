@@ -31,6 +31,36 @@ RXVSAMIO RMODE 24
 * Some of the other things  that stem variable will then contain,  on *
 * request, is returned dataset attributes and statistics.             *
 *                                                                     *
+* =================================================================== *
+*                                                                     *
+*                              FEATURES                               *
+*                                                                     *
+*      Why would you use  this  function?   Why  not use the provided *
+* VSAMIO function or obtain the  Source  Forge project RXVSAM as your *
+* method for accessing VSAM files  from a REXX procedure?   The issue *
+* is that both of those methods,  unlike a higher-level language such *
+* as COBOL,  force your REXX procedure  to  do *most* of the work and *
+* *only* provide VSAM I/O services.   Meaning: Your REXX code must do *
+* all of the work of parsing  and converting the returned VSAM record *
+* data for use by your REXX  procedure and then have to reconvert and *
+* concatenate the data in order to send  it back to the VSAM file for *
+* update, insert, or output processing.                               *
+*                                                                     *
+*      Conversely,  this  function  provides  all  of  the  following *
+* features:                                                           *
+*                                                                     *
+*  � VSAM keyed, RBA, RRN, and sequential I/O access;                 *
+*  � Forward and backward next record retrieval;                      *
+*  � All input, update, and output methods;                           *
+*  � Copybook-like layout support for multi-field keys and records;   *
+*  � Field data is always stored in separate REXX variables for your  *
+*    convenience;                                                     *
+*  � Automatic parsing and conversion to standard REXX data formats;  *
+*  � Automatic reconversion and concatenation back to standard VSAM   *
+*    data formats; and,                                               *
+*  � Inquiry for most of the IDCAMS LISTCAT-like dataset attributes   *
+*    and statistics.                                                  *
+*                                                                     *
 * NOTE: There is only one  access  string  and  one record layout per *
 *       file.   So,  if more than one  position  in  the same file is *
 *       needed or different record  layouts  are  needed for a multi- *
@@ -276,7 +306,7 @@ RXVSAMIO RMODE 24
 * associated variable value.   Binary field values, of course, return *
 * a zero (0)  as  the  associated  variable  value in this situation. *
 * Conversely,  the caller may pass  the *NULL keyword,  as a variable *
-* value,  to set the associated  field  on  disk to binary low-values *
+* value,  to set  the  associated  field  on  disk  to  binary zeroes *
 * regardless of the field's data type.                                *
 *                                                                     *
 * For complete functionality,  then,  if a  non-binary field value on *
@@ -285,7 +315,78 @@ RXVSAMIO RMODE 24
 * field values,  of course, return a minus one (-1) as the associated *
 * variable value in this situation.   Conversely, the caller may pass *
 * the *HIGH keyword, as a variable value, to set the associated field *
-* on disk to binary high-values regardless of the field's data type.  *
+* on disk to binary ones regardless of the field's data type.         *
+*                                                                     *
+*      So,  as an example,  the following shows a sample COBOL record *
+* layout and what the  associated  RXVSAMIO  data definitions for the *
+* key layout and record layout would look like.                       *
+*                                                                     *
+* ----+----1----+----2----+----3----+----4----+----5----+----6----+-- *
+*        01  WSINDX-RECORD.                                           *
+*          03  WSIX-KEY.                                              *
+*            05  WSIX-KEY-CORP           PIC  X(5).                   *
+*            05  WSIX-ID.                                             *
+*              07  WSIX-ID-DATE          PIC  9(8).                   *
+*              07  WSIX-ID-BATCH         PIC  99.                     *
+*          03  WSIX-DATA.                                             *
+*            05  WSIX-BATCH-TYPE         PIC  X.                      *
+*            05  WSIX-CREATED.                                        *
+*              07  WSIX-CREATED-DATE     PIC S9(9)    PACKED-DECIMAL. *
+*              07  WSIX-CREATED-TIME     PIC S9(7)    PACKED-DECIMAL. *
+*            05  WSIX-CHANGED.                                        *
+*              07  WSIX-CHANGED-DATE     PIC S9(9)    PACKED-DECIMAL. *
+*              07  WSIX-CHANGED-TIME     PIC S9(7)    PACKED-DECIMAL. *
+*            05  WSIX-PROCESSED.                                      *
+*              07  WSIX-PROCESSED-DATE   PIC S9(9)    PACKED-DECIMAL. *
+*              07  WSIX-PROCESSED-TIME   PIC S9(7)    PACKED-DECIMAL. *
+*            05  WSIX-REC-COUNT          PIC S9(7)    PACKED-DECIMAL. *
+*            05  WSIX-SEG-COUNT          PIC S9(7)    PACKED-DECIMAL. *
+*            05  WSIX-USER-ID            PIC  X(8).                   *
+*            05  WSIX-COMPLETE           PIC  X(1).                   *
+*            05  WSIX-DELETE             PIC  X(1).                   *
+*            05  WSIX-FULL-AUDIT.                                     *
+*              07  WSIX-AUDIT-IV         PIC  X.                      *
+*              07  WSIX-AUDIT-AR         PIC  X.                      *
+*            05                          PIC  X(27).                  *
+*                                                                     *
+* ----+----1----+----2----+----3----+----4----+----5----+----6----+-- *
+* wsindx. = '';                /* initialize file stem variable */    *
+*                                                                     *
+* wsindx._key.0  = 3;          /* define key field layout */          *
+*                                      /* type   offset leng decm */  *
+* wsindx._key.1  = 'WSIX_KEY_CORP'       'CHAR'       0    5;         *
+* wsindx._key.2  = 'WSIX_ID_DATE'        'IZONED'     5    8    0;    *
+* wsindx._key.3  = 'WSIX_ID_BATCH'       'IZONED'    13    2    0;    *
+*                                                                     *
+* wsindx._fld.0  = 18;         /* define record field layout */       *
+*                                      /* type   offset leng decm */  *
+* wsindx._fld.1  = 'WSIX_KEY_CORP'       'CHAR'       0    5;         *
+* wsindx._fld.2  = 'WSIX_ID_DATE'        'IZONED'     5    8    0;    *
+* wsindx._fld.3  = 'WSIX_ID_BATCH'       'IZONED'    13    2    0;    *
+* wsindx._fld.4  = 'WSIX_BATCH_TYPE'     'CHAR'      15    1;         *
+* wsindx._fld.5  = 'WSIX_CREATED_DATE'   'PACKED'    16    5    0;    *
+* wsindx._fld.6  = 'WSIX_CREATED_TIME'   'PACKED'    21    4    0;    *
+* wsindx._fld.7  = 'WSIX_CHANGED_DATE'   'PACKED'    25    5    0;    *
+* wsindx._fld.8  = 'WSIX_CHANGED_TIME'   'PACKED'    30    4    0;    *
+* wsindx._fld.9  = 'WSIX_PROCESSED_DATE' 'PACKED'    34    5    0;    *
+* wsindx._fld.10 = 'WSIX_PROCESSED_TIME' 'PACKED'    39    4    0;    *
+* wsindx._fld.11 = 'WSIX_REC_COUNT'      'PACKED'    43    4    0;    *
+* wsindx._fld.12 = 'WSIX_SEG_COUNT'      'PACKED'    47    4    0;    *
+* wsindx._fld.13 = 'WSIX_USER_ID'        'CHAR'      51    8;         *
+* wsindx._fld.14 = 'WSIX_COMPLETE'       'CHAR'      59    1;         *
+* wsindx._fld.15 = 'WSIX_DELETE'         'CHAR'      60    1;         *
+* wsindx._fld.16 = 'WSIX_AUDIT_IV'       'CHAR'      61    1;         *
+* wsindx._fld.17 = 'WSIX_AUDIT_AR'       'CHAR'      62    1;         *
+* wsindx._fld.18 = 'WSIX_FILLER'         'CHAR'      63   27;         *
+*                                                                     *
+* Note that the last  line  of  the data definition,  above,  is only *
+* required if you want  to  have  the  unused  portion of your record *
+* initialized with something other than binary zeroes.   The RXVSAMIO *
+* function implicitly takes  care  of  that.   But,  by defining this *
+* area,  you can explicitly  initialize  it  yourself with spaces or, *
+* .e.g.,  with binary  zeroes  (using  the *NULL keyword,  previously *
+* mentioned) or with binary ones (using the *HIGH keyword, previously *
+* mentioned).                                                         *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -464,11 +565,11 @@ RXVSAMIO RMODE 24
 *                                                                     *
 *   myfile. = '';            /* initialize stem variable */           *
 *                                                                     *
-*   myfile._key.0 = 2;       /* define key layout */                  *
+*   myfile._key.0 = 2;       /* define key field layout */            *
 *   myfile._key.1 = 'FIELD_NAME_2' 'CHAR'    0 10;                    *
 *   myfile._key.2 = 'FIELD_NAME_3' 'ZONED'  10  8  0;                 *
 *                                                                     *
-*   myfile._fld.0 = 6;       /* define record layout */               *
+*   myfile._fld.0 = 6;       /* define record field layout */         *
 *   myfile._fld.1 = 'FIELD_NAME_1' 'BINARY'  0  8  0;                 *
 *   myfile._fld.2 = 'FIELD_NAME_2' 'CHAR'    8 10;                    *
 *   myfile._fld.3 = 'FIELD_NAME_3' 'ZONED'  18  8  0;                 *
@@ -479,24 +580,24 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset */                   *
 *   Call RXVSAMIO 'MYFILE', 'OPEN';                                   *
 *                                                                     *
-*   If rc == 0 Then Do       /* begin dataset retrieval */            *
+*   If rc = 0 Then Do        /* begin dataset retrieval */            *
 *     Say "List of file fields:";                                     *
 *     Say " ";                                                        *
 *     r = 0;                                                          *
 *     Do Until rc <> 0       /* rc of -1 indicates end-of-file */     *
 *       Call RXVSAMIO 'MYFILE', 'READ';                               *
-*       If rc == 0 Then Do                                            *
+*       If rc = 0 Then Do                                             *
 *         r = r + 1;                                                  *
 *         Do i = 1 To myfile._fld.0                                   *
 *           pfx = 'Record' r', field' i',' Word(myfile._fld.i,1);     *
 *           val = Value('myfile._fld.'Word(myfile._fld.i,1));         *
 *           typ = Word(myfile._fld.i,2);                              *
 *           Select                                                    *
-*             When val == '*NULL',                                    *
-*             |    val == '*HIGH' Then Say pfx "=" val;               *
-*             When typ == 'HEX'   Then Say pfx "= x'"val"'";          *
-*             When typ == 'CHAR'  Then Say pfx "= '"val"'";           *
-*             Otherwise                Say pfx "=" val;               *
+*             When val = '*NULL',                                     *
+*             |    val = '*HIGH' Then Say pfx "=" val;                *
+*             When typ = 'HEX'   Then Say pfx "= x'"val"'";           *
+*             When typ = 'CHAR'  Then Say pfx "= '"val"'";            *
+*             Otherwise               Say pfx "=" val;                *
 *           End                                                       *
 *         End                                                         *
 *         Say " ";                                                    *
@@ -504,7 +605,7 @@ RXVSAMIO RMODE 24
 *     End                                                             *
 *   End                                                               *
 *                            /* if no errors, close the dataset */    *
-*   If rc == 0 | rc == -1 Then Do                                     *
+*   If rc = 0 | rc = -1 Then Do                                       *
 *     Call RXVSAMIO 'MYFILE', 'CLOSE';                                *
 *   End                                                               *
 *                            /* report any errors */                  *
@@ -529,26 +630,26 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset for update */        *
 *   CALL RXVSAMIO 'MYFILE', 'OPEN', 'update', 'random';               *
 *                                                                     *
-*   If rc == 0 Then Do       /* random retrieval of record */         *
+*   If rc = 0 Then Do        /* random retrieval of record */         *
 *     myfile._key.FIELD_NAME_2 = "5712434-10"; /* order number */     *
 *     myfile._key.FIELD_NAME_3 = 12;           /* line number */      *
 *     CALL RXVSAMIO 'MYFILE', 'READ', 'key';                          *
 *   End                                                               *
 *                                                                     *
-*   If rc == 16,                                                      *
-*   &  myfile._rc == 8,      /* not found? */                         *
-*   &  myfile._ec == 16 Then                                          *
+*   If rc = 16,                                                       *
+*   &  myfile._rc = 8,       /* not found? */                         *
+*   &  myfile._ec = 16 Then                                           *
 *     rc = 0;                /* allow "not found" */                  *
 *   Else Do                                                           *
-*     If rc == 0,            /* correct record key? */                *
-*     &  myfile._fld.FIELD_NAME_2 == myfile._key.FIELD_NAME_2,        *
-*     &  myfile._fld.FIELD_NAME_3 == myfile._key.FIELD_NAME_3,        *
+*     If rc = 0,             /* correct record key? */                *
+*     &  myfile._fld.FIELD_NAME_2 = myfile._key.FIELD_NAME_2,         *
+*     &  myfile._fld.FIELD_NAME_3 = myfile._key.FIELD_NAME_3,         *
 *     Then Do                /* delete the record */                  *
 *       CALL RXVSAMIO 'MYFILE', 'DELETE';                             *
 *     End                                                             *
 *   End                                                               *
 *                            /* if no errors, close the dataset */    *
-*   If rc == 0 | rc == -1 Then Do                                     *
+*   If rc = 0 | rc = -1 Then Do                                       *
 *     Call RXVSAMIO 'MYFILE', 'CLOSE';                                *
 *   End                                                               *
 *                                                                     *
@@ -569,18 +670,18 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset for input */         *
 *   CALL RXVSAMIO 'MYFILE', 'OPEN', 'input', 'dynamic';               *
 *                                                                     *
-*   If rc == 0 Then Do       /* position for forward processing */    *
+*   If rc = 0 Then Do        /* position for forward processing */    *
 *     myfile._key.MYFILE_RBA_ADR = 7504;   /* RBA in decimal */       *
 *     CALL RXVSAMIO 'MYFILE', 'FWDPOS', 'rba';                        *
 *   End                                                               *
 *                                                                     *
-*   If rc == 0 Then Do       /* begin dataset retrieval */            *
+*   If rc = 0 Then Do        /* begin dataset retrieval */            *
 *     Say "List of file keys:";                                       *
 *     Say " ";                                                        *
 *     r = 0;                                                          *
 *     Do Until rc <> 0       /* rc of -1 indicates end-of-file */     *
 *       Call RXVSAMIO 'MYFILE', 'READ';                               *
-*       If rc == 0 Then Do                                            *
+*       If rc = 0 Then Do                                             *
 *         r = r + 1;                                                  *
 *         Say "Record" r", rba =" myfile._rba",",                     *
 *                         "key =" myfile._fld.FIELD_NAME_2,           *
@@ -589,7 +690,7 @@ RXVSAMIO RMODE 24
 *     End                                                             *
 *   End                                                               *
 *                            /* if no errors, close the dataset */    *
-*   If rc == 0 | rc == -1 Then Do                                     *
+*   If rc = 0 | rc = -1 Then Do                                       *
 *     Call RXVSAMIO 'MYFILE', 'CLOSE';                                *
 *   End                                                               *
 *                                                                     *
@@ -608,36 +709,36 @@ RXVSAMIO RMODE 24
 *                            /* open the dataset for input */         *
 *   CALL RXVSAMIO 'MYFILE', 'OPEN', 'input', 'dynamic';               *
 *                                                                     *
-*   If rc == 0 Then Do       /* point to next key range */            *
+*   If rc = 0 Then Do        /* point to next key range */            *
 *     myfile._key.FIELD_NAME_2 = desired_order_no;                    *
 *     myfile._key.FIELD_NAME_3 = '*HIGH';      /* end of range */     *
 *     CALL RXVSAMIO 'MYFILE', 'FWDPOS', 'key', 'gteq';                *
 *   End                                                               *
 *                                                                     *
-*   If rc == 0 Then Do       /* get record from next key range */     *
+*   If rc = 0 Then Do        /* get record from next key range */     *
 *     Call RXVSAMIO 'MYFILE', 'READ', 'next';                         *
-*     If rc == 0 Then Do     /* reverse file direction */             *
+*     If rc = 0 Then Do      /* reverse file direction */             *
 *       myfile._key.FIELD_NAME_2 = myfile._fld.FIELD_NAME_2           *
 *       myfile._key.FIELD_NAME_3 = myfile._fld.FIELD_NAME_3           *
 *       CALL RXVSAMIO 'MYFILE', 'BWDPOS', 'key';                      *
 *     End                                                             *
-*     If rc == 0 Then Do     /* get same record but in reverse */     *
+*     If rc = 0 Then Do      /* get same record but in reverse */     *
 *       CALL RXVSAMIO 'MYFILE', 'READ', 'prev';                       *
 *     End                                                             *
 *   End                                                               *
 *                                                                     *
-*   If rc == 0 Then Do       /* get the desired key range */          *
+*   If rc = 0 Then Do        /* get the desired key range */          *
 *     Say "List of file keys:";                                       *
 *     Say " ";                                                        *
 *     r = 0;                                                          *
 *     Do Until rc <> 0       /* rc of -1 indicates end-of-file */     *
 *       Call RXVSAMIO 'MYFILE', 'READ', 'prev'                        *
-*       If rc == 0,                                                   *
+*       If rc = 0,                                                    *
 *       &  myfile._fld.FIELD_NAME_2 <> desired_order_no,              *
 *       Then Do                                                       *
-*         rc == -1;          /* end of desired key range */           *
+*         rc = -1;           /* end of desired key range */           *
 *       End                                                           *
-*       If rc == 0 Then Do                                            *
+*       If rc = 0 Then Do                                             *
 *         r = r + 1;                                                  *
 *         Say "Record" r", key =" myfile._fld.FIELD_NAME_2,           *
 *                                 myfile._fld.FIELD_NAME_3;           *
@@ -645,7 +746,7 @@ RXVSAMIO RMODE 24
 *     End                                                             *
 *   End                                                               *
 *                            /* if no errors, close the dataset */    *
-*   If rc == 0 | rc == -1 Then Do                                     *
+*   If rc = 0 | rc = -1 Then Do                                       *
 *     Call RXVSAMIO 'MYFILE', 'CLOSE';                                *
 *   End                                                               *
 *                                                                     *
