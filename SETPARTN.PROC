@@ -1,0 +1,180 @@
+   CATALOG SETPARTN.PROC     REPLACE=YES   DATA=YES
+// PROC   STATUS=INQUIRE,JOBCD=PW
+// GOTO   START
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* PROC: SETPARTN       Proc Created 09/28/2009        By Dave Clark */
+/*                      Last Revised 05/26/2022                      */
+/*                                                                   */
+/*      This procedure standardizes  the VSE-supplied methodology of */
+/* controlling certain long-running  partitions  through  the use of */
+/* symbolic  parameters,   which  are   maintained  in  the  CPUVARn */
+/* procedure;  where 'n' is  the  CPU  number  stored in the $COMVAR */
+/* procedure.  In addition to partition activation and inactivation, */
+/* though,  this procedure will also  return the CICS application id */
+/* and startup mode -- automatically resetting the CICS startup mode */
+/* back to "AUTO" in  readiness  for  the  next  recycle of the CICS */
+/* partition.   Then,  in addition to that,  this procedure also re- */
+/* turns our custom system code  which is used to select appropriate */
+/* startup data depending upon in which LPAR the job is running.     */
+/*                                                                   */
+/*      There are two possible expected activation call formats (the */
+/* passed back symbol values are as needed):                         */
+/*                                                                   */
+/* // EXEC PROC=SETPARTN,STATUS=ACTIVE,JOBCD=xx,MODE,SYSCODE,XSECP   */
+/* // EXEC PROC=SETPARTN,STATUS=CICS,JOBCD=xx,APPL,MODE,SYSCODE,XSECP*/
+/*                                                                   */
+/*      There is only one possible inquiry call format (the passed   */
+/* back symbol values are as needed):                                */
+/*                                                                   */
+/* // EXEC PROC=SETPARTN,STATUS=INQUIRE,JOBCD=xx,MODE,SYSCODE,XSECP  */
+/*                                                                   */
+/*      There are two possible expected inactivation call formats:   */
+/*                                                                   */
+/* // EXEC PROC=SETPARTN,STATUS=INACTIVE,JOBCD=xx                    */
+/* // EXEC PROC=SETPARTN,STATUS=CICSCOLD,JOBCD=xx                    */
+/*                                                                   */
+/* Where 'xx' is one of the following supported job codes:           */
+/*      PW  =  VSEPOWER                                              */
+/*      VT  =  VSEVTAM                                               */
+/*      CP  =  CICSPROD                                              */
+/*      CD  =  CICSDATA                                              */
+/*      CI  =  CICSICCF                                              */
+/*      IP  =  BSITCPIP                                              */
+/*      FP  =  BSIFTP                                                */
+/*      FR  =  BSIFTPR                                               */
+/*      FS  =  BSIFTPS                                               */
+/*      FU  =  BSIFTPU                                               */
+/*      FI  =  BSIFTPI                                               */
+/*      T1  =  BSITNET1                                              */
+/*      T2  =  BSITNET2                                              */
+/*      T3  =  BSITNET3                                              */
+/*      T8  =  BSITNET8                                              */
+/*      T9  =  BSITNPRT                                              */
+/*                                                                   */
+/* The possible symbols available to be passed back are:             */
+/*      APPL       is the CICS Application ID associated with the    */
+/*                 specified job code and is obtained from the       */
+/*                 VSE-supplied XAPPL?? symbolic parameter;          */
+/*      CPUVARS    is the symbolic parameters procedure name created */
+/*                 by affixing the value of the VSE-supplied XNCPU   */
+/*                 symbolic parameter to the 'CPUVAR' literal;       */
+/*      MODE       is the Partition Startup Mode associated with the */
+/*                 specified job code and is obtained from the       */
+/*                 VSE-supplied XMODE?? symbolic parameter or the    */
+/*                 VSE-supplied XPWMODE?? symbolic parameter;        */
+/*      PARTN      is the Partition ID associated with the specified */
+/*                 job code and is obtained from the VSE-supplied    */
+/*                 XPART?? symbolic parameter;                       */
+/*      SYSCODE    is our System Code representing the current LPAR  */
+/*                 (where: 'P' is the PROD production system;        */
+/*                         'T' is the TEST development system;       */
+/*                         'Q' is the QUAS quality assurance system; */
+/*                         'W' is the WORK install system; and,      */
+/*                         'Z' is the ZAP backup system);            */
+/*      XNCPU      is the CPU Number obtained from the VSE-supplied  */
+/*                 XNCPU symbolic parameter;                         */
+/*      XSECP      is the Security Server Partition ID obtained from */
+/*                 the VSE-supplied XSECP symbolic parameter; and,   */
+/*      XSTAT      is the Partition Status associated with the       */
+/*                 specified job code and is obtained from the       */
+/*                 VSE-supplied XSTAT?? symbolic parameter.          */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/. START
+// IF JOBCD EQ 'PW' THEN                    /* VSEPOWER */
+// GOTO   READY
+// IF JOBCD EQ 'VT' THEN                    /* VSEVTAM  */
+// GOTO   READY
+// IF JOBCD EQ 'CP' THEN                    /* CICSPROD */
+// GOTO   READY
+// IF JOBCD EQ 'CD' THEN                    /* CICSDATA */
+// GOTO   READY
+// IF JOBCD EQ 'CI' THEN                    /* CICSICCF */
+// GOTO   READY
+// IF JOBCD EQ 'IP' THEN                    /* BSITCPIP */
+// GOTO   READY
+// IF JOBCD EQ 'FP' THEN                    /* BSIFTP   */
+// GOTO   READY
+// IF JOBCD EQ 'FR' THEN                    /* BSIFTPR  */
+// GOTO   READY
+// IF JOBCD EQ 'FS' THEN                    /* BSIFTPS  */
+// GOTO   READY
+// IF JOBCD EQ 'FU' THEN                    /* BSIFTPU  */
+// GOTO   READY
+// IF JOBCD EQ 'FI' THEN                    /* BSIFTPI  */
+// GOTO   READY
+// IF JOBCD EQ 'T1' THEN                    /* BSITNET1 */
+// GOTO   READY
+// IF JOBCD EQ 'T2' THEN                    /* BSITNET2 */
+// GOTO   READY
+// IF JOBCD EQ 'T3' THEN                    /* BSITNET3 */
+// GOTO   READY
+// IF JOBCD EQ 'T8' THEN                    /* BSITNET8 */
+// GOTO   READY
+// IF JOBCD EQ 'T9' THEN                    /* BSITNPRT */
+// GOTO   READY
+// PAUSE  UNKNOWN JOBCD = '&JOBCD'
+// GOTO   EXIT
+/*
+/. READY
+/*
+// SETPARM XNCPU=''                         /* SETUP CPU NO. SYMBOL  */
+// EXEC   PROC=$COMVAR,XNCPU                /* GET CPU NUMBER        */
+// SETPARM CPUVARS='CPUVAR&XNCPU'           /* CONCATENATE PROC NAME */
+// SETPARM XPART&JOBCD=''                   /* SETUP PARTN ID SYMBOL */
+// SETPARM XSECP=''                         /* SETUP SEC.SRVR.PARTN. */
+// EXEC   PROC=&CPUVARS,XPART&JOBCD,XSECP   /* GET JOB PARTITION ID  */
+// EXEC   PGM=SETSYMB,PARM='PARTN=XPART&JOBCD'  /* SAVE PARTITION ID */
+// SETPARM SYSCODE=''                       /* SETUP SYS.CODE SYMBOL */
+// SETPARM XAPPL&PARTN=''                   /* SETUP APPL.ID SYMBOL  */
+// SETPARM XMODE&PARTN=''                   /* SETUP START MODE SYM. */
+// SETPARM XSTAT&PARTN=''                   /* SETUP PARTN STAT SYM. */
+// EXEC   PROC=&CPUVARS,SYSCODE,XAPPL&PARTN,XMODE&PARTN,XSTAT&PARTN
+// EXEC   PGM=SETSYMB,PARM='APPL=XAPPL&PARTN'   /* SAVE CICS APPL.ID */
+// EXEC   PGM=SETSYMB,PARM='MODE=XMODE&PARTN'   /* SAVE STARTUP MODE */
+// EXEC   PGM=SETSYMB,PARM='XSTAT=XSTAT&PARTN'  /* SAVE PARTN STATUS */
+/*
+// IF     STATUS EQ 'INQUIRE' THEN
+// GOTO   EXIT
+// IF     STATUS NE 'CICS' THEN
+// GOTO   CHKSTAT
+/*
+// SETPARM STATUS='ACTIVE'                  /* SET ASSOCIATED STATUS */
+// EXEC   PGM=DTRSETP,PARM='&CPUVARS;;SET XMODE&PARTN=AUTO'
+/* EOD                                      /* RESET STARTUP MODE    */
+/*
+/. CHKSTAT
+// IF     STATUS EQ 'ACTIVE' THEN
+// GOTO   OKSTAT
+// IF     STATUS EQ 'INACTIVE' THEN
+// GOTO   OKSTAT
+// IF     STATUS EQ 'CICSCOLD' THEN
+// GOTO   SETCICS
+// PAUSE  UNKNOWN STATUS = '&STATUS'
+// GOTO   EXIT
+/*
+/. SETCICS
+// SETPARM STATUS='INACTIVE'                /* SET ASSOCIATED STATUS */
+// EXEC   PGM=DTRSETP,PARM='&CPUVARS;;SET XMODE&PARTN=COLD'
+/* EOD                                      /* SET STARTUP MODE      */
+// EXEC   PROC=DFHRSD&JOBCD                 /* DELETE/DEFINE DFHRSD  */
+/*
+/. OKSTAT
+// SETPARM XSTAT='&STATUS'                  /* SAVE PARTITION STATUS */
+// EXEC   PGM=DTRSETP,PARM='&CPUVARS;;SET XSTAT&PARTN=&STATUS'
+/* EOD                                      /* SET PARTITION STATUS  */
+/*
+// IF     JOBCD NE 'PW' THEN
+// GOTO   EXIT
+/*
+// SETPARM XPWMODE=''                       /* SETUP POWER START MODE*/
+// EXEC   PROC=&CPUVARS,XPWMODE             /* GET POWER STARTUP MODE*/
+// EXEC   PGM=SETSYMB,PARM='MODE=XPWMODE'   /* SAVE POWER START MODE */
+// IF     STATUS EQ 'ACTIVE' THEN
+// EXEC   PGM=DTRSETP,PARM='&CPUVARS;;SET STARTUP=BYPASS'
+/* EOD                                   /* BYPASS LONG-RUNNING JOBS */
+// IF     STATUS EQ 'INACTIVE' THEN
+// EXEC   PGM=DTRSETP,PARM='&CPUVARS;;SET STARTUP=NORMAL'
+/* EOD                                   /* NORMAL LONG-RUNNING JOBS */
+/*
+/. EXIT
+/+

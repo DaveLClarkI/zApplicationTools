@@ -1,0 +1,4 @@
+// SETPARM SYSCODE=''                                                           
+// EXEC   PROC=SETPARTN,STATUS=INQUIRE,JOBCD=PW,SYSCODE                         
+// OPTION SYSPARM='&SYSCODE'                                                    
+   SET    MRCZERO                                                               
