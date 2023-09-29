@@ -57,7 +57,7 @@ RX3270AP CSECT 0
          ICM   R6,B'0111',X'41'(R0)         GET PENDING CCW ADDR.
 *
          SELECT                             SELECT CONDITION
-         WHEN  x'44'(R0),(ON,TM),x'80'      WHEN INTERRUPT IS ATTN
+         WHEN  x'44'(R0),(ON,TF),x'80'      WHEN INTERRUPT IS ATTN
           MVC  x'44'(2,R0),=x'0C00'          SET CE+DE AND DEQUE
          WHEN  X'44'(R0),EQ,X'08'           WHEN INTERRUPT IS CH END
           NOPR 0                             DO NOTHING AND DEQUE
@@ -71,11 +71,11 @@ RX3270AP CSECT 0
 *                                           AND HAS PENDING CCW
           SL   R6,=F'8'                      GET PREV. CCW ADDR.        00001438
           IF   0(R6),EQ,x'03'                IF CCW IS MY NOOP
-           IF  0(R1),(NOT,TM),x'80'           IF CCB NOT FLAGGED
+           IF  0(R1),(NOT,TF),x'80'           IF CCB NOT FLAGGED
             MVC x'44'(2,R0),=x'0080'           CHANGE TO PCI
-            OI 0(R1),x'80'                     FLAG THE CCB
+            SF 0(R1),x'80'                     FLAG THE CCB
            ELSE                               ELSE
-            NI 0(R1),x'FF'-x'80'               REMOVE CCB FLAG
+            CF 0(R1),x'80'                     REMOVE CCB FLAG
            ENDIF                              ENDIF
           ENDIF                              ENDIF
 *
