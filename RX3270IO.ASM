@@ -586,10 +586,10 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
 *
          IF    OPT(4),(NE,CLC),=C'READ'
 *
-         MVC   VARDATA(35),=CL35'Beginning _____ WRITE processing...'
-         MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
-         LA    R3,35                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+*        MVC   VARDATA(35),=CL35'Beginning _____ WRITE processing...'
+*        MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
+*        LA    R3,35                   SET LENGTH OF OUTPUT
+*        BAS   R5,SAYIT                GO SAY IT
 *
 * INITIALIZE CCW
          IF    OPT,(EQ,CLC),=C'QUERY'  IF FUNCTION IS 'QUERY'
@@ -822,10 +822,10 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
 *
          IF    OPT(4),(EQ,CLC),=C'READ'
 *
-         MVC   VARDATA(34),=CL34'Beginning _____ READ processing...'
-         MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
-         LA    R3,34                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+*        MVC   VARDATA(34),=CL34'Beginning _____ READ processing...'
+*        MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
+*        LA    R3,34                   SET LENGTH OF OUTPUT
+*        BAS   R5,SAYIT                GO SAY IT
 *
 * INITIALIZE CCW
          LA    R0,SCRBUF               GET ADDRESS OF BUFFER
@@ -835,10 +835,10 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
 *
          IF    OPT,(NE,CLC),=C'READQ'  IF NOT QUERY
 *
-         MVC   VARDATA(18),=CL18'_____ ATTN wait...'
-         MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
-         LA    R3,18                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+*        MVC   VARDATA(18),=CL18'_____ ATTN wait...'
+*        MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
+*        LA    R3,18                   SET LENGTH OF OUTPUT
+*        BAS   R5,SAYIT                GO SAY IT
 *
 * WAIT FOR 3270 ATTN SIGNAL
           LA   R1,MYCCB                 SET CCB ADDRESS
@@ -862,10 +862,10 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
 *
 * READ DATA FROM 3270 DEVICE
 *
-         MVC   VARDATA(19),=CL19'_____ READ input...'
-         MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
-         LA    R3,19                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+*        MVC   VARDATA(19),=CL19'_____ READ input...'
+*        MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
+*        LA    R3,19                   SET LENGTH OF OUTPUT
+*        BAS   R5,SAYIT                GO SAY IT
 *
          IF    OPT,(EQ,CLC),=C'READB'
           MVC  MYCCW+0(1),LCLREADB     PERFORM READ-BUFFER
@@ -884,10 +884,10 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
           B    RETERR                    GO RETURN ERROR
          ENDIF                          ENDIF
 *
-         MVC   VARDATA(22),=CL22'Begin _____ parsing...'
-         MVC   VARDATA+6(L'OPT),OPT    PUT OPTION IN MESSAGE
-         LA    R3,22                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+*        MVC   VARDATA(22),=CL22'Begin _____ parsing...'
+*        MVC   VARDATA+6(L'OPT),OPT    PUT OPTION IN MESSAGE
+*        LA    R3,22                   SET LENGTH OF OUTPUT
+*        BAS   R5,SAYIT                GO SAY IT
 *
 * STORE RAW 3270 BUFFER INPUT
          LA    R2,SCRBUF               THEN, GET ADDRESS FOR SHVVALA
@@ -1386,65 +1386,65 @@ STORAGE  DS    0D
 * =================================================================== *
 SALEN    DC    A(DYNALENG)
 BUFLEN   DC    A(L'SCRBUF)
-CARTNEP  DC    F'0'
-CARTNBEG DC    F'0'
-CARTNLEN DC    F'0'
-CARTNFLG DC    F'-1'
+CARTNEP  DC    F'0'               CHANNEL APPENDAGE RTN ENTRY POINT
+CARTNBEG DC    F'0'               PFIX LOAD POINT ADDRESS
+CARTNLEN DC    F'0'               PFIX MODULE LENGTH MINUS ONE
+CARTNFLG DC    F'-1'              PFIX PARM BLOCK END FLAG
          LTORG
 *                                                                       00040100
-QUERY    DC    AL2(QUERYL)             STRUCTURED FIELD LENGTH          00040400
-         DC    X'01'                   READ PARTITION                   00040500
-         DC    X'FF'                   PARTITION ID (X'FF' = "QUERY")   00040600
-         DC    X'03'                   QUERY LIST                       00040700
-         DC    B'00000000'             QUERY TYPE (QCODE LIST)          00040800
-QRY_81   DC    X'81'                   QUERY ID (USABLE AREA)           00040900
-QRY_A6   DC    X'A6'                   QUERY ID (IMPLICIT PARTITION)    00040900
-QRY_86   DC    X'86'                   QUERY ID (COLOR)                 00040900
-QRY_87   DC    X'87'                   QUERY ID (HILITE)                00040900
-QUERYL   EQU   *-QUERY                 CALCULATE QUERY LENGTH
+QUERY    DC    AL2(QUERYL)        STRUCTURED FIELD LENGTH               00040400
+         DC    X'01'              READ PARTITION                        00040500
+         DC    X'FF'              PARTITION ID (X'FF' = "QUERY")        00040600
+         DC    X'03'              QUERY LIST                            00040700
+         DC    B'00000000'        QUERY TYPE (QCODE LIST)               00040800
+QRY_81   DC    X'81'              QUERY ID (USABLE AREA)                00040900
+QRY_A6   DC    X'A6'              QUERY ID (IMPLICIT PARTITION)         00040900
+QRY_86   DC    X'86'              QUERY ID (COLOR)                      00040900
+QRY_87   DC    X'87'              QUERY ID (HILITE)                     00040900
+QUERYL   EQU   *-QUERY            CALCULATE QUERY LENGTH
          SPACE 3                                                        00040800
 * ******************************************************************* * 00038600
 *        LOCAL CCW COMMAND CODES                                      * 00038700
 * ******************************************************************* * 00038800
-LCLWRITE DC    X'01'         LOCAL  CC=(WRITE)                          00039600
-LCLREADB DC    X'02'         LOCAL  CC=(READ,BUFFER)                    00039400
-LCLNOOP  DC    X'03'         LOCAL  CC=(NOOP)                           00039400
-LCLERWRT DC    X'05'         LOCAL  CC=(ERASE,WRITE)                    00039300
-LCLREADM DC    X'06'         LOCAL  CC=(READ,MODIFIED)                  00039500
-LCLERWRA DC    X'0D'         LOCAL  CC=(ERASE,WRITE,ALTERNATE)          00039200
-LCLERAUP DC    X'0F'         LOCAL  CC=(ERASE,AUP)                      00039100
-LCLWRSTR DC    X'11'         LOCAL  CC=(WRITE,STRUCTURED)               00039700
+LCLWRITE DC    X'01'              LOCAL  CC=(WRITE)                     00039600
+LCLREADB DC    X'02'              LOCAL  CC=(READ,BUFFER)               00039400
+LCLNOOP  DC    X'03'              LOCAL  CC=(NOOP)                      00039400
+LCLERWRT DC    X'05'              LOCAL  CC=(ERASE,WRITE)               00039300
+LCLREADM DC    X'06'              LOCAL  CC=(READ,MODIFIED)             00039500
+LCLERWRA DC    X'0D'              LOCAL  CC=(ERASE,WRITE,ALTERNATE)     00039200
+LCLERAUP DC    X'0F'              LOCAL  CC=(ERASE,AUP)                 00039100
+LCLWRSTR DC    X'11'              LOCAL  CC=(WRITE,STRUCTURED)          00039700
          SPACE 3                                                        00040800
 * ******************************************************************* * 00038600
 *        3270 BUFFER ORDERS                                           * 00038700
 * ******************************************************************* * 00038800
-AIDNOAID DC    X'60'         NO AID GENERATED (NO DATA TO READ)         00056600
-SCRSETBA DC    X'11'         SET BUFFER ADDRESS + 2-BYTE ADDRESS        00045200
-SCRCURSR DC    X'13'         INSERT CURSOR                              00045200
-SCRSTFLD DC    X'1D00'             SF  + ATTRIBUTE                      00045500
+AIDNOAID DC    X'60'              NO AID GENERATED (NO DATA TO READ)    00056600
+SCRSETBA DC    X'11'              SET BUFFER ADDRESS + 2-BYTE ADDRESS   00045200
+SCRCURSR DC    X'13'              INSERT CURSOR                         00045200
+SCRSTFLD DC    X'1D00'            SF  + ATTRIBUTE                       00045500
 SCRSTFEX DC    X'2903C00042004100' SFE + COUNT + TYPE-VALUE PAIRS       00045700
          SPACE 3                                                        00053400
 * ******************************************************************* * 00053500
 *        VARIABLE NAMES TO RETRIEVE/CREATE                            * 00053600
 * ******************************************************************* * 00053700
-DEVBSA   DC    C'_BUFSA'
-DEVBSZ   DC    C'_BUFSZ'
-DEVEXC   DC    C'_EXC'
-DEVEXH   DC    C'_EXH'
-DEVHGA   DC    C'_ROWA'
-DEVHGT   DC    C'_ROWS'
-DEVLUN   DC    C'_LUN'
-DEVQRY   DC    C'_QRY'
-DEVTYP   DC    C'_DEV'
-DEVWCC   DC    C'_WCC'
-DEVWDA   DC    C'_COLA'
-DEVWDT   DC    C'_COLS'
-FLDATR   DC    C'.ATTRIB'
-FLDINP   DC    C'.INPUT'
-FLDOUT   DC    C'.OUTPUT'
-KYBAID   DC    C'_AID'
-RAWINP   DC    C'_RAW'
-RAWOUT   DC    C'_CCC'
-SCRCSR   DC    C'_CSR'
+DEVLUN   DC    C'_LUN'            LOGICAL UNIT NUMBER
+FLDATR   DC    C'.ATTRIB'         FIELD ATTRIBUTES
+FLDOUT   DC    C'.OUTPUT'         FIELD OUTPUT
+FLDINP   DC    C'.INPUT'          FIELD INPUT
+DEVBSZ   DC    C'_BUFSZ'          DEFAULT BUFFER SIZE
+DEVBSA   DC    C'_BUFSA'             ALT. BUFFER SIZE
+DEVHGT   DC    C'_ROWS'           DEFAULT ROWS (HEIGHT)
+DEVHGA   DC    C'_ROWA'              ALT. ROWS (HEIGHT)
+DEVWDT   DC    C'_COLS'           DEFAULT COLUMNS (WIDTH)
+DEVWDA   DC    C'_COLA'              ALT. COLUMNS (WIDTH)
+RAWOUT   DC    C'_CCC'            RAW OUTPUT DS (STARTING WITH CCC)
+RAWINP   DC    C'_RAW'            RAW INPUT DATA STREAM
+DEVWCC   DC    C'_WCC'            WRITE CONTROL CHARACTER
+KYBAID   DC    C'_AID'            ATTENTION IDENTIFIER
+SCRCSR   DC    C'_CSR'            CURSOR POSITION
+DEVQRY   DC    C'_QRY'            QUERY INDICATOR
+DEVTYP   DC    C'_DEV'            DEVICE TYPE
+DEVEXC   DC    C'_EXC'            EXTENDED COLOR
+DEVEXH   DC    C'_EXH'            EXTENDED HILITE
 * =================================================================== *
          END   RX3270IO
