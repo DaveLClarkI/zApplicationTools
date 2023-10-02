@@ -220,7 +220,7 @@ EWORK8   DS    CL8                     EDITED WORK FIELD
 *
 MYCCB    CCB   SYS000,MYCCW
 MYCCW    CCW   X'00',SCRBUF,X'20',L'SCRBUF
-*MYTECB  TECB
+MYTECB   TECB
 MYPUB    DS    XL8                     STORAGE FOR PUB DSECT
 *
 SAVEEVAL DS    F                       EVALUATION BLOCK ADDRESS
@@ -241,7 +241,8 @@ STEMNAME DS    CL9                     STEM NAME
 OPT      DS    CL5                     FUNCTION CODE
 QRYFLAG  DS    XL1                     QUERY FLAGS
 CCBQUEUE DF    B'10000000',QRYFLAG     QUEUED I/O PENDING
-SET_81   DF    B'01000000',QRYFLAG     QUERY x'81' (USABLE AREA)
+TECBWAIT DF    B'01000000',QRYFLAG     USE TECB FOR CONTROLLED WAIT
+SET_81   DF    B'00100000',QRYFLAG     QUERY x'81' (USABLE AREA)
 SET_A6   DF    B'00010000',QRYFLAG     QUERY x'A6' (IMPLICIT PARTITION)
 SET_KLZ  DF    B'00001000',QRYFLAG     KEEP LEADING ZEROES
 SET_EXC  DF    B'00000010',QRYFLAG     EXTENDED COLOR
@@ -310,6 +311,8 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
 * =================================================================== *
          USING DYNASTOR,R13            POINT TO GETVIS DYNAMIC STORAGE
 *
+         SAM31                         SWITCH TO 31-BIT ADDRESSING
+*                                       BECAUSE OF DEBUGGER: TRAPPER
          LR    R5,R0                   REXX ENVIRONMENT BLOCK
          USING ENVBLOCK,R5             ESTABLISH ADDRESSABILITY
          IF    ENVBLOCK_ID,(NE,CLC),=C'ENVBLOCK'
@@ -452,13 +455,15 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
          LA    R1,L'VARDATA            GET LENGTH FOR PARM 3
          STM   R0,R1,SAYPARM2          PUT IN PARMS 2 AND 3
 *
-         MVC   VARDATA+0(18),=C'RX3270IO Load at: '
-         ST    R11,AWORK4              STORE BASE ADDRESS
-         UNPK  EWORK8(9),AWORK4(5)     UNPACK BASE ADDRESS
-         TR    EWORK8(8),TRTBL          AND TRANSLATE TO PRINTABLE
-         MVC   VARDATA+18(8),EWORK8    THEN PUT IN MSG AREA
-         LHI   R3,26                   SET LENGTH OF OUTPUT
-         BAS   R5,SAYIT                GO SAY IT
+         IF    OPT,(EQ,CLC),=C'QUERY'  IF FUNCTION IS 'QUERY'
+          MVC  VARDATA+0(18),=C'RX3270IO Load at: '
+          ST   R11,AWORK4               STORE BASE ADDRESS
+          UNPK EWORK8(9),AWORK4(5)      UNPACK BASE ADDRESS
+          TR   EWORK8(8),TRTBL           AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+18(8),EWORK8     THEN PUT IN MSG AREA
+          LHI  R3,26                    SET LENGTH OF OUTPUT
+          BAS  R5,SAYIT                 GO SAY IT
+         ENDIF                         ENDIF
 *
 * SET STEM NAME PREFIX (FOR VARIABLE RETRIEVAL/CREATION)
 *
@@ -466,12 +471,17 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
          MVC   0(L'STEMNAME,R4),STEMNAME  MOVE IN STEM NAME
          A     R4,STEMLENG                POINT TO AFTER STEM NAME
 *
-         XC    QRYFLAG,QRYFLAG          CLEAR QUERY FLAG
+         XC    QRYFLAG,QRYFLAG          SET ALL BITS OFF
 *
 * LOAD APPENDAGE ROUTINE
 *
          IF    CARTNBEG,(EQ,CLC),=F'0' IF NOT YET LOADED...
           SAM24                         SWITCH TO 24-BIT MODE
+          CDLOAD RX3270IO               MAKE THIS RTN STAY IN MEMORY
+          IF   R15,(NZ,LTR),R15         IF CDLOAD ERROR
+           LH  R5,=H'13'                 INDICATE LOAD FAILURE
+           B   RETERR                    GO RETURN ERROR
+          ENDIF                         ENDIF
           CDLOAD RX3270AP,PAGE=YES      LOAD APPENDAGE ROUTINE
           IF   R15,(NZ,LTR),R15         IF CDLOAD ERROR
            LH  R5,=H'14'                 INDICATE APPENDAGE FAILURE
@@ -585,11 +595,6 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
 *                  WRITE, WRITA, WRTDS, AND QUERY)
 *
          IF    OPT(4),(NE,CLC),=C'READ'
-*
-*        MVC   VARDATA(35),=CL35'Beginning _____ WRITE processing...'
-*        MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
-*        LA    R3,35                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
 *
 * INITIALIZE CCW
          IF    OPT,(EQ,CLC),=C'QUERY'  IF FUNCTION IS 'QUERY'
@@ -822,23 +827,13 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
 *
          IF    OPT(4),(EQ,CLC),=C'READ'
 *
-*        MVC   VARDATA(34),=CL34'Beginning _____ READ processing...'
-*        MVC   VARDATA+10(L'OPT),OPT   PUT OPTION IN MESSAGE
-*        LA    R3,34                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
-*
 * INITIALIZE CCW
          LA    R0,SCRBUF               GET ADDRESS OF BUFFER
          L     R1,BUFLEN               GET MAX LENGTH OF BUFFER
          STM   R0,R1,MYCCW+0           PUT IN CHANNEL COMMAND WORD
          MVI   MYCCW+4,X'20'           SUPPRESS WLR
 *
-         IF    OPT,(NE,CLC),=C'READQ'  IF NOT QUERY
-*
-*        MVC   VARDATA(18),=CL18'_____ ATTN wait...'
-*        MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
-*        LA    R3,18                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
+         IF    OPT,(NE,CLC),=C'READQ'  IF NOT READ-QUERY, NOOP WAIT
 *
 * WAIT FOR 3270 ATTN SIGNAL
           LA   R1,MYCCB                 SET CCB ADDRESS
@@ -862,32 +857,38 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
 *
 * READ DATA FROM 3270 DEVICE
 *
-*        MVC   VARDATA(19),=CL19'_____ READ input...'
-*        MVC   VARDATA+0(L'OPT),OPT    PUT OPTION IN MESSAGE
-*        LA    R3,19                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
-*
-         IF    OPT,(EQ,CLC),=C'READB'
-          MVC  MYCCW+0(1),LCLREADB     PERFORM READ-BUFFER
-         ELSE
-          MVC  MYCCW+0(1),LCLREADM     PERFORM READ-MODIFIED
-         ENDIF
-         L     R0,BUFLEN                PUT MAX LENGTH OF BUFFER
-         STH   R0,MYCCW+6                IN CHANNEL COMMAND WORD
-         LA    R1,MYCCB                 SET CCB ADDRESS
-         EXCP  (1)                      START THE I/O OPERATION
-         WAIT  (1)                      WAIT FOR I/O COMPLETION
-         IF    MYCCB+4(2),(NE,CLC),=X'0C00' IF NOT CE+DE, ERROR
-          LA   R5,16                     SET RC VALUE
-          XR   R15,R15                   CLEAR REGISTER
-          ICM  R15,B'0011',MYCCB+4       SET RESULT VALUE
-          B    RETERR                    GO RETURN ERROR
-         ENDIF                          ENDIF
-*
-*        MVC   VARDATA(22),=CL22'Begin _____ parsing...'
-*        MVC   VARDATA+6(L'OPT),OPT    PUT OPTION IN MESSAGE
-*        LA    R3,22                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
+         SF    TECBWAIT                MAKE SURE LOOP IS ENTERED
+         WHILE TECBWAIT,(ON,TF),$NOOP  WHILE TECB WAIT FLAG IS ON
+          IF   OPT,(EQ,CLC),=C'READB'
+           MVC MYCCW+0(1),LCLREADB      PERFORM READ-BUFFER
+          ELSE
+           MVC MYCCW+0(1),LCLREADM      PERFORM READ-MODIFIED
+          ENDIF
+          L    R0,BUFLEN                PUT MAX LENGTH OF BUFFER
+          STH  R0,MYCCW+6                IN CHANNEL COMMAND WORD
+          LA   R1,MYCCB                 SET CCB ADDRESS
+          EXCP (1)                      START THE I/O OPERATION
+          WAIT (1)                      WAIT FOR I/O COMPLETION
+          IF   MYCCB+4(2),(NE,CLC),=X'0C00' IF NOT CE+DE, ERROR
+           LA  R5,16                     SET RC VALUE
+           XR  R15,R15                   CLEAR REGISTER
+           ICM R15,B'0011',MYCCB+4       SET RESULT VALUE
+           B   RETERR                    GO RETURN ERROR
+          ENDIF                         ENDIF
+          IF   OPT,(NE,CLC),=C'READQ'   IF NOT READ-QUERY
+            WEXIT                        EXIT WHILE LOOP
+          ELSE                          ELSE
+           IF  SCRBUF,EQ,X'88'           IF QUERY RECEIVED
+            CF TECBWAIT                   END WHILE LOOP
+           ELSE                          ELSE
+            XR R0,R0                      CLEAR PARM REG
+            LA R1,30                      SET .1-SECOND TIMER
+            LA R2,MYTECB                  SET ADDRESS OF TECB
+            SETIME (1),(2),PREC           SETUP 1/300 OF SECOND TIMER
+            WAIT (1)                      WAIT FOR TIMER INTERRUPT
+           ENDIF                         ENDIF
+          ENDIF                         ENDIF
+         WEND                          WEND
 *
 * STORE RAW 3270 BUFFER INPUT
          LA    R2,SCRBUF               THEN, GET ADDRESS FOR SHVVALA
