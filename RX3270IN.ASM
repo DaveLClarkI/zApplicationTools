@@ -861,166 +861,166 @@ SALEN    DC    A(DYNALENG)
          LTORG
 STEM     DC    C'RX3270_'
 LIT      DC    C'.LIT_'
-* ******************************************************************* * 00056000
-         SPACE 3                                                        00040800
-* ******************************************************************* * 00038600
-*        LOCAL CCW COMMAND CODES                                      * 00038700
-* ******************************************************************* * 00038800
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        LOCAL CCW COMMAND CODES                                      *
+* ******************************************************************* *
 CCC      DC    C'CCC'
-CCCWRITE DC    C'LCL_WRITE'                                             00039600
-CCCERWRT DC    C'LCL_ERASE_WRITE'                                       00039300
-CCCERWRA DC    C'LCL_ERASE_WRITE_ALTERNATE'                             00039200
-CCCERAUP DC    C'LCL_ERASE_ALL_UNPROTECTED'                             00039100
-CCCWRSTR DC    C'LCL_WRITE_STRUCTURED'                                  00039700
-* ******************************************************************* * 00056000
-         SPACE 3                                                        00040800
-* ******************************************************************* * 00040900
-*        WRITE CONTROL CHARACTER LITERALS                             * 00041000
-* ******************************************************************* * 00041100
+CCCWRITE DC    C'LCL_WRITE'
+CCCERWRT DC    C'LCL_ERASE_WRITE'
+CCCERWRA DC    C'LCL_ERASE_WRITE_ALTERNATE'
+CCCERAUP DC    C'LCL_ERASE_ALL_UNPROTECTED'
+CCCWRSTR DC    C'LCL_WRITE_STRUCTURED'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        WRITE CONTROL CHARACTER LITERALS                             *
+* ******************************************************************* *
 WCC      DC    C'WCC'
-WCCLKFST DC    C'LEAVEKB'                                               00042700
-WCCLKFRS DC    C'LEAVEKB_FRSET'                                         00042800
-WCCFKFST DC    C'FREEKB'                                                00042900
-WCCFKFRS DC    C'FREEKB_FRSET'                                          00043000
-WCCLKFSA DC    C'LEAVEKB_ALARM'                                         00043100
-WCCLKFRA DC    C'LEAVEKB_FRSET_ALARM'                                   00043200
-WCCFKFSA DC    C'FREEKB_ALARM'                                          00043300
-WCCFKFRA DC    C'FREEKB_FRSET_ALARM'                                    00043400
-* ******************************************************************* * 00056000
-         SPACE 3                                                        00040800
-* ******************************************************************* * 00040900
-*        DATA STREAM ORDERS LITERALS                                  * 00041000
-* ******************************************************************* * 00041100
+WCCLKFST DC    C'LEAVEKB'
+WCCLKFRS DC    C'LEAVEKB_FRSET'
+WCCFKFST DC    C'FREEKB'
+WCCFKFRS DC    C'FREEKB_FRSET'
+WCCLKFSA DC    C'LEAVEKB_ALARM'
+WCCLKFRA DC    C'LEAVEKB_FRSET_ALARM'
+WCCFKFSA DC    C'FREEKB_ALARM'
+WCCFKFRA DC    C'FREEKB_FRSET_ALARM'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        DATA STREAM ORDERS LITERALS                                  *
+* ******************************************************************* *
 DSO      DC    C'DSO'
-DSOPGTAB DC    C'PROGRAM_TAB'                                           00045000
-DSOGRESC DC    C'GRAPHIC_ESCAPE'                                        00045100
-DSOSETBA DC    C'SET_BUFFER_ADDRESS'                                    00045200
-DSOERASE DC    C'ERASE_UNPROTECTED'                                     00045300
-DSOCURSR DC    C'INSERT_CURSOR'                                         00045400
-DSOSTFLD DC    C'START_FIELD'                                           00045500
-DSOSETAT DC    C'SET_ATTRIBUTE'                                         00045600
-DSOSTFEX DC    C'START_FIELD_EXTENDED'                                  00045700
-DSOMODFY DC    C'MODIFY_FIELD'                                          00045800
-DSOREPTA DC    C'REPEAT_TO_ADDRESS'                                     00045900
-* ******************************************************************* * 00056000
-         SPACE 3                                                        00056100
-* ******************************************************************* * 00056200
-*        EXTENDED FIELD AND CHARACTER ATTRIBUTE TYPES                 * 00056300
-* ******************************************************************* * 00056400
+DSOPGTAB DC    C'PROGRAM_TAB'
+DSOGRESC DC    C'GRAPHIC_ESCAPE'
+DSOSETBA DC    C'SET_BUFFER_ADDRESS'
+DSOERASE DC    C'ERASE_UNPROTECTED'
+DSOCURSR DC    C'INSERT_CURSOR'
+DSOSTFLD DC    C'START_FIELD'
+DSOSETAT DC    C'SET_ATTRIBUTE'
+DSOSTFEX DC    C'START_FIELD_EXTENDED'
+DSOMODFY DC    C'MODIFY_FIELD'
+DSOREPTA DC    C'REPEAT_TO_ADDRESS'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        EXTENDED FIELD AND CHARACTER ATTRIBUTE TYPES                 *
+* ******************************************************************* *
 TYP      DC    C'TYP'
-TYPRESET DC    C'RESET'                                                 00053900
-TYPFIELD DC    C'FIELD_ATTRIBUTE'                                       00054300
-TYPVALDN DC    C'FIELD_VALIDATION'                                      00054300
-TYPOUTLN DC    C'FIELD_OUTLINING'                                       00054300
-TYPHILIT DC    C'EXTENDED_HILIGHT'                                      00054000
-TYPCOLOR DC    C'EXTENDED_COLOR'                                        00054100
-TYPPSYMB DC    C'CHARACTER_SET'                                         00054100
-TYPBGCLR DC    C'BACKGROUND_COLOR'                                      00054100
-TYPTRANS DC    C'TRANSPARENCY'                                          00054100
-* ******************************************************************* * 00056000
-         SPACE 3                                                        00056100
-* ******************************************************************* * 00056200
-*        ATTENTION IDENTIFIER LITERALS                                * 00056300
-* ******************************************************************* * 00056400
+TYPRESET DC    C'RESET'
+TYPFIELD DC    C'FIELD_ATTRIBUTE'
+TYPVALDN DC    C'FIELD_VALIDATION'
+TYPOUTLN DC    C'FIELD_OUTLINING'
+TYPHILIT DC    C'EXTENDED_HILIGHT'
+TYPCOLOR DC    C'EXTENDED_COLOR'
+TYPPSYMB DC    C'CHARACTER_SET'
+TYPBGCLR DC    C'BACKGROUND_COLOR'
+TYPTRANS DC    C'TRANSPARENCY'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        ATTENTION IDENTIFIER LITERALS                                *
+* ******************************************************************* *
 AID      DC    C'AID'
 AIDNOAID DC    C'NO_AID'
-AIDPAK03 DC    C'PA3_KEY'                                               00057100
-AIDPAK01 DC    C'PA1_KEY'                                               00056900
-AIDCLEAR DC    C'CLEAR_KEY'                                             00056600
-AIDPAK02 DC    C'PA2_KEY'                                               00057000
-AIDPFK01 DC    C'PF1_KEY'                                               00057200
-AIDPFK02 DC    C'PF2_KEY'                                               00057300
-AIDPFK03 DC    C'PF3_KEY'                                               00057400
-AIDPFK04 DC    C'PF4_KEY'                                               00057500
-AIDPFK05 DC    C'PF5_KEY'                                               00057600
-AIDPFK06 DC    C'PF6_KEY'                                               00057700
-AIDPFK07 DC    C'PF7_KEY'                                               00057800
-AIDPFK08 DC    C'PF8_KEY'                                               00057900
-AIDPFK09 DC    C'PF9_KEY'                                               00058000
-AIDPFK10 DC    C'PF10_KEY'                                              00058100
-AIDPFK11 DC    C'PF11_KEY'                                              00058200
-AIDPFK12 DC    C'PF12_KEY'                                              00058300
-AIDENTER DC    C'ENTER_KEY'                                             00056700
-AIDCURSR DC    C'CURSOR_SELECT'        (OR LIGHT PEN)                   00056800
-AIDPFK13 DC    C'PF13_KEY'                                              00058400
-AIDPFK14 DC    C'PF14_KEY'                                              00058500
-AIDPFK15 DC    C'PF15_KEY'                                              00058600
-AIDPFK16 DC    C'PF16_KEY'                                              00058700
-AIDPFK17 DC    C'PF17_KEY'                                              00058800
-AIDPFK18 DC    C'PF18_KEY'                                              00058900
-AIDPFK19 DC    C'PF19_KEY'                                              00059000
-AIDPFK20 DC    C'PF20_KEY'                                              00059100
-AIDPFK21 DC    C'PF21_KEY'                                              00059200
-AIDPFK22 DC    C'PF22_KEY'                                              00059300
-AIDPFK23 DC    C'PF23_KEY'                                              00059400
-AIDPFK24 DC    C'PF24_KEY'                                              00059500
-* ******************************************************************* * 00044400
-         SPACE 3                                                        00047900
-* ******************************************************************* * 00048000
-*        STANDARD FIELD ATTRIBUTE LITERALS                            * 00048100
-* ******************************************************************* * 00048200
+AIDPAK03 DC    C'PA3_KEY'
+AIDPAK01 DC    C'PA1_KEY'
+AIDCLEAR DC    C'CLEAR_KEY'
+AIDPAK02 DC    C'PA2_KEY'
+AIDPFK01 DC    C'PF1_KEY'
+AIDPFK02 DC    C'PF2_KEY'
+AIDPFK03 DC    C'PF3_KEY'
+AIDPFK04 DC    C'PF4_KEY'
+AIDPFK05 DC    C'PF5_KEY'
+AIDPFK06 DC    C'PF6_KEY'
+AIDPFK07 DC    C'PF7_KEY'
+AIDPFK08 DC    C'PF8_KEY'
+AIDPFK09 DC    C'PF9_KEY'
+AIDPFK10 DC    C'PF10_KEY'
+AIDPFK11 DC    C'PF11_KEY'
+AIDPFK12 DC    C'PF12_KEY'
+AIDENTER DC    C'ENTER_KEY'
+AIDCURSR DC    C'CURSOR_SELECT'        (OR LIGHT PEN)
+AIDPFK13 DC    C'PF13_KEY'
+AIDPFK14 DC    C'PF14_KEY'
+AIDPFK15 DC    C'PF15_KEY'
+AIDPFK16 DC    C'PF16_KEY'
+AIDPFK17 DC    C'PF17_KEY'
+AIDPFK18 DC    C'PF18_KEY'
+AIDPFK19 DC    C'PF19_KEY'
+AIDPFK20 DC    C'PF20_KEY'
+AIDPFK21 DC    C'PF21_KEY'
+AIDPFK22 DC    C'PF22_KEY'
+AIDPFK23 DC    C'PF23_KEY'
+AIDPFK24 DC    C'PF24_KEY'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        STANDARD FIELD ATTRIBUTE LITERALS                            *
+* ******************************************************************* *
 ATR      DC    C'ATR'
-ATRUNPRO DC    C'UNPROT_NORM'                                           00049800
-ATRUNFST DC    C'UNPROT_NORM_FSET'                                      00049900
-ATRUNDET DC    C'UNPROT_NORM_DET'                                       00050000
-ATRUNDTF DC    C'UNPROT_NORM_DET_FSET'                                  00050100
-ATRUNBRT DC    C'UNPROT_BRT'                                            00050200
-ATRUNBRF DC    C'UNPROT_BRT_FSET'                                       00050300
-ATRUNDRK DC    C'UNPROT_DRK'                                            00050400
-ATRUNDKF DC    C'UNPROT_DRK_FSET'                                       00050500
-ATRUNNUM DC    C'UNPROT_NORM_NUM'                                       00050600
-ATRUNNMF DC    C'UNPROT_NORM_NUM_FSET'                                  00050700
-ATRUNNMD DC    C'UNPROT_NORM_NUM_DET'                                   00050800
-ATRUNNDF DC    C'UNPROT_NORM_NUM_DET_FSET'                              00050900
-ATRUNBRN DC    C'UNPROT_BRT_NUM'                                        00051000
-ATRUNBNF DC    C'UNPROT_BRT_NUM_FSET'                                   00051100
-ATRUNDKN DC    C'UNPROT_DRK_NUM'                                        00051200
-ATRUNDNF DC    C'UNPROT_DRK_NUM_FSET'                                   00051300
-ATRPROT  DC    C'PROT_NORM'                                             00051400
-ATRPRFST DC    C'PROT_NORM_FSET'                                        00051500
-ATRPRDET DC    C'PROT_NORM_DET'                                         00051600
-ATRPRDTF DC    C'PROT_NORM_DET_FSET'                                    00051700
-ATRPRBRT DC    C'PROT_BRT'                                              00051800
-ATRPRBRF DC    C'PROT_BRT_FSET'                                         00051900
-ATRPRDRK DC    C'PROT_DRK'                                              00052000
-ATRPRDKF DC    C'PROT_DRK_FSET'                                         00052100
-ATRASKIP DC    C'ASKIP_NORM'                                            00052200
-ATRASFST DC    C'ASKIP_NORM_FSET'                                       00052300
-ATRASDET DC    C'ASKIP_NORM_DET'                                        00052400
-ATRASDTF DC    C'ASKIP_NORM_DET_FSET'                                   00052500
-ATRASBRT DC    C'ASKIP_BRT'                                             00052600
-ATRASBRF DC    C'ASKIP_BRT_FSET'                                        00052700
-ATRASDRK DC    C'ASKIP_DRK'                                             00052800
-ATRASDKF DC    C'ASKIP_DRK_FSET'                                        00052900
-* ******************************************************************* * 00053300
-         SPACE 3                                                        00053400
-* ******************************************************************* * 00053500
-*        INSERT CURSOR LITERALS                                       * 00053600
-* ******************************************************************* * 00053700
+ATRUNPRO DC    C'UNPROT_NORM'
+ATRUNFST DC    C'UNPROT_NORM_FSET'
+ATRUNDET DC    C'UNPROT_NORM_DET'
+ATRUNDTF DC    C'UNPROT_NORM_DET_FSET'
+ATRUNBRT DC    C'UNPROT_BRT'
+ATRUNBRF DC    C'UNPROT_BRT_FSET'
+ATRUNDRK DC    C'UNPROT_DRK'
+ATRUNDKF DC    C'UNPROT_DRK_FSET'
+ATRUNNUM DC    C'UNPROT_NORM_NUM'
+ATRUNNMF DC    C'UNPROT_NORM_NUM_FSET'
+ATRUNNMD DC    C'UNPROT_NORM_NUM_DET'
+ATRUNNDF DC    C'UNPROT_NORM_NUM_DET_FSET'
+ATRUNBRN DC    C'UNPROT_BRT_NUM'
+ATRUNBNF DC    C'UNPROT_BRT_NUM_FSET'
+ATRUNDKN DC    C'UNPROT_DRK_NUM'
+ATRUNDNF DC    C'UNPROT_DRK_NUM_FSET'
+ATRPROT  DC    C'PROT_NORM'
+ATRPRFST DC    C'PROT_NORM_FSET'
+ATRPRDET DC    C'PROT_NORM_DET'
+ATRPRDTF DC    C'PROT_NORM_DET_FSET'
+ATRPRBRT DC    C'PROT_BRT'
+ATRPRBRF DC    C'PROT_BRT_FSET'
+ATRPRDRK DC    C'PROT_DRK'
+ATRPRDKF DC    C'PROT_DRK_FSET'
+ATRASKIP DC    C'ASKIP_NORM'
+ATRASFST DC    C'ASKIP_NORM_FSET'
+ATRASDET DC    C'ASKIP_NORM_DET'
+ATRASDTF DC    C'ASKIP_NORM_DET_FSET'
+ATRASBRT DC    C'ASKIP_BRT'
+ATRASBRF DC    C'ASKIP_BRT_FSET'
+ATRASDRK DC    C'ASKIP_DRK'
+ATRASDKF DC    C'ASKIP_DRK_FSET'
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        INSERT CURSOR LITERALS                                       *
+* ******************************************************************* *
 CSR      DC    C'CSR'
 CSRNO    DC    C'NO'
 CSRYES   DC    C'YES'
-* ******************************************************************* * 00053300
-         SPACE 3                                                        00053400
-* ******************************************************************* * 00053500
-*        EXTENDED FIELD ATTRIBUTE LITERALS                            * 00053600
-* ******************************************************************* * 00053700
+* ******************************************************************* *
+         SPACE 3
+* ******************************************************************* *
+*        EXTENDED FIELD ATTRIBUTE LITERALS                            *
+* ******************************************************************* *
 EXC      DC    C'EXC'
-EXCDEFLT DC    C'DEFAULT'              (GREEN)                          00055100
-EXCBLUE  DC    C'BLUE'                                                  00055200
-EXCRED   DC    C'RED'                                                   00055300
-EXCPINK  DC    C'PINK'                                                  00055400
-EXCGREEN DC    C'GREEN'                                                 00055500
-EXCTURQU DC    C'TURQUOISE'                                             00055600
-EXCYELLW DC    C'YELLOW'                                                00055700
-EXCWHITE DC    C'WHITE'                (NEUTRAL)                        00055800
+EXCDEFLT DC    C'DEFAULT'              (GREEN)
+EXCBLUE  DC    C'BLUE'
+EXCRED   DC    C'RED'
+EXCPINK  DC    C'PINK'
+EXCGREEN DC    C'GREEN'
+EXCTURQU DC    C'TURQUOISE'
+EXCYELLW DC    C'YELLOW'
+EXCWHITE DC    C'WHITE'                (NEUTRAL)
 *
 EXH      DC    C'EXH'
-EXHOFF   DC    C'OFF'                                                   00054500
-EXHBLINK DC    C'BLINK'                                                 00054600
-EXHREVRS DC    C'REVERSE'                                               00054700
-EXHULINE DC    C'UNDERLINE'                                             00054900
-* ******************************************************************* * 00053300
-         SPACE 3                                                        00053400
+EXHOFF   DC    C'OFF'
+EXHBLINK DC    C'BLINK'
+EXHREVRS DC    C'REVERSE'
+EXHULINE DC    C'UNDERLINE'
+* ******************************************************************* *
+         SPACE 3
 * =================================================================== *
          END

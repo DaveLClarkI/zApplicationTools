@@ -842,7 +842,7 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
            MVC MYCCW+6(2),=H'1'          WITH I/O LENGTH OF 1
            EXCP (1)                      PUT IN CHANNEL QUEUE
            SF  CCBQUEUE                  SET QUEUED FLAG
-           NI  MYCCB+2,x'FF'-x'80'       MAKE SURE WAIT BIT IS OFF      00000179
+           NI  MYCCB+2,x'FF'-x'80'       MAKE SURE WAIT BIT IS OFF
           ENDIF                         ENDIF
           WAIT (1)                      WAIT FOR ATTN INTERRUPT
           IF   MYCCB+4(2),(NE,CLC),=X'0C00' IF NOT CE+DE, ERROR
@@ -942,7 +942,7 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
                0(L'SCRSETBA,R7),(EQ,CLC),SCRSETBA
 *
 * ...find start of next field (at eob or at set buffer address order)
-           LA  R6,3(,R7)                 POINT TO SEARCH AREA AND       00030400
+           LA  R6,3(,R7)                 POINT TO SEARCH AREA AND
            LA  R5,255                      SET LENGTH-1 TO SEARCH
            IF  R5,(Z,EX),FNDSBA          IF SBA NOT FOUND
             IF 256(L'SCRSETBA,R6),(EQ,CLC),SCRSETBA  MAX DATA?
@@ -963,7 +963,7 @@ MV2FLD   MVC   0(0,R6),VARDATA    (SEE "EX" INSTRUCTION BELOW)
            IF  R6,(HT,CH),=H'256'        IF GREATER THAN 256
             LH R5,=H'-9'                  INDICATE INVALID LENGTH
             B  RETERR                     GO RETURN ERROR
-FNDSBA      TRT 0(0,R6),TRTBL            (SEE "EX" INSTRUCTION ABOVE)   00032200
+FNDSBA      TRT 0(0,R6),TRTBL            (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
            STM R5,R6,SHVVALA             PUT IN SHV CONTROL BLOCK
 *
@@ -1248,8 +1248,8 @@ RETERR   SAM31                         MAKE SURE IT IS 31-BIT MODE
          LA    R2,4                    CONVERTED LENGTH IS 4 BYTES
          ST    R2,EVALBLOCK_EVLEN            FOR HEX "RESULT" VALUE
          STH   R15,EWORK8              STORE 2 BYTES INTO WORK AREA
-         UNPK  0(5,R1),EWORK8(3)       UNPACK CHAR INTO HEX && TRANSL.  00015700
-         TR    0(4,R1),TRTBL             X'FAFBFCFDFEFF' TO C'ABCDEF'   00015800
+         UNPK  0(5,R1),EWORK8(3)       UNPACK CHAR INTO HEX && TRANSL.
+         TR    0(4,R1),TRTBL             X'FAFBFCFDFEFF' TO C'ABCDEF'
          DROP  R8                      EVAL BLOCK NO LONGER NEEDED
 *
          CF    SET_KLZ                 REG2ZON3 NO LEADING ZEROES
@@ -1375,9 +1375,9 @@ BUFADR   DS    0H    CONVERT 3270 12-BIT ADDR TO 14-BIT ADDR
          NI    1(R2),B'00111111'        ON BOTH BYTES
          LH    R2,0(,R2)               GET BOTH BYTES
 *
-         SRDL  R2,8                    RIGHT JUSTIFY MOST SIG. 6 BITS   00021300
-         SLL   R3,2                    LEFT JUSTIFY LEAST SIG. 6 BITS   00021500
-         SLDL  R2,6                    JOIN MSB/LSB IN REGISTER 2       00021600
+         SRDL  R2,8                    RIGHT JUSTIFY MOST SIG. 6 BITS
+         SLL   R3,2                    LEFT JUSTIFY LEAST SIG. 6 BITS
+         SLDL  R2,6                    JOIN MSB/LSB IN REGISTER 2
 *
          BR    R5
 * =================================================================== *
@@ -1392,42 +1392,42 @@ CARTNBEG DC    F'0'               PFIX LOAD POINT ADDRESS
 CARTNLEN DC    F'0'               PFIX MODULE LENGTH MINUS ONE
 CARTNFLG DC    F'-1'              PFIX PARM BLOCK END FLAG
          LTORG
-*                                                                       00040100
-QUERY    DC    AL2(QUERYL)        STRUCTURED FIELD LENGTH               00040400
-         DC    X'01'              READ PARTITION                        00040500
-         DC    X'FF'              PARTITION ID (X'FF' = "QUERY")        00040600
-         DC    X'03'              QUERY LIST                            00040700
-         DC    B'00000000'        QUERY TYPE (QCODE LIST)               00040800
-QRY_81   DC    X'81'              QUERY ID (USABLE AREA)                00040900
-QRY_A6   DC    X'A6'              QUERY ID (IMPLICIT PARTITION)         00040900
-QRY_86   DC    X'86'              QUERY ID (COLOR)                      00040900
-QRY_87   DC    X'87'              QUERY ID (HILITE)                     00040900
+*
+QUERY    DC    AL2(QUERYL)        STRUCTURED FIELD LENGTH
+         DC    X'01'              READ PARTITION
+         DC    X'FF'              PARTITION ID (X'FF' = "QUERY")
+         DC    X'03'              QUERY LIST
+         DC    B'00000000'        QUERY TYPE (QCODE LIST)
+QRY_81   DC    X'81'              QUERY ID (USABLE AREA)
+QRY_A6   DC    X'A6'              QUERY ID (IMPLICIT PARTITION)
+QRY_86   DC    X'86'              QUERY ID (COLOR)
+QRY_87   DC    X'87'              QUERY ID (HILITE)
 QUERYL   EQU   *-QUERY            CALCULATE QUERY LENGTH
-         SPACE 3                                                        00040800
-* ******************************************************************* * 00038600
-*        LOCAL CCW COMMAND CODES                                      * 00038700
-* ******************************************************************* * 00038800
-LCLWRITE DC    X'01'              LOCAL  CC=(WRITE)                     00039600
-LCLREADB DC    X'02'              LOCAL  CC=(READ,BUFFER)               00039400
-LCLNOOP  DC    X'03'              LOCAL  CC=(NOOP)                      00039400
-LCLERWRT DC    X'05'              LOCAL  CC=(ERASE,WRITE)               00039300
-LCLREADM DC    X'06'              LOCAL  CC=(READ,MODIFIED)             00039500
-LCLERWRA DC    X'0D'              LOCAL  CC=(ERASE,WRITE,ALTERNATE)     00039200
-LCLERAUP DC    X'0F'              LOCAL  CC=(ERASE,AUP)                 00039100
-LCLWRSTR DC    X'11'              LOCAL  CC=(WRITE,STRUCTURED)          00039700
-         SPACE 3                                                        00040800
-* ******************************************************************* * 00038600
-*        3270 BUFFER ORDERS                                           * 00038700
-* ******************************************************************* * 00038800
-AIDNOAID DC    X'60'              NO AID GENERATED (NO DATA TO READ)    00056600
-SCRSETBA DC    X'11'              SET BUFFER ADDRESS + 2-BYTE ADDRESS   00045200
-SCRCURSR DC    X'13'              INSERT CURSOR                         00045200
-SCRSTFLD DC    X'1D00'            SF  + ATTRIBUTE                       00045500
-SCRSTFEX DC    X'2903C00042004100' SFE + COUNT + TYPE-VALUE PAIRS       00045700
-         SPACE 3                                                        00053400
-* ******************************************************************* * 00053500
-*        VARIABLE NAMES TO RETRIEVE/CREATE                            * 00053600
-* ******************************************************************* * 00053700
+         SPACE 3
+* ******************************************************************* *
+*        LOCAL CCW COMMAND CODES                                      *
+* ******************************************************************* *
+LCLWRITE DC    X'01'              LOCAL  CC=(WRITE)
+LCLREADB DC    X'02'              LOCAL  CC=(READ,BUFFER)
+LCLNOOP  DC    X'03'              LOCAL  CC=(NOOP)
+LCLERWRT DC    X'05'              LOCAL  CC=(ERASE,WRITE)
+LCLREADM DC    X'06'              LOCAL  CC=(READ,MODIFIED)
+LCLERWRA DC    X'0D'              LOCAL  CC=(ERASE,WRITE,ALTERNATE)
+LCLERAUP DC    X'0F'              LOCAL  CC=(ERASE,AUP)
+LCLWRSTR DC    X'11'              LOCAL  CC=(WRITE,STRUCTURED)
+         SPACE 3
+* ******************************************************************* *
+*        3270 BUFFER ORDERS                                           *
+* ******************************************************************* *
+AIDNOAID DC    X'60'              NO AID GENERATED (NO DATA TO READ)
+SCRSETBA DC    X'11'              SET BUFFER ADDRESS + 2-BYTE ADDRESS
+SCRCURSR DC    X'13'              INSERT CURSOR
+SCRSTFLD DC    X'1D00'            SF  + ATTRIBUTE
+SCRSTFEX DC    X'2903C00042004100' SFE + COUNT + TYPE-VALUE PAIRS
+         SPACE 3
+* ******************************************************************* *
+*        VARIABLE NAMES TO RETRIEVE/CREATE                            *
+* ******************************************************************* *
 DEVLUN   DC    C'_LUN'            LOGICAL UNIT NUMBER
 FLDATR   DC    C'.ATTRIB'         FIELD ATTRIBUTES
 FLDOUT   DC    C'.OUTPUT'         FIELD OUTPUT

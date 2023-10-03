@@ -52,7 +52,7 @@ RX3270AP CSECT 0
          PUSH  ACONTROL
          ACONTROL FLAG(NOPAGE0)
 *
-         ST    R6,SUPVR6                    SAVE SUPVR. WORK REG.       00001430
+         ST    R6,SUPVR6                    SAVE SUPVR. WORK REG.
          XR    R6,R6                        CLEAR WORK REGISTER
          ICM   R6,B'0111',X'41'(R0)         GET PENDING CCW ADDR.
 *
@@ -69,7 +69,7 @@ RX3270AP CSECT 0
           MVC  x'44'(2,R0),=x'0F00'          SET CE+DE+UC+UE AND DEQUE
          WHEN  OTHER                        WHEN CE+DE OR JUST DE
 *                                           AND HAS PENDING CCW
-          SL   R6,=F'8'                      GET PREV. CCW ADDR.        00001438
+          SL   R6,=F'8'                      GET PREV. CCW ADDR.
           IF   0(R6),EQ,x'03'                IF CCW IS MY NOOP
            IF  0(R1),(NOT,TF),x'80'           IF CCB NOT FLAGGED
             MVC x'44'(2,R0),=x'0080'           CHANGE TO PCI
@@ -81,12 +81,12 @@ RX3270AP CSECT 0
 *
          ENDSL                              END SELECT
 *
-         L     R6,SUPVR6                    RESTORE SUPVR. WORK REG.    00001444
+         L     R6,SUPVR6                    RESTORE SUPVR. WORK REG.
          B     4(,R7)                       DEQUEUE AND CONTINUE
 *
          POP   ACONTROL
 * ------------------------------------------------------------------- *
-SUPVR6   DS    F                                                        00001446
+SUPVR6   DS    F
          LTORG
 * =================================================================== *
          END   RX3270AP
