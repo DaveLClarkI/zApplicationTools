@@ -738,7 +738,7 @@ Do While rc = 0
 
     When Left(cmd,1) == 'N',             /* NEXT */
        | Left(cmd,2) == 'DO',            /* DOWN */
-       | (¬online & cmd = '')  Then
+       | (\online & cmd = '')  Then
       Do
         If Datatype(oper.1,'W') Then r = r + oper.1;
         Else r = r + 1;
@@ -1832,7 +1832,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       If Length(nbr) > 0,
       & (Pos(str,'AB') > 0 & nbr <> '*'),
-      & ¬Datatype(nbr,'W'),
+      & \Datatype(nbr,'W'),
       Then Do
         map3.map3_Bruler.output = ' Invalid LCA count value.';
         lca_errors = True;
