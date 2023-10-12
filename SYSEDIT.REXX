@@ -1,6 +1,6 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* REXX: SYSEDIT    Proc Created 03/02/2004   By Dave Clark          */
-/*                  Last Revised 10/05/2023                          */
+/*                  Last Revised 10/12/2023                          */
 /*                                                                   */
 /*      This procedure  provides  for  quick-n-dirty creation and/or */
 /* editing of VSE sublibrary  members  from  the  BG partition -- in */
@@ -82,58 +82,58 @@
 /*                                                                   */
 /* MAINLINE MODULES                                                  */
 /* ----------------                                                  */
-/* Map0_Processing           (Index: 951)                            */
+/* Map0_Processing           (Index: 988)                            */
 /*             prompts for a library specification.                  */
 /*                                                                   */
-/* Map1_Processing           (Index: 991)                            */
+/* Map1_Processing           (Index: 1028)                           */
 /*             prompts for a sublibrary selection.                   */
 /*             Optionally, this process also supports sublibrary     */
 /*             create and delete.                                    */
 /*                                                                   */
-/* Map2_Processing           (Index: 1117)                           */
+/* Map2_Processing           (Index: 1154)                           */
 /*             prompts for a member selection.                       */
 /*             Optionally, this process also supports member         */
 /*             create, delete, copy, move, and rename.               */
 /*                                                                   */
-/* Map3_Processing           (Index: 1252)                           */
+/* Map3_Processing           (Index: 1291)                           */
 /*             prompts for member editing.                           */
 /*             Optionally, this process also supports member         */
 /*             submit to POWER.                                      */
 /*                                                                   */
 /* GENERAL ROUTINES                                                  */
 /* ----------------                                                  */
-/* Dump                      (Index: 1353)                           */
+/* Dump                      (Index: 1393)                           */
 /*             invokes RXDMPVAR to dump all REXX variables for       */
 /*             sorted (SHAKESRT) output to SYSLST.                   */
 /*                                                                   */
-/* IFF                       (Index: 1370)                           */
+/* IFF                       (Index: 1410)                           */
 /*             is an in-line IF function.                            */
 /*             Arguments:  (all are optional)                        */
 /*                 Boolean condition                                 */
 /*                 value to return if boolean condition is true      */
 /*                 value to return if boolean condition is false     */
 /*                                                                   */
-/* MakeStem                  (Index: 1381)                           */
+/* MakeStem                  (Index: 1421)                           */
 /*             is a subroutine to automatically create stem variable */
 /*             Arguments:  (at least the first one is required)      */
 /*                 stem name to create (must include the period)     */
 /*                 one or more comma-separated values to assign to   */
 /*                   sequentially numbered stem variables.           */
 /*                                                                   */
-/* ParseCommandString        (Index: 1394)                           */
+/* ParseCommandString        (Index: 1434)                           */
 /*             is a subroutine to handle quoted command operands.    */
 /*             Arguments:  (required)                                */
 /*                 string  (format: command oper1 oper2 oper3 ...)   */
 /*                                                                   */
 /* INPUT-OUTPUT ROUTINES                                             */
 /* ---------------------                                             */
-/* Screen_IO                 (Index: 1423)                           */
+/* Screen_IO                 (Index: 1463)                           */
 /*             erases the screen, writes the specified map to the    */
 /*             screen, and performs a read-modified operation.       */
 /*             Arguments:  (required)                                */
 /*                 stem name of the current map.                     */
 /*                                                                   */
-/* Converse                  (Index: 1437)                           */
+/* Converse                  (Index: 1477)                           */
 /*             writes supplied argument string to row 22 column 1    */
 /*             and optionally accepts unparsed input data.           */
 /*             Arguments:  (first one is required)                   */
@@ -143,7 +143,7 @@
 /*                 the optional input data is not parsed and must be */
 /*                 retrieved from the RAW stem variable for the map. */
 /*                                                                   */
-/* Help                      (Index: 1464)                           */
+/* Help                      (Index: 1504)                           */
 /*             presents as many pages of the specified help map as   */
 /*             requested by the user.                                */
 /*             Arguments:  (required)                                */
@@ -151,7 +151,7 @@
 /*                                                                   */
 /* VSE LIBRARY INTERFACE ROUTINES                                    */
 /* ------------------------------                                    */
-/* ListDir_Successful        (Index: 1537)                           */
+/* ListDir_Successful        (Index: 1577)                           */
 /*             function returns a Boolean value as to the success or */
 /*             failure of listing the contents of the specified      */
 /*             library or sublibrary name.                           */
@@ -160,7 +160,7 @@
 /*                 Note that this argument must be prefixed by       */
 /*                 "L=" or "S=" to indicate a library or sublibrary. */
 /*                                                                   */
-/* ListMbr_Successful        (Index: 1560)                           */
+/* ListMbr_Successful        (Index: 1600)                           */
 /*             function returns a Boolean value as to the success or */
 /*             failure of listing the contents of the specified      */
 /*             sublibrary name.                                      */
@@ -168,20 +168,20 @@
 /*                 member name selection,                            */
 /*                 sublibrary name to access.                        */
 /*                                                                   */
-/* NewMember                 (Index: 1586)                           */
+/* NewMember                 (Index: 1633)                           */
 /*             prompts for the creation of a new member and returns  */
 /*             a Boolean value on its creation success or failure.   */
 /*             Arguments:  (required)                                */
 /*                 member name to create,                            */
 /*                 sublibrary name to access.                        */
 /*                                                                   */
-/* NewSublibrary             (Index: 1608)                           */
+/* NewSublibrary             (Index: 1656)                           */
 /*             prompts for the creation of a new sublibrary and      */
 /*             returns a Boolean value on its success or failure.    */
 /*             Arguments:  (required)                                */
 /*                 sublibrary name to create,                        */
 /*                                                                   */
-/* OperationFailed           (Index: 1619)                           */
+/* OperationFailed           (Index: 1668)                           */
 /*             invokes LIBR to perform the requested operation and   */
 /*             returns a Boolean value on its success or failure.    */
 /*             Arguments:  (first two are required)                  */
@@ -191,54 +191,58 @@
 /*                                                                   */
 /* EDIT COMMAND ROUTINES                                             */
 /* ---------------------                                             */
-/* SetTopOfMember            (Index: 1660)                           */
+/* SetTopOfMember            (Index: 1709)                           */
 /*             sets the internal record pointer to the first record  */
 /*             in the internal virtual member.                       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* SetRecordPointer          (Index: 1665)                           */
+/* SetRecordPointer          (Index: 1714)                           */
 /*             sets the internal record pointer to the argument      */
 /*             record number in the internal virtual member.         */
 /*             Arguments:  (required)                                */
 /*                 line number to position at top of screen.         */
 /*                                                                   */
-/* ResetLocationPointer      (Index: 1673)                           */
+/* ResetLocationPointer      (Index: 1722)                           */
 /*             sets the internal location pointer to the beginning   */
 /*             of the current line in the virtual member.            */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* ResetSourceString         (Index: 1678)                           */
+/* ResetSourceString         (Index: 1727)                           */
 /*             clears the internal source string buffer.             */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* ReadMember                (Index: 1682)                           */
+/* ReadMember                (Index: 1731)                           */
 /*             loads the content of the current VSE Library member   */
 /*             into an internal virtual member.                      */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* WriteMember               (Index: 1696)                           */
+/* WriteMember               (Index: 1745)                           */
 /*             saves the content of the internal virtual member into */
 /*             the current VSE Library member.                       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* LineAdd                   (Index: 1709)                           */
+/* LineAdd                   (Index: 1758)                           */
 /*             inserts a new line into the internal virtual member   */
 /*             and optionally initializes it with a supplied string. */
 /*             Arguments:  (optional)                                */
 /*                 string to initialize new line of virtual member.  */
 /*                                                                   */
-/* LineDrop                  (Index: 1725)                           */
+/* LineDrop                  (Index: 1777)                           */
 /*             removes a line from the internal virtual member.      */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* SubmitMember              (Index: 1741)                           */
+/* ProcessLineCommands       (Index: 1796)                           */
+/*             processes line commands captured in SaveBodyData.     */
+/*             Arguments:  (none)                                    */
+/*                                                                   */
+/* SubmitMember              (Index: 2160)                           */
 /*             submits the content of the internal virtual member    */
 /*             to VSE/POWER for subsequent processing.               */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
 /* HELPER ROUTINES FOR SCROLLABLE MAPS                               */
 /* -----------------------------------                               */
-/* CursorPosition            (Index: 1762)                           */
+/* CursorPosition            (Index: 2181)                           */
 /*             function accepts a zero-offset buffer position for    */
 /*             the cursor and returns the row and column numbers.    */
 /*             Arguments:  (first two are required)                  */
@@ -246,38 +250,38 @@
 /*                 maximum columns per screen size,                  */
 /*                 optional number of map header rows to subtract    */
 /*                                                                   */
-/* Map1HasSelections         (Index: 1769)                           */
+/* Map1HasSelections         (Index: 2188)                           */
 /*             finds and processes any detail line selections for    */
 /*             Map1.  Returns a Boolean response if any found.       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* Map2HasSelections         (Index: 1816)                           */
+/* Map2HasSelections         (Index: 2235)                           */
 /*             finds and processes any detail line selections for    */
 /*             Map2.  Returns a Boolean response if any found.       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* RebuildMap1Detail         (Index: 1910)                           */
+/* RebuildMap1Detail         (Index: 2329)                           */
 /*             sorts the detail lines for Map1, removing any lines   */
 /*             flagged as deleted, and optionally searches the list  */
 /*             for the specified sublibrary argument named.          */
 /*             Arguments:  (optional)                                */
 /*                 sublibrary name to position to top of detail area */
 /*                                                                   */
-/* RebuildMap2Detail         (Index: 1928)                           */
+/* RebuildMap2Detail         (Index: 2347)                           */
 /*             sorts the detail lines for Map2, removing any lines   */
 /*             flagged as deleted, and optionally searches the list  */
 /*             for the specified member argument named.              */
 /*             Arguments:  (optional)                                */
 /*                 member name to position to top of detail area     */
 /*                                                                   */
-/* SaveBodyData              (Index: 1947)                           */
+/* SaveBodyData              (Index: 2366)                           */
 /*             transfers screen data from the body of Map3 into the  */
 /*             internal buffer for the member currently under edit.  */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
 /* HELPER ROUTINES FOR BUILDING MAPS                                 */
 /* ---------------------------------                                 */
-/* BuildAttribute            (Index: 1979)                           */
+/* BuildAttribute            (Index: 2397)                           */
 /*             function returns 4-byte field attribute value --      */
 /*             for use when calling the BuildField subroutine.       */
 /*             Arguments: (all optional -- defaults provided)        */
@@ -286,7 +290,7 @@
 /*                 extended color selection,                         */
 /*                 extended hilight selection.                       */
 /*                                                                   */
-/* BuildField                (Index: 1991)                           */
+/* BuildField                (Index: 2409)                           */
 /*             subroutine creates stem variables for a map field --  */
 /*             called by the BuildHeader & BuildTrailer subroutines. */
 /*             Arguments: (all required -- except for the last one)  */
@@ -298,7 +302,7 @@
 /*                 4-byte field attribute value,                     */
 /*                 optional output (display) value for field.        */
 /*                                                                   */
-/* BuildHeader               (Index: 2004)                           */
+/* BuildHeader               (Index: 2422)                           */
 /*             subroutine creates all header fields for a map --     */
 /*             automatically calls the BuildTrailer subroutine.      */
 /*             Arguments: (only the stem name is required)           */
@@ -307,7 +311,7 @@
 /*                 optional value for first PFkey display line,      */
 /*                 optional value for second PFkey display line.     */
 /*                                                                   */
-/* BuildPFkeys               (Index: 2067)                           */
+/* BuildPFkeys               (Index: 2485)                           */
 /*             function returns a formatted PF-key line for a map -- */
 /*             for use when calling the BuildHeader subroutine.      */
 /*             Arguments: (all optional)                             */
@@ -315,7 +319,7 @@
 /*                 into a single string value with imbedded color    */
 /*                 attributes around the PFkey number for emphasis.  */
 /*                                                                   */
-/* BuildTrailer              (Index: 2094)                           */
+/* BuildTrailer              (Index: 2512)                           */
 /*             subroutine creates all trailer fields for a map --    */
 /*             called by the BuildHeader subroutine.                 */
 /*             Arguments: (only the stem name is required)           */
@@ -325,41 +329,41 @@
 /*                                                                   */
 /* MAP BUILDING ROUTINES  (the following have no arguments)          */
 /* ---------------------                                             */
-/* BuildMap0                 (Index: 2115)                           */
+/* BuildMap0                 (Index: 2533)                           */
 /*             builds the field definitions  for  Map0 -- which is a */
 /*             single,  full-screen map that  is displayed only once */
 /*             for the sole purpose of obtaining the name of the VSE */
 /*             library to use throughout the edit session.           */
 /*                                                                   */
-/* BuildMap1Detail           (Index: 2321)                           */
-/* BuildMap1Body             (Index: 2272)                           */
-/* BuildMap1                 (Index: 2189)                           */
+/* BuildMap1Detail           (Index: 2739)                           */
+/* BuildMap1Body             (Index: 2690)                           */
+/* BuildMap1                 (Index: 2607)                           */
 /*             builds the field definitions  for  Map1 -- which is a */
 /*             scrollable map  that  displays  sublibraries,  in the */
 /*             current   library,    for   selection   and   further */
 /*             processing.                                           */
 /*                                                                   */
-/* BuildMap2Detail           (Index: 2487)                           */
-/* BuildMap2Body             (Index: 2438)                           */
-/* BuildMap2                 (Index: 2355)                           */
+/* BuildMap2Detail           (Index: 2905)                           */
+/* BuildMap2Body             (Index: 2856)                           */
+/* BuildMap2                 (Index: 2773)                           */
 /*             builds the field definitions  for  Map2 -- which is a */
 /*             scrollable map that displays members,  in the current */
 /*             sublibrary, for selection and further processing.     */
 /*                                                                   */
-/* BuildMap3Body             (Index: 2654)                           */
-/* BuildMap3                 (Index: 2525)                           */
+/* BuildMap3Body             (Index: 3072)                           */
+/* BuildMap3                 (Index: 2943)                           */
 /*             builds the field definitions  for  Map3 -- which is a */
 /*             scrollable map  that  displays  the  content,  of the */
 /*             current member, for editing purposes.                 */
 /*                                                                   */
-/* BuildHelp1a               (Index: 2712)                           */
-/* BuildHelp1b               (Index: 2830)                           */
-/* BuildHelp2a               (Index: 2941)                           */
-/* BuildHelp2b               (Index: 3080)                           */
-/* BuildHelp3a               (Index: 3191)                           */
-/* BuildHelp3b               (Index: 3408)                           */
-/* BuildHelp3c               (Index: 3551)                           */
-/* BuildHelp3d               (Index: 3670)                           */
+/* BuildHelp1a               (Index: 3130)                           */
+/* BuildHelp1b               (Index: 3248)                           */
+/* BuildHelp2a               (Index: 3359)                           */
+/* BuildHelp2b               (Index: 3498)                           */
+/* BuildHelp3a               (Index: 3609)                           */
+/* BuildHelp3b               (Index: 3826)                           */
+/* BuildHelp3c               (Index: 3969)                           */
+/* BuildHelp3d               (Index: 4088)                           */
 /*             build the  field  definitions  for  the  help screens */
 /*             associated with a given Map.   These help screens are */
 /*             single, full-screen maps (without input fields) which */
@@ -500,6 +504,10 @@ Do While rc = 0
 
   lca.  = '';
   lca.0 = 0;
+  lca_pending = False;
+  lca_cmds = 'ABCDILMU"<>';
+  lca_blks = '|DD|CC|MM|LL|UU|<<|>>|';
+
   rec.  = '';
   rec.0 = 0;
   ruler = '....+....1....+....2....+....3....+....4....';
@@ -554,359 +562,385 @@ Do While rc = 0
 
   Select
 
-  When Left(cmd,3) == 'SUB'  Then      /* SUBMIT */
-    Do
-      Call SetTopOfMember;
-      Call SubmitMember;
-      If rc = 0 Then Do
+    When Left(cmd,3) == 'SUB'  Then      /* SUBMIT */
+      Do
+        Call SetTopOfMember;
+        Call SubmitMember;
+        If rc = 0 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Member submitted.';
+          Else Do
+            Say ' Member submitted.';
+            Say ' ';
+          End
+        End
+        rc    = 0;
+      End
+
+    When Left(cmd,1) == 'Q',             /* QUIT */
+       | Left(cmd,3) == 'CAN'  Then      /* CANCEL */
+      Do
+        If \upd_flag | Left(cmd,3) == 'CAN' Then Leave;
         If online Then
-          map3.map3_Bruler.output = ' Member submitted.';
+          map3.map3_Bruler.output = ' Member changed.  Use SAVE or CANCEL.';
         Else Do
-          Say ' Member submitted.';
+          Say pgm': Member changed, are you sure you wish to quit?';
+          Parse Upper External resp .;
+          If Left(resp,1) = 'Y' Then Leave;
+          Say ' Edit continues...';
           Say ' ';
         End
+        Call SetTopOfMember;
       End
-      rc    = 0;
-    End
 
-  When Left(cmd,1) == 'Q',             /* QUIT */
-     | Left(cmd,3) == 'CAN'  Then      /* CANCEL */
-    Do
-      If \upd_flag | Left(cmd,3) == 'CAN' Then Leave;
-      If online Then
-        map3.map3_Bruler.output = ' Member changed.  Use SAVE or CANCEL.';
-      Else Do
-        Say pgm': Member changed, are you sure you wish to quit?';
-        Parse Upper External resp .;
-        If Left(resp,1) = 'Y' Then Leave;
-        Say ' Edit continues...';
-        Say ' ';
+    When Left(cmd,1) == 'S'    Then      /* SAVE */
+      Do
+        If upd_flag Then Call WriteMember;
+        map2.map2_member.input = '';
+        Leave;
       End
-      Call SetTopOfMember;
-    End
 
-  When Left(cmd,1) == 'S'    Then      /* SAVE */
-    Do
-      If upd_flag Then Call WriteMember;
-      map2.map2_member.input = '';
-      Leave;
-    End
+    When Left(cmd,1) == 'H'    Then      /* HELP */
+      Do
+        If online Then
+          Call Help '3';
+        Else Do
+          Do n  = 1 Until Left(Sourceline(n),2) = '  '
+          End               /* skip prolog */
+          n     = n + 1;
+          Do n  = n Until Left(Sourceline(n),2) = '  '
+          End               /* skip disclaimer */
+          n     = n + 1;
+          Do n  = n While Left(Sourceline(n),2) = '/*'
+            Say Strip(Sourceline(n));
+          End
+          Call ResetLocationPointer;
+        End
+      End
 
-  When Left(cmd,1) == 'H'    Then      /* HELP */
-    Do
-      If online Then
-        Call Help '3';
-      Else Do
-        Do n  = 1 Until Left(Sourceline(n),2) = '  '
-        End               /* skip prolog */
-        n     = n + 1;
-        Do n  = n Until Left(Sourceline(n),2) = '  '
-        End               /* skip disclaimer */
-        n     = n + 1;
-        Do n  = n While Left(Sourceline(n),2) = '/*'
-          Say Strip(Sourceline(n));
+    When Left(cmd,2) == 'RE'   Then      /* RECALL */
+      Do
+        map3.map3_command.output = cmd_input;
+      End
+
+    When online,
+       & Left(cmd,4) == 'CASE' Then      /* CASE   */
+      Do
+        If Translate(Left(oper.1,1)) = 'M' Then mixed = True;
+        If Translate(Left(oper.1,1)) = 'U' Then mixed = False;
+      End
+
+    When online,
+       & Left(cmd,2) == 'LE'   Then      /* LEFT   */
+      Do
+        map3_view = 1;
+        map3.map3_Bruler.output = SubStr(source_ruler,map3_view,72);
+      End
+
+    When online,
+       & Left(cmd,2) == 'RI'   Then      /* RIGHT  */
+      Do
+        map3_view = 9;
+        map3.map3_Bruler.output = SubStr(source_ruler,map3_view,72);
+      End
+
+    When Left(cmd,1) == 'T'    Then      /* TOP  */
+      Do
+        If r > 1 Then
+          r = 1;
+        Else Do
+          If online Then
+            map3.map3_Bruler.output = ' Top of member.';
+          Else Do
+            Say ' End of member.';
+            Say ' ';
+          End
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When Left(cmd,2) == 'BO'   Then      /* BOTTOM */
+      Do
+        If online Then
+          r = rec.0 - (map3_cnt - 2);
+        Else Do
+          r = rec.0;
+        End
+        If r < 1 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' End of member.';
+          Else Do
+            Say ' End of member.';
+            Say ' ';
+          End
+          r = 1;
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When online,
+       & Left(cmd,2) == 'BA'   Then      /* BACKWARD */
+      Do
+        row = map3._csr % map3._cols + 1;
+        col = map3._csr // map3._cols + 1;
+        If row <= map3_hdc | row > (map3_hdc + map3_cnt) Then
+          r = r - map3_cnt;
+        Else Do
+          row = row - map3_hdc;
+          r = r - (map3_cnt - row);
+        End
+        If r < 1 Then Do
+          map3.map3_Bruler.output = ' Top of member.';
+          r  = 0;
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When online,
+       & Left(cmd,2) == 'FO'   Then      /* FORWARD  */
+      Do
+        row = map3._csr % map3._cols + 1;
+        col = map3._csr // map3._cols + 1;
+        If row <= map3_hdc | row > (map3_hdc + map3_cnt) Then
+          r = r + map3_cnt;
+        Else Do
+          row = row - map3_hdc;
+          r = r + (row - 1);
+        End
+        If r > rec.0 Then Do
+          map3.map3_Bruler.output = ' End of member.';
+          r  = rec.0;
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When Left(cmd,1) == 'U'    Then      /* UP   */
+      Do
+        If Datatype(oper.1,'W') Then r = r - oper.1;
+                               Else r = r - 1;
+        If r  < 1 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Top of member.';
+          Else Do
+            Say ' Top of member.';
+            Say ' ';
+          End
+          r   = 1;
+          If r > rec.0 Then r = 0;
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When Left(cmd,1) == 'N',             /* NEXT */
+       | Left(cmd,2) == 'DO',            /* DOWN */
+       | (¬online & cmd = '')  Then
+      Do
+        If Datatype(oper.1,'W') Then r = r + oper.1;
+        Else r = r + 1;
+        If r  > rec.0 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' End of member.';
+          Else Do
+            Say ' End of member.';
+            Say ' ';
+          End
+          r   = rec.0;
+        End
+        Call SetRecordPointer r;
+        Call ResetLocationPointer;
+      End
+
+    When Left(cmd,2) == 'LA'   Then      /* LADD  */
+      Do
+        If oper.0 > 1 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Too many operands.';
+          Else Do
+            Say ' Too many operands.';
+            Say ' ';
+          End
+        End
+        Else Do
+          Call LineAdd Strip(Left(oper.1,80),'Trailing');
+          Call ResetLocationPointer;
+        End
+      End
+
+    When Left(cmd,2) == 'LD'   Then      /* LDROP */
+      Do
+        Call LineDrop;
+        Call ResetLocationPointer;
+      End
+
+    When Left(cmd,2) == 'CL',            /* CLEAR */
+       | Left(cmd,2) == 'RE'   Then      /* RESET */
+      Do
+        DropBuf;
+      End
+
+    When Left(cmd,2) == 'CO'   Then      /* COPY  */
+      Do
+        If oper.1 == '*' Then oper.1 = rec.0 - r + 1;
+        If \DataType(oper.1,'W') Then oper.1 = 1;
+        If oper.1 > rec.0 Then oper.1 = rec.0 - r + 1;
+        Do r  = r to rec.0 While oper.1 > 0
+          Queue rec.r;
+          oper.1 = oper.1 - 1;
         End
         Call ResetLocationPointer;
       End
-    End
 
-  When Left(cmd,2) == 'RE'   Then      /* RECALL */
-    Do
-      map3.map3_command.output = cmd_input;
-    End
-
-  When online,
-     & Left(cmd,4) == 'CASE' Then      /* CASE   */
-    Do
-      If Translate(Left(oper.1,1)) = 'M' Then mixed = True;
-      If Translate(Left(oper.1,1)) = 'U' Then mixed = False;
-    End
-
-  When online,
-     & Left(cmd,2) == 'LE'   Then      /* LEFT   */
-    Do
-      map3_view = 1;
-      map3.map3_Bruler.output = SubStr(source_ruler,map3_view,72);
-    End
-
-  When online,
-     & Left(cmd,2) == 'RI'   Then      /* RIGHT  */
-    Do
-      map3_view = 9;
-      map3.map3_Bruler.output = SubStr(source_ruler,map3_view,72);
-    End
-
-  When Left(cmd,1) == 'T'    Then      /* TOP  */
-    Do
-      If r > 1 Then
-        r = 1;
-      Else Do
-        If online Then
-          map3.map3_Bruler.output = ' Top of member.';
-        Else Do
-          Say ' End of member.';
-          Say ' ';
+    When Left(cmd,1) == 'P'    Then      /* PASTE */
+      Do
+        If oper.1 = '*' | oper.1 = '' Then oper.1 = Queued();
+        If \DataType(oper.1,'W') Then oper.1 = 1;
+        If oper.1 > Queued() Then oper.1 = Queued();
+        Do n  = oper.1 to 1 by -1
+          Parse Pull str;
+          Call LineAdd Strip(Left(str,80),'Trailing');
         End
+        Call ResetLocationPointer;
       End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
 
-  When Left(cmd,2) == 'BO'   Then      /* BOTTOM */
-    Do
-      If online Then
-        r = rec.0 - (map3_cnt - 2);
-      Else Do
-        r = rec.0;
-      End
-      If r < 1 Then Do
-        If online Then
-          map3.map3_Bruler.output = ' End of member.';
-        Else Do
-          Say ' End of member.';
-          Say ' ';
-        End
-        r = 1;
-      End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
-
-  When online,
-     & Left(cmd,2) == 'BA'   Then      /* BACKWARD */
-    Do
-      row = map3._csr % map3._cols + 1;
-      col = map3._csr // map3._cols + 1;
-      If row <= map3_hdc | row > (map3_hdc + map3_cnt) Then
-        r = r - map3_cnt;
-      Else Do
-        row = row - map3_hdc;
-        r = r - (map3_cnt - row);
-      End
-      If r < 1 Then Do
-        map3.map3_Bruler.output = ' Top of member.';
-        r  = 0;
-      End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
-
-  When online,
-     & Left(cmd,2) == 'FO'   Then      /* FORWARD  */
-    Do
-      row = map3._csr % map3._cols + 1;
-      col = map3._csr // map3._cols + 1;
-      If row <= map3_hdc | row > (map3_hdc + map3_cnt) Then
-        r = r + map3_cnt;
-      Else Do
-        row = row - map3_hdc;
-        r = r + (row - 1);
-      End
-      If r > rec.0 Then Do
-        map3.map3_Bruler.output = ' End of member.';
-        r  = rec.0;
-      End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,1) == 'U'    Then      /* UP   */
-    Do
-      If Datatype(oper.1,'W') Then r = r - oper.1;
-                             Else r = r - 1;
-      If r  < 1 Then Do
-        If online Then
-          map3.map3_Bruler.output = ' Top of member.';
-        Else Do
-          Say ' Top of member.';
-          Say ' ';
-        End
-        r   = 1;
-        If r > rec.0 Then r = 0;
-      End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
-
-  When cmd == '',
-     | Left(cmd,1) == 'N',             /* NEXT */
-     | Left(cmd,2) == 'DO'   Then      /* DOWN */
-    Do
-      If Datatype(oper.1,'W') Then r = r + oper.1;
-      Else r = r + 1;
-      If r  > rec.0 Then Do
-        If online Then
-          map3.map3_Bruler.output = ' End of member.';
-        Else Do
-          Say ' End of member.';
-          Say ' ';
-        End
-        r   = rec.0;
-      End
-      Call SetRecordPointer r;
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,2) == 'LA'   Then      /* LADD  */
-    Do
-      Call LineAdd Left(oper.1,80);
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,2) == 'LD'   Then      /* LDROP */
-    Do
-      Call LineDrop;
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,2) == 'CL',            /* CLEAR */
-     | Left(cmd,2) == 'RE'   Then      /* RESET */
-    Do
-      DropBuf;
-    End
-
-  When Left(cmd,2) == 'CO'   Then      /* COPY  */
-    Do
-      If oper.1 == '*' Then oper.1 = rec.0 - r + 1;
-      If \DataType(oper.1,'W') Then oper.1 = 1;
-      If oper.1 > rec.0 Then oper.1 = rec.0 - r + 1;
-      Do r  = r to rec.0 While oper.1 > 0
-        Queue Strip(rec.r,'Trailing');
-        oper.1 = oper.1 - 1;
-        If oper.1 = 0 Then Leave;
-      End
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,1) == 'P'    Then      /* PASTE */
-    Do
-      If oper.1 == '*' Then oper.1 = Queued();
-      If \DataType(oper.1,'W') Then oper.1 = 1;
-      If oper.1 > Queued() Then oper.1 = Queued();
-      Do n  = oper.1 to 1 by -1
-        Pull src;
-        Call LineAdd Left(src,80);
-      End
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,1) == 'L',             /* LOCATE */
-     | Left(cmd,1) == 'F'    Then      /* FIND   */
-    Do
-      If oper.0 > 1 Then Do
-        If online Then
-          map3.map3_Bruler.output = ' Too many operands.';
-        Else Do
-          Say ' Too many operands.';
-          Say ' ';
-        End
-      End
-      Else Do
-        s = r;                 /* temporary record pointer */
-        p = p + 1;
-        If Pos(Translate(oper.1),Translate(rec.r),p) = 0 Then Do
-          s = s + 1;
-          Do s = s to rec.0
-            p = Pos(Translate(oper.1),Translate(rec.s));
-            If p > 0 Then Leave;
-          End
-        End
-        If s > rec.0 Then Do
+    When Left(cmd,1) == 'L',             /* LOCATE */
+       | Left(cmd,1) == 'F'    Then      /* FIND   */
+      Do
+        If oper.0 > 1 Then Do
           If online Then
-            map3.map3_Bruler.output = ' String not found.';
+            map3.map3_Bruler.output = ' Too many operands.';
           Else Do
-            Say ' String not found.';
+            Say ' Too many operands.';
             Say ' ';
           End
         End
         Else Do
-          Call ResetSourceString;
-          p = Pos(Translate(oper.1),Translate(rec.s),p);
-          If p > 0 Then src = oper.1;
-          r = s;
+          s = r;                 /* temporary record pointer */
+          p = p + 1;
+          If Pos(Translate(oper.1),Translate(rec.r),p) = 0 Then Do
+            s = s + 1;
+            Do s = s to rec.0
+              p = Pos(Translate(oper.1),Translate(rec.s));
+              If p > 0 Then Leave;
+            End
+          End
+          If s > rec.0 Then Do
+            If online Then
+              map3.map3_Bruler.output = ' String not found.';
+            Else Do
+              Say ' String not found.';
+              Say ' ';
+            End
+          End
+          Else Do
+            Call ResetSourceString;
+            p = Pos(Translate(oper.1),Translate(rec.s),p);
+            If p > 0 Then src = oper.1;
+            r = s;
+          End
+          Call SetRecordPointer r;
         End
-        Call SetRecordPointer r;
       End
-    End
 
-  When online,
-     & Left(cmd,1) == 'C'    Then      /* CHANGE */
-    Do
-      If oper.0 > 2 Then Do
-        If online Then
-          map3.map3_Bruler.output = ' Too many operands.';
+    When online,
+       & Left(cmd,1) == 'C'    Then      /* CHANGE */
+      Do
+        If oper.0 <> 2 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Wrong number of operands.';
+          Else Do
+            Say ' Wrong number of operands.';
+            Say ' ';
+          End
+        End
         Else Do
-          Say ' Too many operands.';
-          Say ' ';
+          If p < 1 Then
+            q = Pos(Translate(oper.1),Translate(rec.map3_ptr));
+          Else Do
+            q = Pos(Translate(oper.1),Translate(rec.map3_ptr),p);
+          End
+          If q > 0 Then Do
+            upd_flag = True;
+            src = oper.1;
+            tgt = oper.2;
+            rec.map3_ptr = Insert(tgt,DelStr(rec.map3_ptr,q,Length(src)),q-1);
+          End
         End
       End
-      Else Do
-        If p < 1 Then
-          q = Pos(Translate(oper.1),Translate(rec.map3_ptr));
-        Else Do
-          q = Pos(Translate(oper.1),Translate(rec.map3_ptr),p);
+
+    When Left(cmd,1) == 'O'    Then      /* OVERLAY */
+      Do
+        If oper.0 > 1 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Too many operands.';
+          Else Do
+            Say ' Too many operands.';
+            Say ' ';
+          End
         End
-        If q > 0 Then Do
+        Else Do
           upd_flag = True;
-          src = oper.1;
-          tgt = oper.2;
-          rec.map3_ptr = Insert(tgt,DelStr(rec.map3_ptr,q,Length(src)),q-1);
+          rec.r = Strip(Left(oper.1,80),'Trailing');
+          Call ResetLocationPointer;
         End
       End
-    End
 
-  When Left(cmd,1) == 'O'    Then      /* OVERLAY */
-    Do
-      upd_flag = True;
-      rec.r = Left(oper.1,80);
-      Call ResetLocationPointer;
-    End
-
-  When Left(cmd,1) == 'I',             /* INSERT  */
-    |  Left(cmd,1) == 'R',             /* REPLACE */
-    |  Left(cmd,1) == 'D'    Then      /* DELETE  */
-    Select
-      When cmd <> 'INSERT' & p = 0 Then
-        Do
-          If online Then
-            map3.map3_Bruler.output = ' Perform LOCATE first.';
-          Else Do
-            Say ' Perform LOCATE first.';
-            Say ' ';
+    When Left(cmd,1) == 'I',             /* INSERT  */
+      |  Left(cmd,1) == 'R',             /* REPLACE */
+      |  Left(cmd,1) == 'D'    Then      /* DELETE  */
+      Select
+        When cmd <> 'INSERT' & p = 0 Then
+          Do
+            If online Then
+              map3.map3_Bruler.output = ' Perform LOCATE first.';
+            Else Do
+              Say ' Perform LOCATE first.';
+              Say ' ';
+            End
           End
-        End
-      When cmd <> 'INSERT' & src = '' Then
-        Do
-          If online Then
-            map3.map3_Bruler.output,
-                       = ' New LOCATE required after REPLACE/DELETE.';
-          Else Do
-            Say ' New LOCATE required after REPLACE/DELETE.';
-            Say ' ';
+        When cmd <> 'INSERT' & src = '' Then
+          Do
+            If online Then
+              map3.map3_Bruler.output,
+                         = ' New LOCATE required after REPLACE/DELETE.';
+            Else Do
+              Say ' New LOCATE required after REPLACE/DELETE.';
+              Say ' ';
+            End
           End
-        End
-      Otherwise
-        upd_flag = True;
-        If cmd <> 'INSERT' Then Do
-          rec.r = DelStr(rec.r,p,Length(src));
-        End
-        If cmd <> 'DELETE' Then Do
-          rec.r = Insert(oper.1,rec.r,IFF(p=0,p,p-1));
-        End
-        rec.r = Left(rec.r,80);
-        Call ResetSourceString;
-    End
-
-  Otherwise
-    If cmd > ' ' Then Do
-      If online Then
-        map3.map3_Bruler.output = ' Unknown command =' cmd;
-      Else Do
-        Say ' Unknown command =' cmd;
-        Say ' ';
+        Otherwise
+          upd_flag = True;
+          If cmd <> 'INSERT' Then Do
+            rec.r = DelStr(rec.r,p,Length(src));
+          End
+          If cmd <> 'DELETE' Then Do
+            rec.r = Insert(oper.1,rec.r,IFF(p=0,p,p-1));
+          End
+          rec.r = Strip(Left(rec.r,80),'Trailing');
+          Call ResetSourceString;
       End
-    End
 
+    Otherwise
+      If cmd > ' ' Then Do
+        If online Then
+          map3.map3_Bruler.output = ' Unknown command =' cmd;
+        Else Do
+          Say ' Unknown command =' cmd;
+          Say ' ';
+        End
+      End
+
+  End
+
+  Call ProcessLineCommands;
+  If lca_pending,
+  &  Pos('--+--',map3.map3_Bruler.output) > 0,
+  Then Do
+    map3.map3_Bruler.output = ' LCA block command pending.';
   End
 
 /* ----------------------------------------------------------------- */
@@ -936,8 +970,11 @@ If online Then Do
 End
 
 If Queued() > 0 & rc = 0 Then Do
-  Say pgm': The Data stack is not empty.  Do you wish to clear it?';
+  z = ASSGN('STDIN','SYSLOG');
+  z = ASSGN('STDOUT','SYSLOG');
+  Say pgm': The Data stack is not empty.  Clear it?';
   Parse Upper External resp .;
+  z = ASSGN('STDOUT','SYSLST');
   If Left(resp,1) == 'Y' Then DropBuf;
 End
 
@@ -951,7 +988,7 @@ Exit rc;
 Map0_Processing:
   If mbuild.m0 Then Do
     Call RX3270IN; /* initialize REXX program with 3270 literals */
-    If rc <> 0 Then Do
+    If rc <> 0 | result <> 0 Then Do
       Say " RX3270IN Call error: rc = "rc", result = "result;
       Signal Dump;
     End
@@ -969,21 +1006,21 @@ Map0_Processing:
     map0.err_mesg.attrib = BuildAttribute('ASKIP_BRT',,'RED',);
     map0.err_mesg.output = '';
     Select
-    When map0._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
-    When map0._aid == RX3270_AID.LIT_PF3_KEY,
-       | map0._aid == RX3270_AID.LIT_PF15_KEY  Then Exit 0;
-    When map0.map0_library.input = '' Then
-      map0.err_mesg.output = 'An entry is required.';
-    Otherwise
-      If ListDir_Successful('L='map0.map0_library.input) Then
-        Call BuildMap1;
-      Else Do
-        If result <> 'NOTFND' Then
-          map0.err_mesg.output = 'Invalid library specification.';
+      When map0._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
+      When map0._aid == RX3270_AID.LIT_PF3_KEY,
+         | map0._aid == RX3270_AID.LIT_PF15_KEY  Then Exit 0;
+      When map0.map0_library.input = '' Then
+        map0.err_mesg.output = 'An entry is required.';
+      Otherwise
+        If ListDir_Successful('L='map0.map0_library.input) Then
+          Call BuildMap1;
         Else Do
-          map0.err_mesg.output = 'Library not found.';
+          If result <> 'NOTFND' Then
+            map0.err_mesg.output = 'Invalid library specification.';
+          Else Do
+            map0.err_mesg.output = 'Library not found.';
+          End
         End
-      End
     End
   End
 Return;
@@ -1007,109 +1044,109 @@ Map1_Processing:
     map1.err_mesg.attrib = BuildAttribute('ASKIP_BRT',,'RED',);
     map1.err_mesg.output = '';
     Select
-    When map1._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
-    When map1._aid == RX3270_AID.LIT_PF1_KEY,
-       | map1._aid == RX3270_AID.LIT_PF13_KEY  Then
-      Call Help '1';
-    When map1._aid == RX3270_AID.LIT_PF3_KEY,
-       | map1._aid == RX3270_AID.LIT_PF15_KEY  Then
-      Leave;
-    When map1._aid == RX3270_AID.LIT_PF5_KEY,
-       | map1._aid == RX3270_AID.LIT_PF17_KEY  Then
-      Do
-        str = Strip(map1.map1_sublib.input);
-        If Length(str) = 0 Then
-          map1.err_mesg.output = 'No find string entered.';
-        Else Do
-          i = map1_ptr + 1;
-          Do i = i to map1_dtl.0,
-            While Pos(str,Left(map1_dtl.i,8)) = 0
-          End
-          If i > map1_dtl.0 Then Do
-            map1.map1_sublib.output = str;
-            map1.err_mesg.output = 'String not found.';
-          End
+      When map1._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
+      When map1._aid == RX3270_AID.LIT_PF1_KEY,
+         | map1._aid == RX3270_AID.LIT_PF13_KEY  Then
+        Call Help '1';
+      When map1._aid == RX3270_AID.LIT_PF3_KEY,
+         | map1._aid == RX3270_AID.LIT_PF15_KEY  Then
+        Leave;
+      When map1._aid == RX3270_AID.LIT_PF5_KEY,
+         | map1._aid == RX3270_AID.LIT_PF17_KEY  Then
+        Do
+          str = Strip(map1.map1_sublib.input);
+          If Length(str) = 0 Then
+            map1.err_mesg.output = 'No find string entered.';
           Else Do
-            map1.err_mesg.output = 'String found.';
-            map1_ptr = i;
-          End
-        End
-      End
-    When map1._aid == RX3270_AID.LIT_PF6_KEY,
-       | map1._aid == RX3270_AID.LIT_PF18_KEY  Then
-      map1_ptr = 1;
-    When map1._aid == RX3270_AID.LIT_PF7_KEY,
-       | map1._aid == RX3270_AID.LIT_PF19_KEY  Then
-      Do
-        map1_ptr = map1_ptr - map1_cnt;
-        If map1_ptr < 1 Then map1_ptr = 0;
-      End
-    When map1._aid == RX3270_AID.LIT_PF8_KEY,
-       | map1._aid == RX3270_AID.LIT_PF20_KEY  Then
-      Do
-        map1_ptr = map1_ptr + map1_cnt;
-        If map1_ptr > map1_dtl.0 Then Do
-          map1_ptr = map1_dtl.0 - map1_cnt + 1;
-          If map1_ptr < 1 Then map1_ptr = 1;
-        End
-      End
-    When map1._aid == RX3270_AID.LIT_PF9_KEY,
-       | map1._aid == RX3270_AID.LIT_PF21_KEY  Then
-      Do
-        map1_ptr = map1_dtl.0 - map1_cnt + 2;
-        If map1_ptr < 1 Then map1_ptr = 1;
-      End
-    When map1._aid == RX3270_AID.LIT_PF12_KEY,
-       | map1._aid == RX3270_AID.LIT_PF24_KEY  Then
-      Do
-        Call ListDir_Successful 'L='dlbl;
-        Call BuildMap1;
-        map1_save_ptr = '';
-      End
-    Otherwise
-      If map1.map1_sublib.input = '' Then Do
-        If Map1HasSelections() Then Do
-          If map1.map1_sublib.input = '' Then Iterate;
-        End
-        Else Do
-          Parse Value CursorPosition(map1._csr,map1._cols,map1_hdc),
-                With row col;
-          If row > 0 & row <= map1_fnm.0 Then Do
-            i = map1_ptr + (row - 1);
-            If i > 0 & i <= map1_dtl.0 Then Do
-              Parse Var map1_dtl.i map1.map1_sublib.input .;
+            i = map1_ptr + 1;
+            Do i = i to map1_dtl.0,
+              While Pos(str,Left(map1_dtl.i,8)) = 0
             End
-          End
-          If map1.map1_sublib.input = '' Then Do
-            map1.err_mesg.output = 'An entry is required.';
-            Iterate;
-          End
-        End
-      End
-      If ListDir_Successful('S='dlbl'.'map1.map1_sublib.input) Then
-        Call BuildMap2;
-      Else Do
-        If result <> 'NOTFND' Then
-          map1.err_mesg.output = 'Invalid Sublibrary specification.';
-        Else Do
-          If NewSublibrary('S='dlbl'.'map1.map1_sublib.input) Then Do
-            If map1_dtl.0 > 1 Then Do
-              Call RebuildMap1Detail map1.map1_sublib.input;
-              If map1_ptr = map1_save_ptr Then Call BuildMap1Body;
+            If i > map1_dtl.0 Then Do
+              map1.map1_sublib.output = str;
+              map1.err_mesg.output = 'String not found.';
             End
             Else Do
-              Call ListDir_Successful 'L='dlbl;
-              Call BuildMap1;
-              map1_save_ptr = '';
+              map1.err_mesg.output = 'String found.';
+              map1_ptr = i;
             End
           End
-          Else Do
-            If map0._aid <> RX3270_AID.LIT_PF2_KEY Then
-                 map1.err_mesg.output = 'Sublibrary not found.';
-            Else map1.err_mesg.output = 'Sublibrary define failed.';
+        End
+      When map1._aid == RX3270_AID.LIT_PF6_KEY,
+         | map1._aid == RX3270_AID.LIT_PF18_KEY  Then
+        map1_ptr = 1;
+      When map1._aid == RX3270_AID.LIT_PF7_KEY,
+         | map1._aid == RX3270_AID.LIT_PF19_KEY  Then
+        Do
+          map1_ptr = map1_ptr - map1_cnt;
+          If map1_ptr < 1 Then map1_ptr = 0;
+        End
+      When map1._aid == RX3270_AID.LIT_PF8_KEY,
+         | map1._aid == RX3270_AID.LIT_PF20_KEY  Then
+        Do
+          map1_ptr = map1_ptr + map1_cnt;
+          If map1_ptr > map1_dtl.0 Then Do
+            map1_ptr = map1_dtl.0 - map1_cnt + 1;
+            If map1_ptr < 1 Then map1_ptr = 1;
           End
         End
-      End
+      When map1._aid == RX3270_AID.LIT_PF9_KEY,
+         | map1._aid == RX3270_AID.LIT_PF21_KEY  Then
+        Do
+          map1_ptr = map1_dtl.0 - map1_cnt + 2;
+          If map1_ptr < 1 Then map1_ptr = 1;
+        End
+      When map1._aid == RX3270_AID.LIT_PF12_KEY,
+         | map1._aid == RX3270_AID.LIT_PF24_KEY  Then
+        Do
+          Call ListDir_Successful 'L='dlbl;
+          Call BuildMap1;
+          map1_save_ptr = '';
+        End
+      Otherwise
+        If map1.map1_sublib.input = '' Then Do
+          If Map1HasSelections() Then Do
+            If map1.map1_sublib.input = '' Then Iterate;
+          End
+          Else Do
+            Parse Value CursorPosition(map1._csr,map1._cols,map1_hdc),
+                  With row col;
+            If row > 0 & row <= map1_fnm.0 Then Do
+              i = map1_ptr + (row - 1);
+              If i > 0 & i <= map1_dtl.0 Then Do
+                Parse Var map1_dtl.i map1.map1_sublib.input .;
+              End
+            End
+            If map1.map1_sublib.input = '' Then Do
+              map1.err_mesg.output = 'An entry is required.';
+              Iterate;
+            End
+          End
+        End
+        If ListDir_Successful('S='dlbl'.'map1.map1_sublib.input) Then
+          Call BuildMap2;
+        Else Do
+          If result <> 'NOTFND' Then
+            map1.err_mesg.output = 'Invalid Sublibrary specification.';
+          Else Do
+            If NewSublibrary('S='dlbl'.'map1.map1_sublib.input) Then Do
+              If map1_dtl.0 > 1 Then Do
+                Call RebuildMap1Detail map1.map1_sublib.input;
+                If map1_ptr = map1_save_ptr Then Call BuildMap1Body;
+              End
+              Else Do
+                Call ListDir_Successful 'L='dlbl;
+                Call BuildMap1;
+                map1_save_ptr = '';
+              End
+            End
+            Else Do
+              If map0._aid <> RX3270_AID.LIT_PF2_KEY Then
+                   map1.err_mesg.output = 'Sublibrary not found.';
+              Else map1.err_mesg.output = 'Sublibrary define failed.';
+            End
+          End
+        End
     End
   End
 Return;
@@ -1133,118 +1170,120 @@ Map2_Processing:
     map2.err_mesg.attrib = BuildAttribute('ASKIP_BRT',,'RED',);
     map2.err_mesg.output = '';
     Select
-    When map2._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
-    When map2._aid == RX3270_AID.LIT_PF1_KEY,
-       | map2._aid == RX3270_AID.LIT_PF13_KEY  Then
-      Call Help '2';
-    When map2._aid == RX3270_AID.LIT_PF3_KEY,
-       | map2._aid == RX3270_AID.LIT_PF15_KEY  Then
-      Do
-        map1.map1_sublib.input = '';
-        Leave;
-      End
-    When map2._aid == RX3270_AID.LIT_PF5_KEY,
-       | map2._aid == RX3270_AID.LIT_PF17_KEY  Then
-      Do
-        str = Strip(map2.map2_member.input);
-        If Length(str) = 0 Then
-          map2.err_mesg.output = 'No find string entered.';
-        Else Do
-          i = map2_ptr + 1;
-          Do i = i to map2_dtl.0,
-            While Pos(str,Left(map2_dtl.i,17)) = 0
-          End
-          If i > map2_dtl.0 Then Do
-            map2.map2_member.output = str;
-            map2.err_mesg.output = 'String not found.';
-          End
+      When map2._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
+      When map2._aid == RX3270_AID.LIT_PF1_KEY,
+         | map2._aid == RX3270_AID.LIT_PF13_KEY  Then
+        Call Help '2';
+      When map2._aid == RX3270_AID.LIT_PF3_KEY,
+         | map2._aid == RX3270_AID.LIT_PF15_KEY  Then
+        Do
+          map1.map1_sublib.input = '';
+          Leave;
+        End
+      When map2._aid == RX3270_AID.LIT_PF5_KEY,
+         | map2._aid == RX3270_AID.LIT_PF17_KEY  Then
+        Do
+          str = Strip(map2.map2_member.input);
+          If Length(str) = 0 Then
+            map2.err_mesg.output = 'No find string entered.';
           Else Do
-            map2.err_mesg.output = 'String found.';
-            map2_ptr = i;
-          End
-        End
-      End
-    When map2._aid == RX3270_AID.LIT_PF6_KEY,
-       | map2._aid == RX3270_AID.LIT_PF18_KEY  Then
-      map2_ptr = 1;
-    When map2._aid == RX3270_AID.LIT_PF7_KEY,
-       | map2._aid == RX3270_AID.LIT_PF19_KEY  Then
-      Do
-        map2_ptr = map2_ptr - map2_cnt;
-        If map2_ptr < 1 Then map2_ptr = 0;
-      End
-    When map2._aid == RX3270_AID.LIT_PF8_KEY,
-       | map2._aid == RX3270_AID.LIT_PF20_KEY  Then
-      Do
-        map2_ptr = map2_ptr + map2_cnt;
-        If map2_ptr > map2_dtl.0 Then Do
-          map2_ptr = map2_dtl.0 - map2_cnt + 1;
-          If map2_ptr < 1 Then map2_ptr = 1;
-        End
-      End
-    When map2._aid == RX3270_AID.LIT_PF9_KEY,
-       | map2._aid == RX3270_AID.LIT_PF21_KEY  Then
-      Do
-        map2_ptr = map2_dtl.0 - map2_cnt + 2;
-        If map2_ptr < 1 Then map2_ptr = 1;
-      End
-    When map2._aid == RX3270_AID.LIT_PF12_KEY,
-       | map2._aid == RX3270_AID.LIT_PF24_KEY  Then
-      Do
-        Call ListDir_Successful 'S='lib;
-        Call BuildMap2;
-        map2_save_ptr = '';
-      End
-    Otherwise
-      If map2.map2_member.input = '' Then Do
-        If Map2HasSelections() Then Do
-          If map2.map2_member.input = '' Then Iterate;
-        End
-        Else Do
-          Parse Value CursorPosition(map2._csr,map2._cols,map2_hdc),
-                With row col;
-          If row > 0 & row <= map2_fnm.0 Then Do
-            i = map2_ptr + (row - 1);
-            If i > 0 & i <= map2_dtl.0 Then Do
-              Parse Var map2_dtl.i n1 n2 .;
-              map2.map2_member.input = n1'.'n2;
+            i = map2_ptr + 1;
+            Do i = i to map2_dtl.0,
+              While Pos(str,Left(map2_dtl.i,17)) = 0
             End
-          End
-          If map2.map2_member.input = '' Then Do
-            map2.err_mesg.output = 'An entry is required.';
-            Iterate;
-          End
-        End
-      End
-      If ListMbr_Successful(map2.map2_member.input,lib) Then
-        Call BuildMap3;
-      Else Do
-        Select
-        When result = 'INVTYP' Then
-          map2.err_mesg.output = 'Cannot edit that member type.';
-        When result = 'NOTFND' Then
-          Do
-            If NewMember(map2.map2_member.input,lib) Then Do
-              If map2_dtl.0 > 1 Then Do
-                Call RebuildMap2Detail map2.map2_member.input;
-                If map2_ptr = map2_save_ptr Then Call BuildMap2Body;
-              End
-              Else Do
-                Call ListDir_Successful 'S='lib;
-                Call BuildMap2;
-                map2_save_ptr = '';
-              End
+            If i > map2_dtl.0 Then Do
+              map2.map2_member.output = str;
+              map2.err_mesg.output = 'String not found.';
             End
             Else Do
-              If map0._aid <> RX3270_AID.LIT_PF2_KEY Then
-                   map2.err_mesg.output = 'Member not found.';
-              Else map2.err_mesg.output = 'Member define failed.';
+              map2.err_mesg.output = 'String found.';
+              map2_ptr = i;
             End
           End
-        Otherwise
-          map2.err_mesg.output = 'Invalid Member specification.';
         End
-      End
+      When map2._aid == RX3270_AID.LIT_PF6_KEY,
+         | map2._aid == RX3270_AID.LIT_PF18_KEY  Then
+        map2_ptr = 1;
+      When map2._aid == RX3270_AID.LIT_PF7_KEY,
+         | map2._aid == RX3270_AID.LIT_PF19_KEY  Then
+        Do
+          map2_ptr = map2_ptr - map2_cnt;
+          If map2_ptr < 1 Then map2_ptr = 0;
+        End
+      When map2._aid == RX3270_AID.LIT_PF8_KEY,
+         | map2._aid == RX3270_AID.LIT_PF20_KEY  Then
+        Do
+          map2_ptr = map2_ptr + map2_cnt;
+          If map2_ptr > map2_dtl.0 Then Do
+            map2_ptr = map2_dtl.0 - map2_cnt + 1;
+            If map2_ptr < 1 Then map2_ptr = 1;
+          End
+        End
+      When map2._aid == RX3270_AID.LIT_PF9_KEY,
+         | map2._aid == RX3270_AID.LIT_PF21_KEY  Then
+        Do
+          map2_ptr = map2_dtl.0 - map2_cnt + 2;
+          If map2_ptr < 1 Then map2_ptr = 1;
+        End
+      When map2._aid == RX3270_AID.LIT_PF12_KEY,
+         | map2._aid == RX3270_AID.LIT_PF24_KEY  Then
+        Do
+          Call ListDir_Successful 'S='lib;
+          Call BuildMap2;
+          map2_save_ptr = '';
+        End
+      Otherwise
+        If map2.map2_member.input = '' Then Do
+          If Map2HasSelections() Then Do
+            If map2.map2_member.input = '' Then Iterate;
+          End
+          Else Do
+            Parse Value CursorPosition(map2._csr,map2._cols,map2_hdc),
+                  With row col;
+            If row > 0 & row <= map2_fnm.0 Then Do
+              i = map2_ptr + (row - 1);
+              If i > 0 & i <= map2_dtl.0 Then Do
+                Parse Var map2_dtl.i n1 n2 .;
+                map2.map2_member.input = n1'.'n2;
+              End
+            End
+            If map2.map2_member.input = '' Then Do
+              map2.err_mesg.output = 'An entry is required.';
+              Iterate;
+            End
+          End
+        End
+        If ListMbr_Successful(map2.map2_member.input,lib) Then
+          Call BuildMap3;
+        Else Do
+          Select
+          When result = 'MEMTYP' Then
+            map2.err_mesg.output = 'Member type not specified.';
+          When result = 'INVTYP' Then
+            map2.err_mesg.output = 'Cannot edit that member type.';
+          When result = 'NOTFND' Then
+            Do
+              If NewMember(map2.map2_member.input,lib) Then Do
+                If map2_dtl.0 > 1 Then Do
+                  Call RebuildMap2Detail map2.map2_member.input;
+                  If map2_ptr = map2_save_ptr Then Call BuildMap2Body;
+                End
+                Else Do
+                  Call ListDir_Successful 'S='lib;
+                  Call BuildMap2;
+                  map2_save_ptr = '';
+                End
+              End
+              Else Do
+                If map0._aid <> RX3270_AID.LIT_PF2_KEY Then
+                     map2.err_mesg.output = 'Member not found.';
+                Else map2.err_mesg.output = 'Member define failed.';
+              End
+            End
+          Otherwise
+            map2.err_mesg.output = 'Invalid Member specification.';
+          End
+        End
     End
   End
 Return;
@@ -1286,62 +1325,63 @@ Map3_Processing:
       map3.map3_command.input = Strip(map3.map3_command.input);
     End
     Select
-    When map3._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
-    When map3._aid == RX3270_AID.LIT_ENTER_KEY,
-       & Length(map3.map3_command.input) > 0   Then
-      Do
-        cmd_input = map3.map3_command.input;
-        cmd_string = cmd_input;
-      End
-    When map3._aid == RX3270_AID.LIT_PF1_KEY,
-       | map3._aid == RX3270_AID.LIT_PF13_KEY  Then
-      cmd_string = 'HELP' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF2_KEY,
-       | map3._aid == RX3270_AID.LIT_PF14_KEY  Then
-      cmd_string = 'RECALL' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF3_KEY,
-       | map3._aid == RX3270_AID.LIT_PF15_KEY  Then
-      cmd_string = 'SAVE' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF4_KEY,
-       | map3._aid == RX3270_AID.LIT_PF16_KEY  Then
-      Do
-        If map3.map3_command.input > ' ' Then
-          cmd_string = 'CHANGE' map3.map3_command.input;
-        Else Do
-          cmd_string = 'CHANGE' src tgt;
+      When map3._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
+      When map3._aid == RX3270_AID.LIT_ENTER_KEY,
+         & Length(map3.map3_command.input) > 0   Then
+        Do
+          cmd_input = map3.map3_command.input;
+          cmd_string = cmd_input;
         End
-      End
-    When map3._aid == RX3270_AID.LIT_PF5_KEY,
-       | map3._aid == RX3270_AID.LIT_PF17_KEY  Then
-      Do
-        If map3.map3_command.input > ' ' Then
-          cmd_string = 'FIND' map3.map3_command.input;
-        Else Do
-          cmd_string = 'FIND' src;
+      When map3._aid == RX3270_AID.LIT_PF1_KEY,
+         | map3._aid == RX3270_AID.LIT_PF13_KEY  Then
+        cmd_string = 'HELP' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF2_KEY,
+         | map3._aid == RX3270_AID.LIT_PF14_KEY  Then
+        cmd_string = 'RECALL' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF3_KEY,
+         | map3._aid == RX3270_AID.LIT_PF15_KEY  Then
+        cmd_string = 'SAVE' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF4_KEY,
+         | map3._aid == RX3270_AID.LIT_PF16_KEY  Then
+        Do
+          If map3.map3_command.input > ' ' Then
+            cmd_string = 'CHANGE' map3.map3_command.input;
+          Else Do
+            cmd_string = 'CHANGE' src tgt;
+          End
         End
-      End
-    When map3._aid == RX3270_AID.LIT_PF6_KEY,
-       | map3._aid == RX3270_AID.LIT_PF18_KEY  Then
-      cmd_string = 'TOP' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF7_KEY,
-       | map3._aid == RX3270_AID.LIT_PF19_KEY  Then
-      cmd_string = 'BACKWARD' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF8_KEY,
-       | map3._aid == RX3270_AID.LIT_PF20_KEY  Then
-      cmd_string = 'FORWARD' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF9_KEY,
-       | map3._aid == RX3270_AID.LIT_PF21_KEY  Then
-      cmd_string = 'BOTTOM' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF10_KEY,
-       | map3._aid == RX3270_AID.LIT_PF22_KEY  Then
-      cmd_string = 'LEFT' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF11_KEY,
-       | map3._aid == RX3270_AID.LIT_PF23_KEY  Then
-      cmd_string = 'RIGHT' map3.map3_command.input;
-    When map3._aid == RX3270_AID.LIT_PF12_KEY,
-       | map3._aid == RX3270_AID.LIT_PF24_KEY  Then
-      cmd_string = 'CANCEL' map3.map3_command.input;
-    Otherwise
+      When map3._aid == RX3270_AID.LIT_PF5_KEY,
+         | map3._aid == RX3270_AID.LIT_PF17_KEY  Then
+        Do
+          If map3.map3_command.input > ' ' Then
+            cmd_string = 'FIND' map3.map3_command.input;
+          Else Do
+            cmd_string = 'FIND' src;
+          End
+        End
+      When map3._aid == RX3270_AID.LIT_PF6_KEY,
+         | map3._aid == RX3270_AID.LIT_PF18_KEY  Then
+        cmd_string = 'TOP' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF7_KEY,
+         | map3._aid == RX3270_AID.LIT_PF19_KEY  Then
+        cmd_string = 'BACKWARD' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF8_KEY,
+         | map3._aid == RX3270_AID.LIT_PF20_KEY  Then
+        cmd_string = 'FORWARD' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF9_KEY,
+         | map3._aid == RX3270_AID.LIT_PF21_KEY  Then
+        cmd_string = 'BOTTOM' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF10_KEY,
+         | map3._aid == RX3270_AID.LIT_PF22_KEY  Then
+        cmd_string = 'LEFT' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF11_KEY,
+         | map3._aid == RX3270_AID.LIT_PF23_KEY  Then
+        cmd_string = 'RIGHT' map3.map3_command.input;
+      When map3._aid == RX3270_AID.LIT_PF12_KEY,
+         | map3._aid == RX3270_AID.LIT_PF24_KEY  Then
+        cmd_string = 'CANCEL' map3.map3_command.input;
+      Otherwise
+        Leave;
     End
   End
 Return;
@@ -1445,10 +1485,10 @@ Converse:
   If Arg() > 1,
   &  DataType(Arg(2),'W'),
   Then Do
-    map0._ccc = map0._ccc':'              ||,
-                RX3270_DSO.LIT_START_FIELD||,
-                RX3270_ATR.LIT_UNPROT_BRT ||,
-                RX3270_CSR.LIT_YES        ||,
+    map0._ccc = map0._ccc':'                ||,
+                RX3270_DSO.LIT_START_FIELD  ||,
+                RX3270_ATR.LIT_UNPROT_BRT   ||,
+                RX3270_DSO.LIT_INSERT_CURSOR||,
                 Copies('00'x,Arg(2));
   End
   map0._ccc = map0._ccc                 ||,
@@ -1558,16 +1598,23 @@ ListDir_Successful: Procedure Expose syslst. result False True;
 Return True;
 
 ListMbr_Successful: Procedure Expose syslst. result exclude False True;
-  Parse Value Arg(1) With m '.' t .;
-  If t = '' | Pos('|'t'|',exclude) > 0 Then Do
-    result = 'INVTYP';
-    Return False;
+  Parse Value Translate(Arg(1),' ','.') With m t .;
+  Select
+    When t = '' Then Do
+      result = 'MEMTYP';
+      Return False;
+    End
+    When Pos('|'t'|',exclude) > 0 Then Do
+      result = 'INVTYP';
+      Return False;
+    End
+    Otherwise
   End
 
   sysipt.  = '';
   sysipt.0 = 2;
   sysipt.1 = ' ACCESS S='Arg(2);
-  sysipt.2 = ' LIST   'Arg(1);
+  sysipt.2 = ' LIST   'm'.'t;
   y = REXXIPT('sysipt.');
   y = OUTTRAP('syslst.','*','NOCONCAT');
 
@@ -1595,6 +1642,7 @@ NewMember:
                   '"ON" for this member.';
     If map0._aid == RX3270_AID.LIT_PF2_KEY Then opt = 'DATA';
   End
+
   rec.0 = 1;
   rec.1 = ' ';
   "EXECIO * DISKW" n2'.'n1 "( OPEN FINIS" opt "STEM rec. )";
@@ -1610,6 +1658,7 @@ NewSublibrary:
   Call Converse 'Not found.  Press PF2 to create the "'||,
                 n1'.'n2'" sublibrary.';
   If map0._aid <> RX3270_AID.LIT_PF2_KEY Then Return False;
+
   If OperationFailed('define',Arg(1)) Then Return False;
   n = map1_dtl.0 + 1;
   map1_dtl.n = Left(n2,10) '*** New Sublibrary ***';
@@ -1706,35 +1755,405 @@ WriteMember:
   End
 Return;
 
-LineAdd: Procedure Expose True False upd_flag rec. r;
-  Arg str;
+LineAdd: Procedure Expose True False upd_flag lca. rec. r;
+  Parse Arg str;
   n     = r;
+  upd_flag = True;
   rec.0 = rec.0 + 1;
-  Do r  = rec.0 to n by -1
-    upd_flag = True;
+  Do r  = rec.0 to n by -1   /* loop from end backwards to current */
     s   = r - 1;
-    If s > n Then
+    If s > n Then Do
+      lca.r = lca.s;
       rec.r = rec.s;
+    End
     Else Do
+      lca.r = '';
       rec.r = str||' ';
       Leave;
     End
   End
 Return;
 
-LineDrop: Procedure Expose True False upd_flag rec. r;
-  Do s  = r to rec.0
-    upd_flag = True;
+LineDrop: Procedure Expose True False upd_flag lca. rec. r;
+  upd_flag = True;
+  Do s  = r to rec.0         /* loop from current forwards to end */
     n   = s + 1;
-    If s < rec.0 Then
+    If s < rec.0 Then Do
+      lca.s = lca.n;
       rec.s = rec.n;
+    End
     Else Do
+      lca.s = '';
       rec.s = '';
       Leave;
     End
   End
   If rec.0 > 0 Then Do
     rec.0 = rec.0 - 1;
+  End
+Return;
+
+ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
+                                      map3_ptr map3_Bruler lca.,
+                                      lca_pending lca_cmds lca_blks;
+  lca_errors = False;
+  lca_pending = False;
+  single_pending = False;
+  delt_begin = 0; delt_ending = 0;
+  copy_begin = 0; copy_ending = 0;
+  move_begin = 0; move_ending = 0;
+  lowr_begin = 0; lowr_ending = 0;
+  uppr_begin = 0; uppr_ending = 0;
+  left_begin = 0; left_ending = 0; left_cnt = 0;
+  rght_begin = 0; rght_ending = 0; rght_cnt = 0;
+  lower_case = 'abcdefghijklmnopqrstuvwxyz';
+  upper_case = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  Do r = 1 Until r > rec.0   /* loop through member records */
+    If Length(lca.r) = 0 Then Iterate;
+
+    Parse Value Translate(lca.r,' ','0123456789') With str .;
+
+    If Pos(Left(str,1),lca_cmds) = 0,
+    |  Length(str) < 1 | Length(str) > 2 Then Do
+      map3.map3_Bruler.output = ' Invalid LCA command format.';
+      lca_errors = True;
+      Iterate;
+    End
+    If Length(str) = 1,
+    &  Pos(str,lca_cmds) > 0,
+    |  Length(str) = 2,
+    &  Pos('|'str'|',lca_blks) > 0,
+    Then Do
+      If Length(str) = 2 Then
+        Parse Var lca.r 3 nbr .;  /* a block  line command */
+      Else Do
+        Parse Var lca.r 2 nbr .;  /* a single line command */
+      End
+      If Length(nbr) > 0,
+      & (Pos(str,'AB') > 0 & nbr <> '*'),
+      & ¬Datatype(nbr,'W'),
+      Then Do
+        map3.map3_Bruler.output = ' Invalid LCA count value.';
+        lca_errors = True;
+        Iterate;
+      End
+    End
+    Else Do
+      map3.map3_Bruler.output = ' Undefined LCA command.';
+      lca_errors = True;
+      Iterate;
+    End
+    If Pos(str,'AB') = 0 Then Do
+      If Length(nbr) = 0 Then nbr = 1;      /* default of  1  */
+    End
+    Else Do
+      single_pending = True;      /* do in second pass */
+      If Length(nbr) = 0 Then nbr = '*';    /* default of ALL */
+    End
+
+    Select                   /* set beginning of block commmands */
+      When delt_begin = 0 & str = 'DD' Then Do
+        lca_pending = True; delt_begin = r; lca.r = 'DD';
+        Iterate;
+      End
+      When copy_begin = 0 & str = 'CC' Then Do
+        lca_pending = True; copy_begin = r; lca.r = 'CC';
+        Iterate;
+      End
+      When move_begin = 0 & str = 'MM' Then Do
+        lca_pending = True; move_begin = r; lca.r = 'MM';
+        Iterate;
+      End
+      When lowr_begin = 0 & str = 'LL' Then Do
+        lca_pending = True; lowr_begin = r; lca.r = 'LL';
+        Iterate;
+      End
+      When uppr_begin = 0 & str = 'UU' Then Do
+        lca_pending = True; uppr_begin = r; lca.r = 'UU';
+        Iterate;
+      End
+      When left_begin = 0 & str = '<<' Then Do
+        left_cnt = nbr;
+        lca_pending = True; left_begin = r; lca.r = '<<'||nbr;
+        Iterate;
+      End
+      When rght_begin = 0 & str = '>>' Then Do
+        rght_cnt = nbr;
+        lca_pending = True; rght_begin = r; lca.r = '>>'||nbr;
+        Iterate;
+      End
+      Otherwise
+    End
+
+    If Length(str) = 1,      /* mix in no single line LCA cmds */
+    & (copy_begin > 0 & copy_ending = 0,
+    |  move_begin > 0 & move_ending = 0,
+    |  lowr_begin > 0 & lowr_ending = 0,
+    |  uppr_begin > 0 & uppr_ending = 0,
+    |  left_begin > 0 & left_ending = 0,
+    |  rght_begin > 0 & rght_ending = 0),
+    Then Do
+      If \lca_errors Then Do
+        map3.map3_Bruler.output = ' Cannot mix single line commands',
+                                ||' inside block line commands.';
+        lca_errors = True;
+      End
+      Iterate;
+    End
+    If Length(str) = 2,      /* mix in no other block commands */
+    & (copy_begin > 0 & Pos('|'str'|','|MM|LL|UU|<<|>>|') > 0,
+    |  move_begin > 0 & Pos('|'str'|','|CC|LL|UU|<<|>>|') > 0,
+    |  lowr_begin > 0 & Pos('|'str'|','|MM|CC|UU|<<|>>|') > 0,
+    |  uppr_begin > 0 & Pos('|'str'|','|MM|CC|LL|<<|>>|') > 0,
+    |  left_begin > 0 & Pos('|'str'|','|MM|CC|LL|UU|>>|') > 0,
+    |  rght_begin > 0 & Pos('|'str'|','|MM|CC|LL|UU|<<|') > 0),
+    Then Do
+      If \lca_errors Then Do
+        map3.map3_Bruler.output = ' Cannot mix LCA block commands',
+                                ||' inside other block commands.';
+        lca_errors = True;
+      End
+      Iterate;
+    End
+
+    Select                   /* set ending of block commmands */
+      When delt_begin > 0 & delt_ending = 0 & str = 'DD' Then Do
+        delt_ending  = r;
+        If \lca_errors Then Do
+          lca.delt_begin = ''; lca.delt_ending = '';
+          r = delt_begin;
+          s = r;                  /* save current record number */
+          n = delt_ending - delt_begin + 1;
+          Do i = 1 to n
+            Call LineDrop;
+          End
+          r = s - 1;              /* re-test current record */
+          delt_begin = 0; delt_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When copy_begin > 0 & copy_ending = 0 & str = 'CC' Then Do
+        copy_ending  = r;
+        If \lca_errors Then Do
+          lca.copy_begin = ''; lca.copy_ending = '';
+          s = r;                  /* save current record number */
+          Do r = copy_begin to copy_ending
+            Queue rec.r;
+          End
+          r = s - 1;              /* re-test current record */
+          copy_begin = 0; copy_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When move_begin > 0 & move_ending = 0 & str = 'MM' Then Do
+        move_ending  = r;
+        If \lca_errors Then Do
+          lca.move_begin = ''; lca.move_ending = '';
+          Do r = move_begin to move_ending
+            Queue rec.r;
+          End
+          r = move_begin;              /* restore to beginning */
+          s = r;                  /* save current record number */
+          n = move_ending - move_begin + 1;
+          Do i = 1 to n
+            Call LineDrop;
+          End
+          r = s - 1;              /* re-test current record */
+          move_begin = 0; move_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When lowr_begin > 0 & lowr_ending = 0 & str = 'LL' Then Do
+        lowr_ending  = r;
+        If \lca_errors Then Do
+          upd_flag = True;
+          lca.lowr_begin = ''; lca.lowr_ending = '';
+          Do s = lowr_begin to lowr_ending
+            rec.s = Translate(rec.s,lower_case,upper_case);
+          End
+          lowr_begin = 0; lowr_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When uppr_begin > 0 & uppr_ending = 0 & str = 'UU' Then Do
+        uppr_ending  = r;
+        If \lca_errors Then Do
+          upd_flag = True;
+          lca.uppr_begin = ''; lca.uppr_ending = '';
+          Do s = uppr_begin to uppr_ending
+            rec.s = Translate(rec.s);
+          End
+          uppr_begin = 0; uppr_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When left_begin > 0 & left_ending = 0 & str = '<<' Then Do
+        left_ending  = r;
+        If \lca_errors Then Do
+          upd_flag = True;
+          lca.left_begin = ''; lca.left_ending = '';
+          n = left_cnt;
+          Do s = left_begin to left_ending
+            rec.s = Substr(rec.s,n+1);
+          End
+          left_begin = 0; left_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+      When rght_begin > 0 & rght_ending = 0 & str = '>>' Then Do
+        rght_ending  = r;
+        If \lca_errors Then Do
+          upd_flag = True;
+          lca.rght_begin = ''; lca.rght_ending = '';
+          n = rght_cnt;
+          Do s = rght_begin to rght_ending
+            rec.s = Strip(Left(Copies(' ',n)||rec.s,80),'Trailing');
+          End
+          rght_begin = 0; rght_ending = 0;
+          Call ResetLocationPointer;
+        End
+      End
+                             /* single (non-block) LCA commands */
+      When str = 'I' Then Do      /* do interspersed INSERT cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          s = r;                  /* save current record number */
+          Do r = r to (r+nbr-1)
+            Call LineAdd;         /* add blank records */
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+      End
+      When str = 'D' Then Do      /* do interspersed DELETE cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          s = r;                  /* save current record number */
+          Do i = 1 to nbr
+            Call LineDrop;        /* delete records */
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+      End
+      When str = 'C' Then Do      /* do interspersed COPY cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          Do s = r to (r+nbr-1)
+            Queue rec.s;
+          End
+          Call ResetLocationPointer;
+        End
+      End
+      When str = 'M' Then Do      /* do interspersed MOVE cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          Do s = r to (r+nbr-1)
+            Queue rec.s;
+          End
+          s = r;                  /* save current record number */
+          Do n = 1 to nbr
+            Call LineDrop;
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+      End
+      When str = 'L' Then Do      /* do interspersed LOWER cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          upd_flag = True;
+          Do s = r to (r+nbr-1)
+            rec.s = Translate(rec.s,lower_case,upper_case);
+          End
+          Call ResetLocationPointer;
+        End
+      End
+      When str = 'U' Then Do      /* do interspersed UPPER cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          upd_flag = True;
+          Do s = r to (r+nbr-1)
+            rec.s = Translate(rec.s);
+          End
+          Call ResetLocationPointer;
+        End
+      End
+      When str = '<' Then Do      /* do interspersed SHIFT cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          upd_flag = True;
+          rec.r = Substr(rec.r,nbr+1);
+          Call ResetLocationPointer;
+        End
+      End
+      When str = '>' Then Do
+        If \lca_errors Then Do
+          lca.r = '';
+          upd_flag = True;
+          rec.r = Strip(Left(Copies(' ',nbr)||rec.r,80),'Trailing');
+          Call ResetLocationPointer;
+        End
+      End
+      When str = '"' Then Do      /* do interspersed DITTO cmd */
+        If \lca_errors Then Do
+          lca.r = '';
+          s = r;                  /* save current record number */
+          Do i = 1 to nbr
+            Call LineAdd rec.s;
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+      End
+      Otherwise
+    End
+  End                             /* end first pass */
+  If lca_errors Then Return;
+
+  If lca_pending,
+  & (copy_begin > 0 & copy_ending = 0,
+  |  move_begin > 0 & move_ending = 0,
+  |  lowr_begin > 0 & lowr_ending = 0,
+  |  uppr_begin > 0 & uppr_ending = 0,
+  |  left_begin > 0 & left_ending = 0,
+  |  rght_begin > 0 & rght_ending = 0),
+  Then Return;                    /* not all blocks processed */
+  Else lca_pending = False;       /* all blocks processed */
+
+  If single_pending Then Do       /* second pass for single cmds  */
+    Do r = 1 Until r > rec.0      /* that remove lines from stack */
+      If Length(lca.r) = 0 Then Iterate;
+      Parse Var lca.r str 2 nbr .;
+      If Length(nbr) = 0 | nbr = '*' | nbr > Queued() Then
+        nbr = Queued();
+      Select
+        When str = 'A' Then Do    /* do interspersed AFTER cmd */
+          lca.r = '';
+          s = r;                  /* save current record number */
+          Do n = nbr to 1 by -1
+            Parse Pull str;
+            Call LineAdd Strip(Left(str,80),'Trailing');
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+        When str = 'B' Then Do    /* do interspersed BEFORE cmd */
+          lca.r = '';
+          s = r;                  /* save current record number */
+          r = r - 1;              /* point to previous record */
+          Do n = nbr to 1 by -1
+            Parse Pull str;
+            Call LineAdd Strip(Left(str,80),'Trailing');
+          End
+          r = s - 1;              /* re-test current record */
+          Call ResetLocationPointer;
+        End
+        Otherwise
+      End
+    End
+    single_pending = False;
   End
 Return;
 
@@ -1947,27 +2366,26 @@ Return;
 SaveBodyData: Procedure Expose True False upd_flag map3. map3_fnm.,
                                mixed lca. rec. map3_ptr map3_view;
   Do row = 1 to map3_fnm.0
+    r = map3_ptr + (row - 1);
     Parse Var map3_fnm.row lca lda .;
     If lca <> 'x',
     &  Symbol('map3.lca.input') == 'VAR',
     Then Do
-      i     = map3_ptr + (row - 1);
-      lca.i = Strip(Translate(Translate(map3.lca.input,'  ','=*')));
-      If i > lca.0 Then lca.0 = i;
+      lca.r = Translate(Strip(Translate(map3.lca.input,' ','=*')));
+      If r > lca.0 Then lca.0 = r;
     End
     If lca <> 'x',
     &  Symbol('map3.lda.input') == 'VAR',
     Then Do
       upd_flag = True;
-      i     = map3_ptr + (row - 1);
-      a     = Left(rec.i,map3_view-1);
+      a     = Left(rec.r,map3_view-1);
       If mixed Then
         b   = Left(map3.lda.input,72,' ');
       Else Do
         b   = Left(Translate(map3.lda.input),72,' ');
       End
-      c     = SubStr(rec.i,map3_view+72);
-      rec.i = Left(a||b||c,80);
+      c     = SubStr(rec.r,map3_view+72);
+      rec.r = Strip(Left(a||b||c,80),'Trailing');
     End
   End
 Return;
@@ -2686,7 +3104,7 @@ BuildMap3Body:
     Else Do
       Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,1,,
                       BuildAttribute('UNPROT_NORM',,'YELLOW',),,
-                      '*===*';
+                      IFF(lca.i>'',lca.i,'*===*');
       map3_fnm.s = n;
       Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,7,,
                       BuildAttribute('UNPROT_NORM',,'GREEN',),,
