@@ -1906,6 +1906,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       Iterate;
     End
+
     If Length(str) = 2,      /* mix in no other block commands */
     & (copy_begin > 0 & Pos('|'str'|','|MM|LL|UU|<<|>>|') > 0,
     |  move_begin > 0 & Pos('|'str'|','|CC|LL|UU|<<|>>|') > 0,
@@ -2024,7 +2025,8 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
         If \lca_errors Then Do
           lca.r = '';
           s = r;                  /* save current record number */
-          Do r = r to (r+nbr-1)
+          Call LineAdd '13'x;
+          Do r = (r+1) to (r+nbr-2)
             Call LineAdd;         /* add blank records */
           End
           r = s - 1;              /* re-test current record */
