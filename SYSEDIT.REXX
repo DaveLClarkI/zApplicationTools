@@ -514,6 +514,8 @@ Do While rc = 0
   str   = '';
   mixed = True;
   upd_flag = False;
+  lower_case = 'abcdefghijklmnopqrstuvwxyz';
+  upper_case = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   Call ReadMember;
   If rc <> 0 Then Leave;
@@ -1799,7 +1801,8 @@ Return;
 
 ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
                                       map3_ptr map3_Bruler lca.,
-                                      lca_pending lca_cmds lca_blks;
+                                      lca_pending lca_cmds lca_blks,
+                                      lower_case upper_case;
   lca_errors = False;
   lca_pending = False;
   single_pending = False;
@@ -1810,8 +1813,6 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
   uppr_begin = 0; uppr_ending = 0;
   left_begin = 0; left_ending = 0; left_cnt = 0;
   rght_begin = 0; rght_ending = 0; rght_cnt = 0;
-  lower_case = 'abcdefghijklmnopqrstuvwxyz';
-  upper_case = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   Do r = 1 Until r > rec.0   /* loop through member records */
     If Length(lca.r) = 0 Then Iterate;
@@ -2032,6 +2033,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       When str = 'D' Then Do      /* do interspersed DELETE cmd */
         If \lca_errors Then Do
+          If (r + nbr - 1) > rec.0 Then nbr = rec.0 - r + 1;
           lca.r = '';
           s = r;                  /* save current record number */
           Do i = 1 to nbr
@@ -2043,6 +2045,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       When str = 'C' Then Do      /* do interspersed COPY cmd */
         If \lca_errors Then Do
+          If (r + nbr - 1) > rec.0 Then nbr = rec.0 - r + 1;
           lca.r = '';
           Do s = r to (r+nbr-1)
             Queue rec.s;
@@ -2051,6 +2054,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
         End
       End
       When str = 'M' Then Do      /* do interspersed MOVE cmd */
+          If (r + nbr - 1) > rec.0 Then nbr = rec.0 - r + 1;
         If \lca_errors Then Do
           lca.r = '';
           Do s = r to (r+nbr-1)
@@ -2066,6 +2070,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       When str = 'L' Then Do      /* do interspersed LOWER cmd */
         If \lca_errors Then Do
+          If (r + nbr - 1) > rec.0 Then nbr = rec.0 - r + 1;
           lca.r = '';
           upd_flag = True;
           Do s = r to (r+nbr-1)
@@ -2076,6 +2081,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
       End
       When str = 'U' Then Do      /* do interspersed UPPER cmd */
         If \lca_errors Then Do
+          If (r + nbr - 1) > rec.0 Then nbr = rec.0 - r + 1;
           lca.r = '';
           upd_flag = True;
           Do s = r to (r+nbr-1)
