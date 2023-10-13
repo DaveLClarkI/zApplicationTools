@@ -781,6 +781,10 @@ Do While rc = 0
        | Left(cmd,2) == 'RE'   Then      /* RESET */
       Do
         DropBuf;
+        Drop lca.;
+        lca.  = '';
+        lca.0 = 0;
+        Call ResetLocationPointer;
       End
 
     When Left(cmd,2) == 'CO'   Then      /* COPY  */
