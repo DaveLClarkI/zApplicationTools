@@ -1,6 +1,0 @@
-   CATALOG SYSEDIT.PROC   REPLACE=YES DATA=YES
-// LIBDEF *,SEARCH=DAP.PROD,TEMP
-// SETPFIX LIMIT=8K                                                     00000011
-// EXEC REXX=SYSEDIT,SIZE=256K
-/* EOD
-/+
