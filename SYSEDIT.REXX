@@ -82,58 +82,58 @@
 /*                                                                   */
 /* MAINLINE MODULES                                                  */
 /* ----------------                                                  */
-/* Map0_Processing           (Index: 988)                            */
+/* Map0_Processing           (Index: 994)                            */
 /*             prompts for a library specification.                  */
 /*                                                                   */
-/* Map1_Processing           (Index: 1028)                           */
+/* Map1_Processing           (Index: 1034)                           */
 /*             prompts for a sublibrary selection.                   */
 /*             Optionally, this process also supports sublibrary     */
 /*             create and delete.                                    */
 /*                                                                   */
-/* Map2_Processing           (Index: 1154)                           */
+/* Map2_Processing           (Index: 1160)                           */
 /*             prompts for a member selection.                       */
 /*             Optionally, this process also supports member         */
 /*             create, delete, copy, move, and rename.               */
 /*                                                                   */
-/* Map3_Processing           (Index: 1291)                           */
+/* Map3_Processing           (Index: 1297)                           */
 /*             prompts for member editing.                           */
 /*             Optionally, this process also supports member         */
 /*             submit to POWER.                                      */
 /*                                                                   */
 /* GENERAL ROUTINES                                                  */
 /* ----------------                                                  */
-/* Dump                      (Index: 1393)                           */
+/* Dump                      (Index: 1399)                           */
 /*             invokes RXDMPVAR to dump all REXX variables for       */
 /*             sorted (SHAKESRT) output to SYSLST.                   */
 /*                                                                   */
-/* IFF                       (Index: 1410)                           */
+/* IFF                       (Index: 1416)                           */
 /*             is an in-line IF function.                            */
 /*             Arguments:  (all are optional)                        */
 /*                 Boolean condition                                 */
 /*                 value to return if boolean condition is true      */
 /*                 value to return if boolean condition is false     */
 /*                                                                   */
-/* MakeStem                  (Index: 1421)                           */
+/* MakeStem                  (Index: 1427)                           */
 /*             is a subroutine to automatically create stem variable */
 /*             Arguments:  (at least the first one is required)      */
 /*                 stem name to create (must include the period)     */
 /*                 one or more comma-separated values to assign to   */
 /*                   sequentially numbered stem variables.           */
 /*                                                                   */
-/* ParseCommandString        (Index: 1434)                           */
+/* ParseCommandString        (Index: 1440)                           */
 /*             is a subroutine to handle quoted command operands.    */
 /*             Arguments:  (required)                                */
 /*                 string  (format: command oper1 oper2 oper3 ...)   */
 /*                                                                   */
 /* INPUT-OUTPUT ROUTINES                                             */
 /* ---------------------                                             */
-/* Screen_IO                 (Index: 1463)                           */
+/* Screen_IO                 (Index: 1469)                           */
 /*             erases the screen, writes the specified map to the    */
 /*             screen, and performs a read-modified operation.       */
 /*             Arguments:  (required)                                */
 /*                 stem name of the current map.                     */
 /*                                                                   */
-/* Converse                  (Index: 1477)                           */
+/* Converse                  (Index: 1483)                           */
 /*             writes supplied argument string to row 22 column 1    */
 /*             and optionally accepts unparsed input data.           */
 /*             Arguments:  (first one is required)                   */
@@ -143,7 +143,7 @@
 /*                 the optional input data is not parsed and must be */
 /*                 retrieved from the RAW stem variable for the map. */
 /*                                                                   */
-/* Help                      (Index: 1504)                           */
+/* Help                      (Index: 1510)                           */
 /*             presents as many pages of the specified help map as   */
 /*             requested by the user.                                */
 /*             Arguments:  (required)                                */
@@ -151,7 +151,7 @@
 /*                                                                   */
 /* VSE LIBRARY INTERFACE ROUTINES                                    */
 /* ------------------------------                                    */
-/* ListDir_Successful        (Index: 1577)                           */
+/* ListDir_Successful        (Index: 1583)                           */
 /*             function returns a Boolean value as to the success or */
 /*             failure of listing the contents of the specified      */
 /*             library or sublibrary name.                           */
@@ -160,7 +160,7 @@
 /*                 Note that this argument must be prefixed by       */
 /*                 "L=" or "S=" to indicate a library or sublibrary. */
 /*                                                                   */
-/* ListMbr_Successful        (Index: 1600)                           */
+/* ListMbr_Successful        (Index: 1606)                           */
 /*             function returns a Boolean value as to the success or */
 /*             failure of listing the contents of the specified      */
 /*             sublibrary name.                                      */
@@ -168,20 +168,20 @@
 /*                 member name selection,                            */
 /*                 sublibrary name to access.                        */
 /*                                                                   */
-/* NewMember                 (Index: 1633)                           */
+/* NewMember                 (Index: 1639)                           */
 /*             prompts for the creation of a new member and returns  */
 /*             a Boolean value on its creation success or failure.   */
 /*             Arguments:  (required)                                */
 /*                 member name to create,                            */
 /*                 sublibrary name to access.                        */
 /*                                                                   */
-/* NewSublibrary             (Index: 1656)                           */
+/* NewSublibrary             (Index: 1662)                           */
 /*             prompts for the creation of a new sublibrary and      */
 /*             returns a Boolean value on its success or failure.    */
 /*             Arguments:  (required)                                */
 /*                 sublibrary name to create,                        */
 /*                                                                   */
-/* OperationFailed           (Index: 1668)                           */
+/* OperationFailed           (Index: 1674)                           */
 /*             invokes LIBR to perform the requested operation and   */
 /*             returns a Boolean value on its success or failure.    */
 /*             Arguments:  (first two are required)                  */
@@ -191,58 +191,58 @@
 /*                                                                   */
 /* EDIT COMMAND ROUTINES                                             */
 /* ---------------------                                             */
-/* SetTopOfMember            (Index: 1709)                           */
+/* SetTopOfMember            (Index: 1715)                           */
 /*             sets the internal record pointer to the first record  */
 /*             in the internal virtual member.                       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* SetRecordPointer          (Index: 1714)                           */
+/* SetRecordPointer          (Index: 1720)                           */
 /*             sets the internal record pointer to the argument      */
 /*             record number in the internal virtual member.         */
 /*             Arguments:  (required)                                */
 /*                 line number to position at top of screen.         */
 /*                                                                   */
-/* ResetLocationPointer      (Index: 1722)                           */
+/* ResetLocationPointer      (Index: 1728)                           */
 /*             sets the internal location pointer to the beginning   */
 /*             of the current line in the virtual member.            */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* ResetSourceString         (Index: 1727)                           */
+/* ResetSourceString         (Index: 1733)                           */
 /*             clears the internal source string buffer.             */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* ReadMember                (Index: 1731)                           */
+/* ReadMember                (Index: 1737)                           */
 /*             loads the content of the current VSE Library member   */
 /*             into an internal virtual member.                      */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* WriteMember               (Index: 1745)                           */
+/* WriteMember               (Index: 1751)                           */
 /*             saves the content of the internal virtual member into */
 /*             the current VSE Library member.                       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* LineAdd                   (Index: 1758)                           */
+/* LineAdd                   (Index: 1764)                           */
 /*             inserts a new line into the internal virtual member   */
 /*             and optionally initializes it with a supplied string. */
 /*             Arguments:  (optional)                                */
 /*                 string to initialize new line of virtual member.  */
 /*                                                                   */
-/* LineDrop                  (Index: 1777)                           */
+/* LineDrop                  (Index: 1783)                           */
 /*             removes a line from the internal virtual member.      */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* ProcessLineCommands       (Index: 1796)                           */
+/* ProcessLineCommands       (Index: 1802)                           */
 /*             processes line commands captured in SaveBodyData.     */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* SubmitMember              (Index: 2160)                           */
+/* SubmitMember              (Index: 2172)                           */
 /*             submits the content of the internal virtual member    */
 /*             to VSE/POWER for subsequent processing.               */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
 /* HELPER ROUTINES FOR SCROLLABLE MAPS                               */
 /* -----------------------------------                               */
-/* CursorPosition            (Index: 2181)                           */
+/* CursorPosition            (Index: 2193)                           */
 /*             function accepts a zero-offset buffer position for    */
 /*             the cursor and returns the row and column numbers.    */
 /*             Arguments:  (first two are required)                  */
@@ -250,38 +250,38 @@
 /*                 maximum columns per screen size,                  */
 /*                 optional number of map header rows to subtract    */
 /*                                                                   */
-/* Map1HasSelections         (Index: 2188)                           */
+/* Map1HasSelections         (Index: 2200)                           */
 /*             finds and processes any detail line selections for    */
 /*             Map1.  Returns a Boolean response if any found.       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* Map2HasSelections         (Index: 2235)                           */
+/* Map2HasSelections         (Index: 2247)                           */
 /*             finds and processes any detail line selections for    */
 /*             Map2.  Returns a Boolean response if any found.       */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
-/* RebuildMap1Detail         (Index: 2329)                           */
+/* RebuildMap1Detail         (Index: 2341)                           */
 /*             sorts the detail lines for Map1, removing any lines   */
 /*             flagged as deleted, and optionally searches the list  */
 /*             for the specified sublibrary argument named.          */
 /*             Arguments:  (optional)                                */
 /*                 sublibrary name to position to top of detail area */
 /*                                                                   */
-/* RebuildMap2Detail         (Index: 2347)                           */
+/* RebuildMap2Detail         (Index: 2359)                           */
 /*             sorts the detail lines for Map2, removing any lines   */
 /*             flagged as deleted, and optionally searches the list  */
 /*             for the specified member argument named.              */
 /*             Arguments:  (optional)                                */
 /*                 member name to position to top of detail area     */
 /*                                                                   */
-/* SaveBodyData              (Index: 2366)                           */
+/* SaveBodyData              (Index: 2378)                           */
 /*             transfers screen data from the body of Map3 into the  */
 /*             internal buffer for the member currently under edit.  */
 /*             Arguments:  (none)                                    */
 /*                                                                   */
 /* HELPER ROUTINES FOR BUILDING MAPS                                 */
 /* ---------------------------------                                 */
-/* BuildAttribute            (Index: 2397)                           */
+/* BuildAttribute            (Index: 2409)                           */
 /*             function returns 4-byte field attribute value --      */
 /*             for use when calling the BuildField subroutine.       */
 /*             Arguments: (all optional -- defaults provided)        */
@@ -290,7 +290,7 @@
 /*                 extended color selection,                         */
 /*                 extended hilight selection.                       */
 /*                                                                   */
-/* BuildField                (Index: 2409)                           */
+/* BuildField                (Index: 2421)                           */
 /*             subroutine creates stem variables for a map field --  */
 /*             called by the BuildHeader & BuildTrailer subroutines. */
 /*             Arguments: (all required -- except for the last one)  */
@@ -302,7 +302,7 @@
 /*                 4-byte field attribute value,                     */
 /*                 optional output (display) value for field.        */
 /*                                                                   */
-/* BuildHeader               (Index: 2422)                           */
+/* BuildHeader               (Index: 2434)                           */
 /*             subroutine creates all header fields for a map --     */
 /*             automatically calls the BuildTrailer subroutine.      */
 /*             Arguments: (only the stem name is required)           */
@@ -311,7 +311,7 @@
 /*                 optional value for first PFkey display line,      */
 /*                 optional value for second PFkey display line.     */
 /*                                                                   */
-/* BuildPFkeys               (Index: 2485)                           */
+/* BuildPFkeys               (Index: 2497)                           */
 /*             function returns a formatted PF-key line for a map -- */
 /*             for use when calling the BuildHeader subroutine.      */
 /*             Arguments: (all optional)                             */
@@ -319,7 +319,7 @@
 /*                 into a single string value with imbedded color    */
 /*                 attributes around the PFkey number for emphasis.  */
 /*                                                                   */
-/* BuildTrailer              (Index: 2512)                           */
+/* BuildTrailer              (Index: 2524)                           */
 /*             subroutine creates all trailer fields for a map --    */
 /*             called by the BuildHeader subroutine.                 */
 /*             Arguments: (only the stem name is required)           */
@@ -329,41 +329,41 @@
 /*                                                                   */
 /* MAP BUILDING ROUTINES  (the following have no arguments)          */
 /* ---------------------                                             */
-/* BuildMap0                 (Index: 2533)                           */
+/* BuildMap0                 (Index: 2545)                           */
 /*             builds the field definitions  for  Map0 -- which is a */
 /*             single,  full-screen map that  is displayed only once */
 /*             for the sole purpose of obtaining the name of the VSE */
 /*             library to use throughout the edit session.           */
 /*                                                                   */
-/* BuildMap1Detail           (Index: 2739)                           */
-/* BuildMap1Body             (Index: 2690)                           */
-/* BuildMap1                 (Index: 2607)                           */
+/* BuildMap1Detail           (Index: 2751)                           */
+/* BuildMap1Body             (Index: 2702)                           */
+/* BuildMap1                 (Index: 2619)                           */
 /*             builds the field definitions  for  Map1 -- which is a */
 /*             scrollable map  that  displays  sublibraries,  in the */
 /*             current   library,    for   selection   and   further */
 /*             processing.                                           */
 /*                                                                   */
-/* BuildMap2Detail           (Index: 2905)                           */
-/* BuildMap2Body             (Index: 2856)                           */
-/* BuildMap2                 (Index: 2773)                           */
+/* BuildMap2Detail           (Index: 2917)                           */
+/* BuildMap2Body             (Index: 2868)                           */
+/* BuildMap2                 (Index: 2785)                           */
 /*             builds the field definitions  for  Map2 -- which is a */
 /*             scrollable map that displays members,  in the current */
 /*             sublibrary, for selection and further processing.     */
 /*                                                                   */
-/* BuildMap3Body             (Index: 3072)                           */
-/* BuildMap3                 (Index: 2943)                           */
+/* BuildMap3Body             (Index: 3084)                           */
+/* BuildMap3                 (Index: 2955)                           */
 /*             builds the field definitions  for  Map3 -- which is a */
 /*             scrollable map  that  displays  the  content,  of the */
 /*             current member, for editing purposes.                 */
 /*                                                                   */
-/* BuildHelp1a               (Index: 3130)                           */
-/* BuildHelp1b               (Index: 3248)                           */
-/* BuildHelp2a               (Index: 3359)                           */
-/* BuildHelp2b               (Index: 3498)                           */
-/* BuildHelp3a               (Index: 3609)                           */
-/* BuildHelp3b               (Index: 3826)                           */
-/* BuildHelp3c               (Index: 3969)                           */
-/* BuildHelp3d               (Index: 4088)                           */
+/* BuildHelp1a               (Index: 3142)                           */
+/* BuildHelp1b               (Index: 3260)                           */
+/* BuildHelp2a               (Index: 3371)                           */
+/* BuildHelp2b               (Index: 3510)                           */
+/* BuildHelp3a               (Index: 3621)                           */
+/* BuildHelp3b               (Index: 3838)                           */
+/* BuildHelp3c               (Index: 3981)                           */
+/* BuildHelp3d               (Index: 4100)                           */
 /*             build the  field  definitions  for  the  help screens */
 /*             associated with a given Map.   These help screens are */
 /*             single, full-screen maps (without input fields) which */
@@ -1814,7 +1814,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
   left_begin = 0; left_ending = 0; left_cnt = 0;
   rght_begin = 0; rght_ending = 0; rght_cnt = 0;
 
-  Do r = 1 Until r > rec.0   /* loop through member records */
+  Do r = 1 While r <= rec.0  /* loop through member records */
     If Length(lca.r) = 0 Then Iterate;
 
     Parse Value Translate(lca.r,' ','0123456789') With str .;
@@ -2135,7 +2135,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
   Else lca_pending = False;       /* all blocks processed */
 
   If single_pending Then Do       /* second pass for single cmds  */
-    Do r = 1 Until r > rec.0      /* that remove lines from stack */
+    Do r = 1 While r <= rec.0     /* that remove lines from stack */
       If Length(lca.r) = 0 Then Iterate;
       Parse Var lca.r str 2 nbr .;
       If Length(nbr) = 0 | nbr = '*' | nbr > Queued() Then
@@ -2943,7 +2943,7 @@ BuildMap2Detail: Procedure Expose syslst. map2_hdr. map2_dtl. map2_ptr;
     &  str <> '---------------',
     Then Do
       Parse Var syslst.i . t . 44 m 45 .;
-      If t <> 'OBJ' &  m == 'R' Then Do
+      If m = 'R' & Pos('|'t'|',exclude) = 0 Then Do
         n = map2_dtl.0 + 1;
         map2_dtl.n = Strip(syslst.i,'Trailing');
         map2_dtl.0 = n;
@@ -3407,7 +3407,7 @@ BuildHelp2a:
   /* column 1 */
   Call BuildField stem,map0._rows,map0._cols,4,1,,
                   BuildAttribute(,,'GREEN',),,
-                  "To alter a member's source, enter a    ",
+                  "To alter a member's source, enter a    ";
   Call BuildField stem,map0._rows,map0._cols,5,1,,
                   BuildAttribute(,,'GREEN',),,
                   'valid member.type name (in the input   ';
@@ -3490,10 +3490,10 @@ BuildHelp2a:
   Call BuildField stem,map0._rows,map0._cols,16,43,,
                   BuildAttribute(,,'GREEN',),,
                   '  move the indicated member to a     ';
-  Call BuildField stem,map0._rows,map0._cols,17,1,,
+  Call BuildField stem,map0._rows,map0._cols,17,41,,
                   BuildAttribute(,,'GREEN',),,
                   '    different sublibrary within the    ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
+  Call BuildField stem,map0._rows,map0._cols,18,41,,
                   BuildAttribute(,,'GREEN',),,
                   '    same library.                      ';
   Call BuildField stem,map0._rows,map0._cols,20,41,,
@@ -3939,16 +3939,16 @@ BuildHelp3b:
                   'changes the matching';
   Call BuildField stem,map0._rows,map0._cols,7,41,,
                   BuildAttribute(,,'GREEN',),,
-                  '   string on the current line to the   ';
+                  '   source string on the current line   ';
   Call BuildField stem,map0._rows,map0._cols,8,41,,
                   BuildAttribute('ASKIP_BRT',,'GREEN',),,
-                  '   second string specified.  Both      ';
+                  '   to the target string specified.     ';
   Call BuildField stem,map0._rows,map0._cols,9,41,,
                   BuildAttribute(,,'GREEN',),,
-                  '   strings are saved for use with the  ';
+                  '   Both strings are saved for use      ';
   Call BuildField stem,map0._rows,map0._cols,10,41,,
                   BuildAttribute(,,'GREEN',),,
-                  '   PF4 and PF5 keys.                   ';
+                  '   with the PF4 and PF5 keys.          ';
   Call BuildField stem,map0._rows,map0._cols,12,41,,
                   BuildAttribute('ASKIP_BRT',,'WHITE',),,
                   'Insert str';
@@ -3975,7 +3975,7 @@ BuildHelp3b:
                   'clears current line and';
   Call BuildField stem,map0._rows,map0._cols,19,41,,
                   BuildAttribute(,,'GREEN',),,
-                  '   the current line forward.  String   ';
+                  '   fills with the specified string.    ';
 Return;
 
 BuildHelp3c:
