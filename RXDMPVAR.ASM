@@ -32,27 +32,27 @@ RXDMPVAR RMODE ANY
 * invoke any other REXX  function.   The  following are the different *
 * possible invocation formats (and some example code):                *
 *                                                                     *
-*     resp = RXDMPVAR()           /* 'Dump' is the default */         *
-*     resp = RXDMPVAR('Dump')          /* Dumps via ARXSAY */         *
-*     resp = RXDMPVAR('Dump','stemname.')  /* Dump to stem */         *
-*     If resp ¬= 'OK' Then Do                                         *
-*       Say ' Response = 'resp                                        *
-*       Exit 4                                                        *
+*     resp = RXDMPVAR();          /* 'Dump' is the default */         *
+*     resp = RXDMPVAR('Dump');         /* Dumps via ARXSAY */         *
+*     resp = RXDMPVAR('Dump','stemname.'); /* Dump to stem */         *
+*     If resp <> 'OK' Then Do                                         *
+*       Say ' Response = 'resp;                                       *
+*       Exit 4;                                                       *
 *     End                                                             *
 *     Do n = 0 To stemname.0                                          *
-*       Say ' stemname.'n' = 'stemname.n                              *
+*       Say ' stemname.'n' = 'stemname.n;                             *
 *     End                                                             *
 *                                                                     *
-*     str = RXDMPVAR('List')    /* list all variable names */         *
-*     str = RXDMPVAR('List','prefix')    /* list by prefix */         *
-*     Parse Var str resp list                                         *
-*     If resp ¬= 'OK' Then Do                                         *
-*       Say ' Response = 'str                                         *
-*       Exit 4                                                        *
+*     str = RXDMPVAR('List');          /* list all variable names */  *
+*     str = RXDMPVAR('List','prefix');   /* list for prefix, only */  *
+*     Parse Var str resp list;                                        *
+*     If resp <> 'OK' Then Do                                         *
+*       Say ' Response = 'str;                                        *
+*       Exit 4;                                                       *
 *     End                                                             *
-*     list = SHAKESRT(list)    /* do a Shaker-Sort of list */         *
+*     list = SHAKESRT(list);      /* do a Shaker-Sort of the list */  *
 *     Do n = 1 To Words(list)                                         *
-*       Say ' 'Word(list,n)' = 'Value(Word(list,n))                   *
+*       Say ' 'Word(list,n)' = 'Value(Word(list,n));                  *
 *     End                                                             *
 *                                                                     *
 * Note that,  for the 'Dump'  argument,  the  optional stem name must *
@@ -351,7 +351,7 @@ MVCVALU  MVC   0(0,R3),VARDATA         (SEE "EX" INSTRUCTION BELOW)
 
          SELECT
 
-         CASE  OPT,EQ,OPTSTEM          FOR OPT=STEM...
+         WHEN  OPT,EQ,OPTSTEM          FOR OPT=STEM...
           BCTR R3,0                    DECR. LENGTH FOR FIRST BLANK
           LR   R1,R4                   STARTING AT CURRENT STORAGE POS
           LA   R1,2(,R1)                 IS THERE ROOM FOR LENGTH FIELD
@@ -370,7 +370,7 @@ MVCVALU  MVC   0(0,R3),VARDATA         (SEE "EX" INSTRUCTION BELOW)
           LR   R5,R3                   COPY LENGTH TO REG 5
           MVCL R4,R2                   COPY STRING DATA TO STORAGE
 
-         CASE  OPT,EQ,OPTLIST          FOR OPT=LIST...
+         WHEN  OPT,EQ,OPTLIST          FOR OPT=LIST...
           L    R3,STEMLENG             GET LENGTH OF SELECTION NAME
           IF   R3,(NZ,LTR),R3          IF NOT ZERO...
            BCTR R3,0                   DECR LENGTH FOR ZERO REFERENCE
@@ -387,7 +387,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
           MVI  1(R4),C' '              ADD LIST DELIMITER
           LA   R4,2(,R4)               PLUS TWO TO STORAGE POSITION
 
-         CASE  ELSE                    FOR OPT=DUMP...
+         WHEN  OTHER                   FOR OPT=DUMP...
           ST   R3,SAYPARM3             PUT BUFFER LENGTH IN SAY PARM 3
           LA   R1,SAYPARMB             GET ADDRESS OF SAY PARM BLOCK
           L    R15,ARXSAY              POINT TO PGM TO CALL
