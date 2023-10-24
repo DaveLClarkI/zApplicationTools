@@ -28,28 +28,28 @@ FILETBL  DSECT                         FILE TABLE ENTRY
 FILETBLE DS    0CL32                   FILE TABLE ENTRY
 FILEDD   DS    CL7
 FILEOPT  DS    XL1                     OPTION FLAGS
-FILECLUS EQU   B'10000000'             DEFINED AS CLUSTER
-FILEAIX  EQU   B'01000000'             DEFINED AS AIX
-FILEPATH EQU   B'00100000'             DEFINED AS PATH
-FILESEQU EQU   B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
-FILEAPND EQU   B'00000010'             OPENED FOR APPEND
-FILEUPDT EQU   B'00000001'             OPENED FOR UPDATE
+FILECLUS DF    B'10000000'             DEFINED AS CLUSTER
+FILEAIX  DF    B'01000000'             DEFINED AS AIX
+FILEPATH DF    B'00100000'             DEFINED AS PATH
+FILESEQU DF    B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
+FILEAPND DF    B'00000010'             OPENED FOR APPEND
+FILEUPDT DF    B'00000001'             OPENED FOR UPDATE
 FILECAT  DS    F                       MY CAT ACB ADDRESS
 FILECATR DS    F                       MY CAT RPL ADDRESS
 FILEACB  DS    F                       MY ACB BASE ADDRESS
 FILERPL  DS    F                       MY RPL BASE ADDRESS
 FILETYPE DS    XL1                     ATTRIBUTE FLAGS
-ESDS     EQU   B'01111000'             ENTRY-SEQUENCED (REVERSED)
-KSDS     EQU   B'01000000'             KEY-SEQUENCED
-RRDS     EQU   B'00001000'             RELATIVE-RECORD
-VRDS     EQU   B'01001000'             VARIABLE-RELATIVE
-SAMD     EQU   B'00010000'             MSAM CIFORMAT DATASET
-SAME     EQU   B'00010000'             MSAM-EXPLICIT DEFINE
-SAMI     EQU   B'10010000'             MSAM-IMPLICIT DEFINE
-SAMN     EQU   B'00100000'             MSAM-NOCIFORMAT
-SAMB     EQU   B'00000100'             MSAM-BLOCKED
-SAMV     EQU   B'00000010'             MSAM-VARIABLE
-SAMF     EQU   B'00000001'             MSAM-FIXED
+ESDS     DF    B'01111000'             ENTRY-SEQUENCED (REVERSED)
+KSDS     DF    B'01000000'             KEY-SEQUENCED
+RRDS     DF    B'00001000'             RELATIVE-RECORD
+VRDS     DF    B'01001000'             VARIABLE-RELATIVE
+SAMD     DF    B'00010000'             MSAM CIFORMAT DATASET
+SAME     DF    B'00010000'             MSAM-EXPLICIT DEFINE
+SAMI     DF    B'10010000'             MSAM-IMPLICIT DEFINE
+SAMN     DF    B'00100000'             MSAM-NOCIFORMAT
+SAMB     DF    B'00000100'             MSAM-BLOCKED
+SAMV     DF    B'00000010'             MSAM-VARIABLE
+SAMF     DF    B'00000001'             MSAM-FIXED
 FILEDCI  DS    XL3                     CATALOG DATA COMP. CI NUMBER
          DS    XL1
 FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
@@ -77,18 +77,23 @@ EWORK    DS    CL34                    EDITED WORK FIELD
 CWORK    DS    CL34                    CHARACTER WORK FIELD
 *
 SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SAYPARM1 DS    CL8                     'WRITE   '
 SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
 SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
 *
+SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
 SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SHVPARM1 DS    CL8                     'ARXEXCOM'
 SHVPARM2 DS    XL4
 SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
 *
 DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     STEM NAME
+DDNAME   DS    CL8                     BASE STEM NAME
 REQUEST  DS    CL8                     ACCESS REQUEST
+RECNAMEL DS    F                       STEM NAME LENGTH
+RECNAME  DS    CL10                    RECORD NAME STEM
 RQARG2   DS    CL8                     REQUEST ARGUMENT 2
 RQARG3   DS    CL8                     REQUEST ARGUMENT 3
 *
@@ -99,31 +104,13 @@ RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
 CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
 SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
 CINUM    DS    XL3                     CATALOG CI NUMBER
+         DS    0F
 VARDATA  DS    CL256                   VARIABLE VALUE
 VARNAME  DS    CL256                   VARIABLE NAME
 SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
 PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
 *
-DTEPLIST DS    A                       DTEMAN PLIST
-DTEPARMS DS    0CL32                   DTEMAN PARMS
-DTEREQU  DS    CL1                     REQUEST CODE
-DTERETN  DS    CL1                     RETURN CODE
-DTEGREG  DS    0CL10                   GREGORIAN DATE
-DTEG_FIL DS    CL2                       00
-DTEG_MC  DS    CL2                       CC
-DTEG_YY  DS    CL2                       YY
-DTEG_MM  DS    CL2                       MM
-DTEG_DD  DS    CL2                       DD
-DTEJULN  DS    0CL8                    JULIAN DATE
-DTEJ_FIL DS    CL1                       0
-DTEJ_MC  DS    CL2                       CC
-DTEJ_YY  DS    CL2                       YY
-DTEJ_DDD DS    CL3                       DDD
-DTETOTD  DS    PL4                     TOTAL DAYS
-DTEMNTH  DS    PL2                     MONTH NUMBER (01-12, beg:JAN)
-DTEDAYN  DS    PL1                     DAY NUMBER (1-7, beg:SUNDAY)
-DTELEAP  DS    CL1                     LEAP YEAR INDICATOR (Y/N)
-DTEWORK  DS    PL4                     DTEMAN WORK AREA
+         COPY  DTEMANA
 *
          DS    0D                      ALIGN TRANSLATE TABLE
 TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
@@ -267,7 +254,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R4,L'DSEXPD             SET LENGTH OF VAR NAME
          BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
-         IF    FILEOPT,(ON,TM),FILEAIX  FOR AN AIX...
+         IF    FILEAIX,(ON,TF),$NOOP    FOR AN AIX...
           IF   RECBUF+107,(ON,TM),B'10000000'
            LA  R1,=C'1'                  INDICATE UPGRADE
           ELSE
@@ -279,7 +266,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 
-         IF    FILEOPT,(ON,TM),FILEPATH  FOR A PATH...
+         IF    FILEPATH,(ON,TF),$NOOP    FOR A PATH...
           IF   RECBUF+107,(ON,TM),B'10000000'
            LA  R1,=C'1'                  INDICATE UPDATE
           ELSE
@@ -378,7 +365,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           XGR  R2,R2                    CLEAR 64-BIT REGISTER
-          IF   FILETYPE,(NO,TM),SAMD    IF NOT SAM DATASET
+          IF   SAMD,(NO,TF),$NOOP       IF NOT SAM DATASET
            ICM R2,B'1111',RECBUF+129     GET AVERAGE RECL VALUE
           ELSE                          ELSE
            L   R8,FILEACB                GET ACB ADDRESS
@@ -396,17 +383,17 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R4,L'RECAVG              SET LENGTH OF VAR NAME
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
-          IF   FILETYPE,(ON,TM),SAMD    IF SAM DATASET
+          IF   SAMD,(ON,TF),$NOOP       IF SAM DATASET
            MVC CWORK(2),SPACES           INITIALIZE "RESULT" AREA
            SELECT
-           WHEN FILETYPE,(ON,TM),SAMF    IF FIXED-LENGTH
+           WHEN SAMF,(ON,TF),$NOOP       IF FIXED LENGTH
             MVI CWORK,C'F'                SET FIRST BYTE TO FIXED
-            IF  FILETYPE,(ON,TM),SAMB     IF BLOCKED
+            IF  SAMB,(ON,TF),$NOOP        IF BLOCKED
              MVI CWORK+1,C'B'              ADD BLOCKED INDICATOR
             ENDIF
-           WHEN FILETYPE,(ON,TM),SAMV    IF VARIABLE-LENGTH
+           WHEN SAMV,(ON,TF),$NOOP       IF VARIABLE LENGTH
             MVI CWORK,C'V'                SET FIRST BYTE TO VARIABLE
-            IF  FILETYPE,(ON,TM),SAMB     IF BLOCKED
+            IF  SAMB,(ON,TF),$NOOP        IF BLOCKED
              MVI CWORK+1,C'B'              ADD BLOCKED INDICATOR
             ENDIF
            WHEN OTHER                    ELSE
@@ -439,7 +426,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
 
          MVC   CWORK,SPACES            CLEAR "RESULT" AREA
          LA    R1,CWORK                POINT TO "RESULT" AREA
-         IF    FILETYPE,(ON,TM),SAMD   IF SAM DATASET
+         IF    SAMD,(ON,TF),$NOOP      IF SAM DATASET
           MVI  0(R1),C'0'               CAN'T SPECIFY FOR SAMD
           MVI  4(R1),C'0'               CAN'T SPECIFY FOR SAMD
          ELSE                          ELSE
@@ -516,7 +503,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R4,L'A_SPAN             SET LENGTH OF VAR NAME
          BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
-         IF    FILEOPT,(ON,TM),FILEAIX  FOR AN AIX...
+         IF    FILEAIX,(ON,TF),$NOOP    FOR AN AIX...
           IF   AMDATTR3,(ON,TM),B'10000000'
            LA  R1,=C'1'                  INDICATE UNIQUEKEY
           ELSE
@@ -1005,6 +992,7 @@ SETVAR   DS    0H    SET REXX VARIABLE VALUE
          MVI   SHVCODE,SHVSTORE        SET REQUEST CODE TO 'S'
          ST    R4,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -1106,7 +1094,7 @@ SHOWRESN DS    0H    PASS BACK SHOWCAT RTN AND RSN CODES
 STORAGE  DS    0D
 * ------------------------------------------------------------------- *
 SAVEAREA DS    18D                     STANDARD OR F4SA REG. SVAEAREA
-SPACES   DC    CL8' '
+SPACES   DC    CL10' '
 RECSAVE  DS    CL505                   SAVE AREA FOR CATALOG RECORD
 *
          LTORG

@@ -160,7 +160,7 @@ RX3270IN RMODE 24
 *   RX3270_EXC.LIT_RED                                                *
 *   RX3270_EXC.LIT_PINK                                               *
 *   RX3270_EXC.LIT_GREEN                                              *
-*   RX3270_EXC.LIT_TURQUOISE                                          *
+*   RX3270_EXC.LIT_TURQUOISE or RX3270_EXC.LIT_TURQU                  *
 *   RX3270_EXC.LIT_YELLOW                                             *
 *   RX3270_EXC.LIT_WHITE                                              *
 *                                                                     *
@@ -183,60 +183,62 @@ RX3270IN RMODE 24
 * =================================================================== *
 DYNASTOR DSECT
 * =================================================================== *
-SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA
-PWORK8   DS    PL8                     PACKED DOUBLE-WORD
-EWORK8   DS    CL8                     EDITED WORK FIELD
+SAVEAREA DS    9D            STANDARD REGISTER SAVE AREA
+PWORK8   DS    PL8           PACKED DOUBLE-WORD
+EWORK8   DS    CL8           EDITED WORK FIELD
 *
-SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
-SHVPARM1 DS    CL8                     'ARXEXCOM'
+SAVEENVB DS    F             SAVE ENV. BLOCK ADDRESS
+SHVPARMB DS    4F            ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4,4           POINT TO LAST PARM FOR FLAG
+SHVPARM1 DS    CL8           'ARXEXCOM'
 SHVPARM2 DS    XL4
-SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
+SHVCTLB  DS    XL32          STORAGE FOR SHV CONTROL BLOCK
 *
-VARNAME  DS    CL50                    VARIABLE NAME
-VARDATA  DS    CL10                    VARIABLE NAME VALUE
+VARNAME  DS    CL50          VARIABLE NAME
+VARDATA  DS    CL10          VARIABLE NAME VALUE
 *
 DYNALENG EQU   *-DYNASTOR
 * =================================================================== *
          EJECT
 * =================================================================== *
-         ARXENVB                       REXX ENVIRONMENT BLOCK
-         ARXEXTE                       REXX EXTERNAL ENTRY-POINT VECTOR
-         ARXEFPL                       EXTERNAL FUNCTION PARAMETER LIST
-         ARXEVALB                      REXX EVALUATION BLOCK
-         ARXARGTB                      REXX PARSED ARGUMENT TABLE
-         ARXSHVB                       SHARED VARIABLES CONTROL BLOCK
+         ARXENVB             REXX ENVIRONMENT BLOCK
+         ARXEXTE             REXX EXTERNAL ENTRY-POINT VECTOR
+         ARXEFPL             EXTERNAL FUNCTION PARAMETER LIST
+         ARXEVALB            REXX EVALUATION BLOCK
+         ARXARGTB            REXX PARSED ARGUMENT TABLE
+         ARXSHVB             SHARED VARIABLES CONTROL BLOCK
 * =================================================================== *
          EJECT
 * =================================================================== *
 *        REGISTER USAGES
 * =================================================================== *
-R0       EQU   0                       ON ENTRY, REXX ENV BLOCK
-R1       EQU   1                       ON ENTRY, REXX EFPL REG
+R0       EQU   0             ON ENTRY, REXX ENV BLOCK
+R1       EQU   1             ON ENTRY, REXX EFPL REG
 R2       EQU   2
 R3       EQU   3
 R4       EQU   4
 R5       EQU   5
 R6       EQU   6
 R7       EQU   7
-R8       EQU   8                       REXX EXTERNAL ENTRY-POINT VECTOR
-R9       EQU   9                       EXTERNAL FUNCTION PARAMETER LIST
-R10      EQU   10                      REXX EVALUATION BLOCK
-R11      EQU   11                      SHARED VARIABLES CONTROL BLOCK
-R12      EQU   12                      RX3270IN CSECT BASE REG
-R13      EQU   13                      REGISTER SAVEAREA
-R14      EQU   14                      RETURN REG
-R15      EQU   15                      ENTRY REG
+R8       EQU   8             REXX EXTERNAL ENTRY-POINT VECTOR
+R9       EQU   9             EXTERNAL FUNCTION PARAMETER LIST
+R10      EQU   10            REXX EVALUATION BLOCK
+R11      EQU   11            SHARED VARIABLES CONTROL BLOCK
+R12      EQU   12            RX3270IN CSECT BASE REG
+R13      EQU   13            REGISTER SAVEAREA
+R14      EQU   14            RETURN REG
+R15      EQU   15            ENTRY REG
 * =================================================================== *
          EJECT
 * =================================================================== *
 *        MACROS                                                       *
 * =================================================================== *
          PRINT OFF
-         COPY  HEADER                  SUBROUTINE PROLOG
-         COPY  TRAILER                 SUBROUTINE EPILOG
-         COPY  IF                      STRUCTURED MACRO SET
-         COPY  SELECT                  STRUCTURED MACRO SET
-         COPY  WHILE                   STRUCTURED MACRO SET
+         COPY  HEADER        SUBROUTINE PROLOG
+         COPY  TRAILER       SUBROUTINE EPILOG
+         COPY  IF            STRUCTURED MACRO SET
+         COPY  SELECT        STRUCTURED MACRO SET
+         COPY  WHILE         STRUCTURED MACRO SET
          PRINT ON
 * =================================================================== *
          EJECT
@@ -246,6 +248,8 @@ RX3270IN HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)MAR04',            X
 * =================================================================== *
          USING DYNASTOR,R13
 *
+         SAM31                         SWITCH TO 31-BIT ADDRESSING
+*                                       BECAUSE OF DEBUGGER: TRAPPER
          LR    R5,R0                   REXX ENVIRONMENT BLOCK
          USING ENVBLOCK,R5
          IF    ENVBLOCK_ID,(NE,CLC),=C'ENVBLOCK'
@@ -255,7 +259,8 @@ RX3270IN HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)MAR04',            X
          ENDIF
          L     R8,ENVBLOCK_IRXEXTE     REXX EXTERNAL ENTRY-POINT VECTOR
          USING ARXEXTE,R8
-         DROP  R5
+         ST    R5,SAVEENVB             SAVE ENV. BLOCK ADDRESS
+         DROP  R5                      REMOVE ADDR. TO ENV. BLOCK
 *
          LR    R9,R1                   EXTERNAL FUNCTION PARAMETER LIST
          USING EFPL,R9
@@ -274,8 +279,7 @@ RX3270IN HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)MAR04',            X
          LA    R2,SHVPARM2             GET ADDRESS OF PARM 3
          LA    R3,SHVBLOCK             GET ADDRESS OF PARM 4
          STM   R0,R3,SHVPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SHVPARMB+(4*4-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SHVPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SHVPARM1,=C'ARXEXCOM'   SET PARM 1
          XC    SHVPARM2,SHVPARM2       CLEAR PARM 2
@@ -751,6 +755,10 @@ RX3270IN HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)MAR04',            X
      LA R3,L'STEM+L'EXC+L'LIT+L'EXCGREEN
          MVC   0(L'EXCGREEN,R4),EXCGREEN
          MVI   VARDATA,X'F4'
+         BAS   R5,SETVAR               CREATE THE ABBREVIATION
+     LA R3,L'STEM+L'EXC+L'LIT+L'EXCTURQU-4
+         MVC   0(L'EXCTURQU,R4),EXCTURQU
+         MVI   VARDATA,X'F5'
          BAS   R5,SETVAR               CREATE THE VARIABLE
      LA R3,L'STEM+L'EXC+L'LIT+L'EXCTURQU
          MVC   0(L'EXCTURQU,R4),EXCTURQU
@@ -833,6 +841,7 @@ MVRSLT   MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
 SETVAR   DS    0H
          ST    R3,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
+         L     R0,SAVEENVB             GET ENV. BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
          BASR  R14,R15                 CALL ARXEXCOM

@@ -225,11 +225,14 @@ MYPUB    DS    XL8                     STORAGE FOR PUB DSECT
 *
 SAVEEVAL DS    F                       EVALUATION BLOCK ADDRESS
 SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SAYPARM1 DS    CL8                     'WRITE   '
 SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
 SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
 *
+SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
 SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SHVPARM1 DS    CL8                     'ARXEXCOM'
 SHVPARM2 DS    XL4
 SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
@@ -251,7 +254,7 @@ SET_EXH  DF    B'00000001',QRYFLAG     EXTENDED HILITE
          DS    0D                      ALIGNMENT
 TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
 VARNAME  DS    CL250                   VARIABLE NAME
-VARDATA  DS    CL256                   VARIABLE NAME VALUE
+VARDATA  DS    CL256                   VARIABLE VALUE
 *
          DS    0D                      ALIGNMENT
 USRCCC   DS    XL1                     USER CHANNEL COMMAND CODE
@@ -324,7 +327,8 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
          USING EFPL,R8                 ESTABLISH ADDRESSABILITY
          L     R9,ENVBLOCK_IRXEXTE     REXX EXTERNAL ENTRY-POINT VECTOR
          USING ARXEXTE,R9              ESTABLISH ADDRESSABILITY
-         DROP  R5                      ENV. BLOCK NO LONGER NEEDED
+         ST    R5,SAVEENVB             SAVE ADDR. OF ENV. BLOCK
+         DROP  R5                      REMOVE ADDR. TO ENV. BLOCK
 *
 * ACCESS TO VARIABLES -- ARXEXCOM
 *
@@ -336,8 +340,7 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
          LA    R2,SHVPARM2             GET ADDRESS OF PARM 3
          LA    R3,SHVBLOCK             GET ADDRESS OF PARM 4
          STM   R0,R3,SHVPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SHVPARMB+(4*4-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SHVPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SHVPARM1,=C'ARXEXCOM'   SET PARM 1
          XC    SHVPARM2,SHVPARM2       CLEAR PARM 2
@@ -447,8 +450,7 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
          LA    R1,SAYPARM2             GET ADDRESS OF PARM 2
          LA    R2,SAYPARM3             GET ADDRESS OF PARM 3
          STM   R0,R2,SAYPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SAYPARMB+(4*3-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SAYPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SAYPARM1,=C'WRITE   '   SET PARM 1
          LA    R0,VARDATA              GET ADDRESS FOR PARM 2
@@ -1313,6 +1315,7 @@ PKINPT   PACK  PWORK8,0(0,R2)          (SEE "EX" INSTRUCTION ABOVE)
 SAYIT    DS    0H    USE REXX "SAY" TO DISPLAY MESSAGE
          ST    R3,SAYPARM3             PUT BUFFER LENGTH IN SAY PARM 3
 *
+         L     R0,SAVEENVB             GET ENVIRONMENT BLOCK ADDRESS
          LA    R1,SAYPARMB             GET ADDRESS OF SAY PARM BLOCK
          L     R15,ARXSAY              POINT TO PGM TO CALL
          BASR  R14,R15                 CALL ARXSAY
@@ -1330,6 +1333,7 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
          MVI   SHVCODE,SHVFETCH        SET REQUEST CODE TO 'F'
          ST    R3,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
+         L     R0,SAVEENVB             GET ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
          BASR  R14,R15                 CALL ARXEXCOM
@@ -1349,6 +1353,7 @@ SETVAR   DS    0H    SET REXX VARIABLE VALUE
          MVI   SHVCODE,SHVSTORE        SET REQUEST CODE TO 'S'
          ST    R3,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
+         L     R0,SAVEENVB             GET ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
          BASR  R14,R15                 CALL ARXEXCOM

@@ -1,7 +1,7 @@
 DMP      TITLE 'RXDMPVAR - REXX SUB TO DUMP ALL VARS OR RETURN LIST'
          PRINT ON,GEN
 RXDMPVAR AMODE 31
-RXDMPVAR RMODE ANY
+RXDMPVAR RMODE 31
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                     *
 * Dapsco Information Systems                          Written by:     *
@@ -15,7 +15,7 @@ RXDMPVAR RMODE ANY
 *      This external  REXX  function  is  intended  for  use in those *
 * situations where all of the needed potential variable names are not *
 * known.   Thus,  this routine can either dump all variable names and *
-* their contents (up to 250 bytes worth,  that is) or it can return a *
+* their contents (up to 256 bytes worth,  that is) or it can return a *
 * list of all or selected variable names back to the caller.          *
 *                                                                     *
 * =================================================================== *
@@ -92,34 +92,38 @@ RXDMPVAR RMODE ANY
          EJECT
 * =================================================================== *
 DYNASTOR DSECT
-* =================================================================== *
-SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA
-PCOUNT   DS    PL8                     PACKED DOUBLE-WORD
-EWORK    DS    CL7                     EDITED DOUBLE-WORD
-         DS    C                       SLACK BYTE
+* ------------------------------------------------------------------- *
+SAVEAREA DS    9D            STANDARD REGISTER SAVE AREA
+PCOUNT   DS    PL8           PACKED DOUBLE-WORD
+EWORK    DS    CL7           EDITED DOUBLE-WORD
+         DS    C             SLACK BYTE
 *
-SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
-SAYPARM1 DS    CL8                     'WRITE   '
-SAYPARM2 DS    XL4                     LENGTH OF SAY OUTPUT
-SAYPARM3 DS    XL4                     ADDRESS OF SAY OUTPUT
+SAYPARMB DS    3F            ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4,4           POINT TO LAST PARM FOR FLAG
+SAYPARM1 DS    CL8           'WRITE   '
+SAYPARM2 DS    XL4           LENGTH OF SAY OUTPUT
+SAYPARM3 DS    XL4           ADDRESS OF SAY OUTPUT
 *
-SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
-SHVPARM1 DS    CL8                     'ARXEXCOM'
+SAVEENVB DS    F             SAVE ENV. BLOCK ADDRESS
+SHVPARMB DS    4F            ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4,4           POINT TO LAST PARM FOR FLAG
+SHVPARM1 DS    CL8           'ARXEXCOM'
 SHVPARM2 DS    XL4
-SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
+SHVCTLB  DS    XL32          STORAGE FOR SHV CONTROL BLOCK
 *
-STEMLENG DS    F                       STEM NAME LENGTH
-STEMNAME DS    CL9                     STEM NAME
-OPT      DS    CL1                     OUTPUT OPTION
+STEMLENG DS    F             STEM NAME LENGTH
+STEMNAME DS    CL9           STEM NAME
+OPT      DS    CL1           OUTPUT OPTION
 OPTDUMP  EQU   C'D'
 OPTSTEM  EQU   C'S'
 OPTLIST  EQU   C'L'
 *
-VARNAME  DS    CL250                   VARIABLE NAME
-VARDATA  DS    CL250                   VARIABLE NAME VALUE
-SAYDATA  DS    CL510                   SAY OUTPUT VALUE
+         DS    0D            ALIGNMENT
+VARNAME  DS    CL250         VARIABLE NAME
+VARDATA  DS    CL256         VARIABLE VALUE
+SAYDATA  DS    CL510         SAY OUTPUT VALUE
 *
-VARSTOR  DS    CL64336                 STORAGE FOR STEM VAR. PROCESSING
+VARSTOR  DS    CL64336       STORAGE FOR STEM VAR. PROCESSING
 *
 DYNALENG EQU   *-DYNASTOR
 * =================================================================== *
@@ -135,7 +139,7 @@ DYNALENG EQU   *-DYNASTOR
          EJECT
 * =================================================================== *
 *        REGISTER USAGES
-* =================================================================== *
+* ------------------------------------------------------------------- *
 R0       EQU   0                       REXX ENV BLOCK
 R1       EQU   1                       REXX EFPL REG
 R2       EQU   2
@@ -156,7 +160,7 @@ R15      EQU   15                      ENTRY REG
          EJECT
 * =================================================================== *
 *        MACROS                                                       *
-* =================================================================== *
+* ------------------------------------------------------------------- *
          COPY  HEADER                  SUBROUTINE PROLOG
          COPY  TRAILER                 SUBROUTINE EPILOG
          COPY  IF                      STRUCTURED MACRO SET
@@ -167,35 +171,31 @@ R15      EQU   15                      ENTRY REG
 * =================================================================== *
 RXDMPVAR HEADER VERSION='1.3',AUTHOR='DLC',DATE='(C)SEP03',            X
                BASE=R12,SVAREA=SALEN
-* =================================================================== *
-         USING DYNASTOR,R13
+* ------------------------------------------------------------------- *
+         USING DYNASTOR,R13            POINT TO GETVIS DYNAMIC STORAGE
 *
-         XR    R5,R5
+         SAM31                         SWITCH TO 31-BIT ADDRESSING
+*                                       BECAUSE OF DEBUGGER: TRAPPER
          LR    R5,R0                   REXX ENVIRONMENT BLOCK
          USING ENVBLOCK,R5
          IF    ENVBLOCK_ID,(NE,CLC),=C'ENVBLOCK'
           WTO  'RXDMPVAR: REQUIRES THE REXX ENVIRONMENT BLOCK'
           CANCEL ALL
          ENDIF
-         XR    R6,R6
          L     R6,ENVBLOCK_IRXEXTE     REXX EXTERNAL ENTRY-POINT VECTOR
          USING ARXEXTE,R6
-         DROP  R5
+         ST    R5,SAVEENVB             SAVE ADDR. OF ENV. BLOCK
+         DROP  R5                      REMOVE ADDR. TO ENV. BLOCK
 *
-         XR    R7,R7
          LR    R7,R1                   EXTERNAL FUNCTION PARAMETER LIST
          USING EFPL,R7
-         XR    R8,R8
          L     R8,EFPLEVAL             REXX EVALUATION BLOCK POINTER
          L     R8,0(,R8)               REXX EVALUATION BLOCK
          USING EVALBLOCK,R8
-         XR    R9,R9
          L     R9,EFPLARG              REXX PARSED ARGUMENT TABLE
          USING ARGTABLE_ENTRY,R9
-         XR    R10,R10
          LR    R10,R9                  REXX ARGUMENT STRING
          USING ARGSTRING,R10
-         XR    R11,R11
          LA    R11,SHVCTLB             STORAGE FOR
          USING SHVBLOCK,R11              SHARED VARIABLES CONTROL BLOCK
 *
@@ -267,8 +267,7 @@ TRSELN   TR    SAYDATA(0),TRTBL        (SEE "EX" INSTRUCTION BELOW)
           LA   R2,SAYPARM2             GET ADDRESS OF PARM 2
           LA   R3,SAYPARM3             GET ADDRESS OF PARM 3
           STM  R1,R3,SAYPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-          OI   SAYPARMB+(4*3-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+          OI   SAYPLAST,X'80'          SET END OF PARM BLOCK
 *
           MVC  SAYPARM1,=C'WRITE   '   SET PARM 1
           LA   R2,SAYDATA              GET ADDRESS FOR PARM 2
@@ -283,8 +282,7 @@ TRSELN   TR    SAYDATA(0),TRTBL        (SEE "EX" INSTRUCTION BELOW)
          LA    R3,SHVPARM2             GET ADDRESS OF PARM 3
          LA    R4,SHVBLOCK             GET ADDRESS OF PARM 4
          STM   R1,R4,SHVPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SHVPARMB+(4*4-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SHVPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SHVPARM1,=C'ARXEXCOM'   SET PARM 1
          XC    SHVPARM2,SHVPARM2       CLEAR PARM 2
@@ -311,6 +309,7 @@ TRSELN   TR    SAYDATA(0),TRTBL        (SEE "EX" INSTRUCTION BELOW)
 *
          WHILE SHVRET,NE,SHVLVAR       LOOP UNTIL "LAST VAR" CONDITION
 
+         L     R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
          LA    R1,SHVPARMB             GET ADDRESS OF SHV PARM BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
          BASR  R14,R15                 CALL ARXEXCOM
@@ -389,6 +388,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
 
          WHEN  OTHER                   FOR OPT=DUMP...
           ST   R3,SAYPARM3             PUT BUFFER LENGTH IN SAY PARM 3
+          L    R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
           LA   R1,SAYPARMB             GET ADDRESS OF SAY PARM BLOCK
           L    R15,ARXSAY              POINT TO PGM TO CALL
           BASR R14,R15                 CALL ARXSAY
@@ -425,6 +425,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
            LH  R4,0(,R3)               GET LENGTH OF VARIABLE DATA
            LA  R3,2(,R3)               INCREMENT THE STORAGE POSITION
            STM R2,R4,SHVNAML           PUT IN SHV CONTROL BLOCK
+           L   R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
            LA  R1,SHVPARMB             GET ADDRESS OF SHV PARM BLOCK
            L   R15,ARXEXCOM            POINT TO PGM TO CALL
            BASR R14,R15                CALL ARXEXCOM
@@ -459,6 +460,7 @@ MVCSTEM  MVC   0(0,R4),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
            EX  R4,MVCDATA              MOVE TO VAR DATA
            LA  R4,1(,R4)               ADD BACK THE ONE SUBTRACTED
            STM R2,R4,SHVNAML           PUT IN SHV CONTROL BLOCK
+           L   R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
            LA  R1,SHVPARMB             GET ADDRESS OF SHV PARM BLOCK
            L   R15,ARXEXCOM            POINT TO PGM TO CALL
            BASR R14,R15                CALL ARXEXCOM
@@ -492,11 +494,11 @@ MVCDATA  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
            LA  R2,SAYPARM2             GET ADDRESS OF PARM 2
            LA  R3,SAYPARM3             GET ADDRESS OF PARM 3
            STM R1,R3,SAYPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-           OI  SAYPARMB+(4*3-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+           OI  SAYPLAST,X'80'          SET END OF PARM BLOCK
            MVC SAYPARM1,=C'GETBLOCK'   GET LARGER EVALUATION BLOCK
            XC  SAYPARM2,SAYPARM2       CLEAR PARM 2 TO RECEIVE ADDRESS
            ST  R4,SAYPARM3             STORE LENGTH IN PARM 3
+           L   R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
            LA  R1,SAYPARMB             GET ADDRESS OF RLT PARM BLOCK
            L   R15,ARXRLT              POINT TO PGM TO CALL
            BASR R14,R15                CALL ARXRLT
@@ -554,7 +556,7 @@ R15MSG   DS    0H
          BCTR  R4,0                    DECR. LENGTH FOR ZERO REF.
          EX    R4,MVCMESG              MOVE TO RESULT MESSAGE
          AR    R2,R4                     ADD TO LENGTH OF MESSAGE
-         LA    R2,1(,R2)                 PLUS ONE FOR ZER0 REF.
+         LA    R2,1(,R2)                 PLUS ONE FOR ZERO REF.
 * ------------------------------------------------------------------- *
 FINISH   ST    R2,EVALBLOCK_EVLEN      STORE LENGTH OF RESULT MESSAGE
 RETURN   XR    R15,R15                 CLEAR REG15
@@ -563,7 +565,7 @@ RETURN   XR    R15,R15                 CLEAR REG15
          EJECT
 * =================================================================== *
 STORAGE  DS    0D
-* =================================================================== *
+* ------------------------------------------------------------------- *
 TRTBL    EQU   *-64
          DC    192AL1(*-TRTBL)         Init for no translation, then
          ORG   TRTBL+C'a'              Translate lower-case

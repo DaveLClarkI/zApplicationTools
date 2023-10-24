@@ -19,9 +19,10 @@ RXVSAMIO RMODE 24
 *      This external REXX function allows  a REXX program to access a *
 * VSAM Dataset of either a 'KSDS',  'ESDS',  'PATH',  'RRDS', 'VRDS', *
 * 'SAME',  'SAMI',  or 'AIX' dataset  type.   Passed information is a *
-* required DLBL name and  the  access request to be performed.   Some *
-* access requests have  additional,  optional parameters with implied *
-* defaults.  This routine cannot be used to access NOCIFORMAT files.  *
+* required DLBL name, an optional record name, and the access request *
+* to be performed.   Some  access requests have additional,  optional *
+* parameters with implied defaults.   This  routine cannot be used to *
+* access NOCIFORMAT files.                                            *
 *                                                                     *
 *      The passed DLBL name must  also  refer to a REXX stem variable *
 * of the same  name.   The  elements  of  that  stem variable provide *
@@ -52,7 +53,8 @@ RXVSAMIO RMODE 24
 *  � VSAM keyed, RBA, RRN, and sequential I/O access;                 *
 *  � Forward and backward next record retrieval;                      *
 *  � All input, update, and output methods;                           *
-*  � Copybook-like layout support for multi-field keys and records;   *
+*  � Copybook-like record layout support for multi-field, multi-      *
+*    format records and keys;                                         *
 *  � Field data is always stored in separate REXX variables for your  *
 *    convenience;                                                     *
 *  � Automatic parsing and conversion to standard REXX data formats;  *
@@ -61,12 +63,21 @@ RXVSAMIO RMODE 24
 *  � Inquiry for most of the IDCAMS LISTCAT-like dataset attributes   *
 *    and statistics.                                                  *
 *                                                                     *
-* NOTE: There is only one  access  string  and  one record layout per *
-*       file.   So,  if more than one  position  in  the same file is *
-*       needed or different record  layouts  are  needed for a multi- *
-*       format file,  then separate  DLBL  statements are required in *
-*       order to handle either of these situations.   Up to nine file *
-*       definitions at a time are accepted by this function.          *
+* NOTE: There is only one access string per file definition.   So, if *
+*       more than one position  in  the  same file is needed,  then a *
+*       separate  DLBL  statement  is  required  to  track  each file *
+*       position.  Up to nine file definitions at a time are accepted *
+*       by this function.                                             *
+*                                                                     *
+* NOTE: As mentioned,  the passed DLBL  name  refers  to  an up to 7- *
+*       character stem variable name where all dataset information is *
+*       stored.   However,  for multi-record format support, separate *
+*       up to 10-character stem variable name(s) may also be provided *
+*       where just a single key and record format layout are defined. *
+*       At file I/O time,  if  the  record  layout argument is blank, *
+*       then the record data  definitons  are  expected  to be in the *
+*       stem variable to which the supplied DLBL name refers.  Do not *
+*       supply the period stem separator for these arguments.         *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -75,7 +86,8 @@ RXVSAMIO RMODE 24
 *      The information passed on the  function call has the following *
 * general syntax:                                                     *
 *                                                                     *
-* Call RXVSAMIO ddname, request <, request_arg2 <, request_arg3 > >;  *
+* Call RXVSAMIO ddname, request <, record_format_name                 *
+*                    <, request_arg2 <, request_arg3 > > >;           *
 *                                                                     *
 *                                                                     *
 *      And the following  are  all  of  the  possible request formats *
@@ -93,26 +105,31 @@ RXVSAMIO RMODE 24
 *               'RESET' is the same as 'OUTPUT' but for REUSE, and    *
 *               'DYNAMIC' enables skip-sequential processing.         *
 *                                                                     *
-* Call RXVSAMIO ddname, { 'FWDPOS' | 'BWDPOS' }                       *
-*                               <, 'KEY' <, 'GTEQ'|'EQUAL' > |'RBA'>; *
+* Call RXVSAMIO ddname, { 'FWDPOS' | 'BWDPOS' } <, record_format_name *
+*                              <, 'KEY' <, 'GTEQ'|'EQUAL' > |'RBA'>>; *
 *        Where: 'KEY' and 'GTEQ' are the defaults, and                *
 *               this performs VSAM POINT function processing -- only  *
 *               setting file position and direction (no record read,  *
 *               but 'GTEQ' is ignored for backward positioning).      *
 *                                                                     *
-* Call RXVSAMIO ddname, 'READ' <, 'NEXT'|'PREV'                       *
-*                                 |'KEY' <, 'EQUAL'|'GTEQ' > |'RBA'>; *
+* Call RXVSAMIO ddname, 'READ' <, into_record_format_name             *
+*                              <, 'NEXT'|'PREV'                       *
+*                                |'KEY' <, 'EQUAL'|'GTEQ' > |'RBA'>>; *
 *        Where: 'NEXT' is the default (or,                            *
 *               if 'KEY' is specified, then 'EQUAL' is the default)   *
 *               and, if opened for UPDATE, always causes a CI lock.   *
 *                                                                     *
-* Call RXVSAMIO ddname, 'WRITE';                                      *
+* Call RXVSAMIO ddname, 'PARSE', into_record_format_name;             *
+*        Where: For multi-format files, this parses the previously    *
+*               read record into the specified record format stem.    *
+*                                                                     *
+* Call RXVSAMIO ddname, 'WRITE' <, from_record_format_name>;          *
 *        Where: on write, automatically releases any prior locks.     *
 *                                                                     *
-* Call RXVSAMIO ddname, 'UPDATE';                                     *
+* Call RXVSAMIO ddname, 'UPDATE' <, from_record_format_name>;         *
 *        Where: a prior successful READ is required, first.           *
 *                                                                     *
-* Call RXVSAMIO ddname, 'DELETE';                                     *
+* Call RXVSAMIO ddname, 'DELETE' <, from_record_format_name>;         *
 *        Where: a prior successful READ is required, first.           *
 *                                                                     *
 * Call RXVSAMIO ddname, 'CLOSE';                                      *
@@ -124,15 +141,15 @@ RXVSAMIO RMODE 24
 *         ,       commas are required to separate arguments.          *
 *                                                                     *
 *                                                                     *
-*      Otherwise,  the stem variable  mentioned  is where you provide *
-* the data definitions (see INPUT, below) that allow this function to *
-* parse the VSAM records,  after  retrieval,  so that the caller does *
-* not have to do this  themselves.   The parsed (and converted) field *
-* data is also returned in the  stem variable -- a separate entry for *
-* each  field  definition  given.   At  WRITE  or  UPDATE time,  this *
-* function also uses  the  provided  data  definitions to rebuild the *
-* complete VSAM record from  the  individual  field data found in the *
-* stem variable.                                                      *
+*      Otherwise,  one of the stem  variables  mentioned is where you *
+* provide the data  definitions  (see  INPUT,  below) that allow this *
+* function to parse the  VSAM records,  after retrieval,  so that the *
+* caller does  not  have  to  do  this  themselves.   The parsed (and *
+* converted) field data  is  also  returned  in  the appropriate stem *
+* variable -- a separate entry  for each field definition given.   At *
+* WRITE or UPDATE time,  this  function  also  uses the provided data *
+* definitions to rebuild the complete VSAM record from the individual *
+* field data found in the stem variable.                              *
 *                                                                     *
 *      The caller must provide  two  sets  of data definitions in the *
 * stem variable -- one set  for  the  key  layout and one set for the *
@@ -228,25 +245,27 @@ RXVSAMIO RMODE 24
 *                                                                     *
 *                                INPUT                                *
 *                                                                     *
-*      On input, the following stem variable elements are used:       *
+*      On input, the following base stem variable elements are used:  *
 *                                                                     *
-*   ..._rln     value for the record length to be used for variable-  *
-*                 length record processing (_rmx is the default) but  *
-*                 this would also be used for the logical record      *
-*                 length when writing MSAM files;                     *
 *   ..._rmx     value for the maximum record length (at OPEN time,    *
 *                 this will be supplied automatically as a lookup     *
 *                 from the associated catalog -- it is highly         *
 *                 inadvisable that this value should be changed) but  *
 *                 this would also be the maximum block size when      *
 *                 processing MSAM files;                              *
-*                                                                     *
-*   ..._kln     value for the key length to be used for generic       *
-*                 point or read processing (_kmx is the default);     *
 *   ..._kmx     value for the maximum key length (at OPEN time,       *
 *                 this will be supplied automatically as a lookup     *
 *                 from the associated catalog -- it is highly         *
 *                 inadvisable that this value should be changed);     *
+*                                                                     *
+*      and the following record_name stem variable elements are used: *
+*                                                                     *
+*   ..._rln     value for the record length to be used for variable-  *
+*                 length record processing (_rmx is the default) but  *
+*                 this would also be used for the logical record      *
+*                 length when writing MSAM files;                     *
+*   ..._kln     value for the key length to be used for generic       *
+*                 point or read processing (_kmx is the default);     *
 *                                                                     *
 *   ..._key.0   value specifies the total number of contiguous key    *
 *                 fields that make up a full key for this file        *
@@ -266,16 +285,15 @@ RXVSAMIO RMODE 24
 *                 (define a single 'UBIN'-type, 0-offset, 4-byte,     *
 *                 0-decimal key field for RBA or RRN access);         *
 *   ..._key.key_name                                                  *
-*               contains the character or decimal value for the       *
-*                 associated key field (where "key_name" is one of    *
-*                 those found in word1 of the _key.n definitions      *
+*               these contain the character or decimal values for     *
+*                 the associated key fields (where "key_name" is one  *
+*                 of those found in word1 of the _key.n definitions   *
 *                 given, undefined "key_name" fields default to all   *
 *                 binary zeroes, and supplied "key_name" values are   *
 *                 automatically converted by this function before     *
-*                 storing in the file and before storing in the       *
-*                 associated stem variables -- such that the caller   *
-*                 only has to deal with them in character and decimal *
-*                 formats, as appropriate);                           *
+*                 being used to access the file -- such that the      *
+*                 caller only has to deal with them in character and  *
+*                 decimal formats, as appropriate);                   *
 *                                                                     *
 *   ..._fld.0   value specifies the number of contiguous fields that  *
 *                 make up a full record for this file;                *
@@ -292,14 +310,15 @@ RXVSAMIO RMODE 24
 *                           for 'PACKED' or 'ZONED' fields (must be   *
 *                           zero for 'IZONED'/'BIN'/'UBIN' fields);   *
 *   ..._fld.fld_name                                                  *
-*               contains the character or decimal value for the       *
-*                 associated record field (where "fld_name" is one of *
-*                 those found in word1 of the _fld.n definitions      *
-*                 given and values are automatically converted by     *
-*                 this function before storing in the file and before *
-*                 storing in the associated stem variables -- such    *
-*                 that the caller only has to deal with them in       *
-*                 character and decimal formats, as appropriate).     *
+*               these contain the character or decimal values for     *
+*                 the associated record fields (where "fld_name"      *
+*                 is one of those found in word1 of the _fld.n        *
+*                 definitions given and supplied values are           *
+*                 automatically converted by this function before     *
+*                 storing in the file and before storing back to      *
+*                 the associated stem variables -- such that the      *
+*                 caller only has to deal with them in character      *
+*                 and decimal formats, as appropriate).               *
 *                                                                     *
 * Note that if a non-binary  field  value  on disk is low-values (all *
 * binary zeroes), then this function returns the *NULL keyword as the *
@@ -392,11 +411,12 @@ RXVSAMIO RMODE 24
 *                                                                     *
 *                               OUTPUT                                *
 *                                                                     *
-*      After every request,  the following stem variable elements are *
-* returned -- as available;                                           *
+*      After every  request,  the  following  "ddname"  stem variable *
+* elements are returned -- as available;                              *
 *                                                                     *
 *   ..._ddn     the data label name for the file (variable form);     *
 *   ..._lfn     the name of the last access function requested;       *
+*   ..._lrf     the name of the last record format requested;         *
 *   ..._lfm     the name of the last failed macro, if any;            *
 *   ..._rc      the VSAM Return Code (in decimal);                    *
 *   ..._ec      the VSAM Error Code (in decimal) or, if a catalog     *
@@ -405,8 +425,8 @@ RXVSAMIO RMODE 24
 *   ..._fc      the VSAM Feedback Function Code (in decimal).         *
 *                                                                     *
 *                                                                     *
-*      After  a  successful  OPEN,   the  following  additional  stem *
-* variable elements are returned:                                     *
+*      After a  successful  OPEN,  the  following additional "ddname" *
+* stem variable elements are returned:                                *
 *                                                                     *
 *   ..._dsn     the data set name for the file;                       *
 *   ..._typ     the file type: KSDS, XLDS, ESDS, PATH, RRDS, VRDS,    *
@@ -420,16 +440,16 @@ RXVSAMIO RMODE 24
 *                 (for RBA and RRN files this is always zero).        *
 *                                                                     *
 *                                                                     *
-*      After a successful  READ,  the  following additional stem var- *
-* iable elements are  returned  (the  _key.key_name  values are never *
-* changed by this function):                                          *
+*      After a successful READ, the following record layout stem var- *
+* iable elements are  returned  (the  input-only _key.key_name values *
+* are never changed by this function):                                *
 *                                                                     *
 *   ..._fld.fld_name                                                  *
-*               contains the character or decimal value for the       *
-*                 associated record field (the "fld_name" is as found *
-*                 in word1 of the _fld.n definitions given and values *
-*                 are automatically converted by this function as     *
-*                 outlined, above);                                   *
+*               these contain the character or decimal values for     *
+*                 the associated record fields (where "fld_name" is   *
+*                 one of those found in word1 of the _fld.n defini-   *
+*                 tions given and the values are automatically        *
+*                 converted by this function as outlined, above);     *
 *                                                                     *
 *   ..._rba     the record's relative byte address (in decimal);      *
 *   ..._rrn     the record's relative number (for RRDS, in decimal);  *
@@ -437,8 +457,8 @@ RXVSAMIO RMODE 24
 *                 just retrieved.                                     *
 *                                                                     *
 *                                                                     *
-*      After the ATTRS request,  all  of  the following stem variable *
-* elements are returned:                                              *
+*      After the ATTRS request,  all  of  the following "ddname" stem *
+* variable elements are returned:                                     *
 *                                                                     *
 *   ..._ddn     the data label name for the file;                     *
 *   ..._dsn     the data set name for the file;                       *
@@ -766,28 +786,28 @@ FILETBL  DSECT
 FILETBLE DS    0CL32                   FILE TABLE ENTRY
 FILEDD   DS    CL7
 FILEOPT  DS    XL1                     OPTION FLAGS
-FILECLUS EQU   B'10000000'             DEFINED AS CLUSTER
-FILEAIX  EQU   B'01000000'             DEFINED AS AIX
-FILEPATH EQU   B'00100000'             DEFINED AS PATH
-FILESEQU EQU   B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
-FILEAPND EQU   B'00000010'             OPENED FOR APPEND
-FILEUPDT EQU   B'00000001'             OPENED FOR UPDATE
+FILECLUS DF    B'10000000'             DEFINED AS CLUSTER
+FILEAIX  DF    B'01000000'             DEFINED AS AIX
+FILEPATH DF    B'00100000'             DEFINED AS PATH
+FILESEQU DF    B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
+FILEAPND DF    B'00000010'             OPENED FOR APPEND
+FILEUPDT DF    B'00000001'             OPENED FOR UPDATE
 FILECAT  DS    F                       MY CAT ACB ADDRESS
 FILECATR DS    F                       MY CAT RPL ADDRESS
 FILEACB  DS    F                       MY ACB BASE ADDRESS
 FILERPL  DS    F                       MY RPL BASE ADDRESS
 FILETYPE DS    XL1                     ATTRIBUTE FLAGS
-ESDS     EQU   B'01111000'             ENTRY-SEQUENCED (REVERSED)
-KSDS     EQU   B'01000000'             KEY-SEQUENCED
-RRDS     EQU   B'00001000'             RELATIVE-RECORD
-VRDS     EQU   B'01001000'             VARIABLE-RELATIVE
-SAMD     EQU   B'00010000'             MSAM DATASET
-SAME     EQU   B'00010000'             MSAM-EXPLICIT DEFINE
-SAMI     EQU   B'10010000'             MSAM-IMPLICIT DEFINE
-SAMN     EQU   B'00100000'             MSAM-NOCIFORMAT
-SAMB     EQU   B'00000100'             MSAM-BLOCKED
-SAMV     EQU   B'00000010'             MSAM-VARIABLE
-SAMF     EQU   B'00000001'             MSAM-FIXED
+ESDS     DF    B'01111000'             ENTRY-SEQUENCED (REVERSED)
+KSDS     DF    B'01000000'             KEY-SEQUENCED
+RRDS     DF    B'00001000'             RELATIVE-RECORD
+VRDS     DF    B'01001000'             VARIABLE-RELATIVE
+SAMD     DF    B'00010000'             MSAM DATASET
+SAME     DF    B'00010000'             MSAM-EXPLICIT DEFINE
+SAMI     DF    B'10010000'             MSAM-IMPLICIT DEFINE
+SAMN     DF    B'00100000'             MSAM-NOCIFORMAT
+SAMB     DF    B'00000100'             MSAM-BLOCKED
+SAMV     DF    B'00000010'             MSAM-VARIABLE
+SAMF     DF    B'00000001'             MSAM-FIXED
 FILEDCI  DS    XL3                     CATALOG DATA COMP. CI NUMBER
          DS    XL1
 FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
@@ -815,18 +835,23 @@ EWORK    DS    CL34                    EDITED WORK FIELD
 CWORK    DS    CL34                    CHARACTER WORK FIELD
 *
 SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SAYPARM1 DS    CL8                     'WRITE   '
 SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
 SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
 *
+SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
 SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SHVPARM1 DS    CL8                     'ARXEXCOM'
 SHVPARM2 DS    XL4
 SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
 *
 DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     STEM NAME
+DDNAME   DS    CL8                     BASE STEM NAME
 REQUEST  DS    CL8                     ACCESS REQUEST
+RECNAMEL DS    F                       STEM NAME LENGTH
+RECNAME  DS    CL10                    RECORD NAME STEM
 RQARG2   DS    CL8                     REQUEST ARGUMENT 2
 RQARG3   DS    CL8                     REQUEST ARGUMENT 3
 *
@@ -837,31 +862,13 @@ RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
 CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
 SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
 CINUM    DS    XL3                     CATALOG CI NUMBER
+         DS    0F
 VARDATA  DS    CL256                   VARIABLE VALUE
 VARNAME  DS    CL256                   VARIABLE NAME
 SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
 PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
 *
-DTEPLIST DS    A                       DTEMAN PLIST
-DTEPARMS DS    0CL32                   DTEMAN PARMS
-DTEREQU  DS    CL1                     REQUEST CODE
-DTERETN  DS    CL1                     RETURN CODE
-DTEGREG  DS    0CL10                   GREGORIAN DATE
-DTEG_FIL DS    CL2                       00
-DTEG_MC  DS    CL2                       CC
-DTEG_YY  DS    CL2                       YY
-DTEG_MM  DS    CL2                       MM
-DTEG_DD  DS    CL2                       DD
-DTEJULN  DS    0CL8                    JULIAN DATE
-DTEJ_FIL DS    CL1                       0
-DTEJ_MC  DS    CL2                       CC
-DTEJ_YY  DS    CL2                       YY
-DTEJ_DDD DS    CL3                       DDD
-DTETOTD  DS    PL4                     TOTAL DAYS
-DTEMNTH  DS    PL2                     MONTH NUMBER (01-12, beg:JAN)
-DTEDAYN  DS    PL1                     DAY NUMBER (1-7, beg:SUNDAY)
-DTELEAP  DS    CL1                     LEAP YEAR INDICATOR (Y/N)
-DTEWORK  DS    PL4                     DTEMAN WORK AREA
+         COPY  DTEMANA
 *
          DS    0D                      ALIGN TRANSLATE TABLE
 TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
@@ -1004,7 +1011,8 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          ENDIF
          L     R6,ENVBLOCK_IRXEXTE     REXX EXTERNAL ENTRY-POINT VECTOR
          ST    R6,EPVECTOR             SAVE IT
-         DROP  R5                      REMOVE ADDRESSABILITY
+         ST    R5,SAVEENVB             SAVE ENVIRONMENT BLOCK ADDRESS
+         DROP  R5                      REMOVE ADDR. TO ENV. BLOCK
 *
          LR    R8,R1                   EXTERNAL FUNCTION PARAMETER LIST
          USING EFPL,R8                 TEMPORARY ADDRESSABILITY
@@ -1025,8 +1033,7 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          LA    R3,SHVPARM2             GET ADDRESS OF PARM 3
          LA    R4,SHVBLOCK             GET ADDRESS OF PARM 4
          STM   R1,R4,SHVPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SHVPARMB+(4*4-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SHVPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SHVPARM1,=C'ARXEXCOM'   SET PARM 1
          XC    SHVPARM2,SHVPARM2       CLEAR PARM 2
@@ -1047,8 +1054,7 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          LA    R2,SAYPARM2             GET ADDRESS OF PARM 2
          LA    R3,SAYPARM3             GET ADDRESS OF PARM 3
          STM   R1,R3,SAYPARMB          PUT IN PARM BLOCK
-*                                      SET END OF PARM BLOCK AT
-         OI    SAYPARMB+(4*3-4),X'80'  PARM LEN X PARM CNT -ZERO OFFSET
+         OI    SAYPLAST,X'80'          SET END OF PARM BLOCK
 *
          MVC   SAYPARM1,=CL8'WRITE'    SET PARM 1
          LA    R1,VARDATA              GET ADDRESS FOR PARM 2
@@ -1076,16 +1082,17 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          XC    DDNLENG,DDNLENG
          MVC   DDNAME,SPACES
          MVC   REQUEST,SPACES
+         MVC   RECNAME,SPACES
          MVC   RQARG2,SPACES
          MVC   RQARG3,SPACES
          MVC   MACRO,SPACES
 *
          WHILE ARGTABLE_END,(NE,CLC),ENDMARK
           L    R2,ARGTABLE_ARGSTRING_LENGTH
-          IF   ARGTABLE_ARGSTRING_LENGTH,(NH,CLC),=F'8'
+          IF   ARGTABLE_ARGSTRING_LENGTH,(NH,CLC),=F'10'
            LR  R3,R2                    GET ARG LENGTH
           ELSE
-           LHI R3,8                     SET MAX LENGTH
+           LHI R3,10                    SET MAX LENGTH
           ENDIF
           SHI  R3,1                      AND DECR. FOR EXECUTE
           L    R4,ARGTABLE_ARGSTRING_PTR
@@ -1109,7 +1116,28 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
             LHI R5,1                     SET RETURN CODE
             B  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
-          WHEN RQARG2,(NH,CLC),SPACES  WORKING ON 3RD ARGUMENT?
+           IF  REQUEST,NE,C'A'          IF  NOT ATTRS
+           AND REQUEST,NE,C'O'          AND NOT OPEN
+           AND REQUEST,NE,C'C'          AND NOT CLOSE
+           ELSE                         ELSE
+            MVC RECNAMEL,DDNLENG         USE BASE STEM INFO
+            MVC RECNAME(7),DDNAME         FOR RECORD INFO
+           ENDIF                        ENDIF
+          WHEN RECNAME,(NH,CLC),SPACES WORKING ON 3RD ARGUMENT?
+           ST  R2,RECNAMEL              SAVE DDNAME LENGTH
+           LA  R5,RECNAME               SET DEST ADDR
+           EX  R3,MVPARM                MOVE ARG DATA
+           IF  RECNAME,(HT,CLC),SPACES  IF RECORD NAME SUPPLIED
+            TR RECNAME,TRTBL             TRANSLATE TO UPPER-CASE
+           ELSE                         ELSE
+            MVC RECNAMEL,DDNLENG         USE BASE STEM INFO
+            MVC RECNAME(7),DDNAME         FOR RECORD INFO
+           ENDIF                        ENDIF
+           IF  RECNAMEL,(HT,CLC),=F'10' RECNAME INVALID?
+            LHI R5,4                     SET RETURN CODE
+            B  R15ZERO                   GO RETURN ERROR
+           ENDIF                        ENDIF
+          WHEN RQARG2,(NH,CLC),SPACES  WORKING ON 4TH ARGUMENT?
            LA  R5,RQARG2                SET DEST ADDR
            EX  R3,MVPARM                MOVE ARG DATA
            TR  RQARG2,TRTBL             TRANSLATE TO UPPER-CASE
@@ -1117,7 +1145,7 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
             LHI R5,2                     SET RETURN CODE
             B  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
-          WHEN RQARG3,(NH,CLC),SPACES  WORKING ON 4TH ARGUMENT?
+          WHEN RQARG3,(NH,CLC),SPACES  WORKING ON 5TH ARGUMENT?
            LA  R5,RQARG3                SET DEST ADDR
            EX  R3,MVPARM                MOVE ARG DATA
            TR  RQARG3,TRTBL             TRANSLATE TO UPPER-CASE
@@ -1242,6 +1270,17 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ENDIF
           ENDIF
 
+         WHEN  REQUEST,EQ,C'P'         PARSE
+          MVC  REQUEST,=CL8'PARSE'
+          IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
+           LHI R5,2                      SET RETURN CODE
+           B   R15ZERO                   GO RETURN ERROR
+          ENDIF
+          IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
+           LHI R5,3                      SET RETURN CODE
+           B  R15ZERO                    GO RETURN ERROR
+          ENDIF
+
          WHEN  REQUEST,EQ,C'W'         WRITE
           MVC  REQUEST,=CL8'WRITE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
@@ -1293,12 +1332,16 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
 *
 * BEGIN PROCESSING
 *
+*        MVI   VARDATA+0,C' '
+*        MVC   VARDATA+1(62),VARDATA+0
+*
 *        MVC   VARDATA+0(18),=C'RXVSAMIO Request: '
-*        MVC   VARDATA+18(8),DDNAME
+*        MVC   VARDATA+18(7),DDNAME
 *        MVC   VARDATA+26(8),REQUEST
-*        MVC   VARDATA+34(8),RQARG2
-*        MVC   VARDATA+42(8),RQARG3
-*        LHI   R2,50                   SET LENGTH OF OUTPUT
+*        MVC   VARDATA+35(10),RECNAME
+*        MVC   VARDATA+46(8),RQARG2
+*        MVC   VARDATA+55(8),RQARG3
+*        LHI   R2,63                   SET LENGTH OF OUTPUT
 *        BAS   R5,SAYIT                GO SAY IT
 *
          IF    REQUEST,NE,C'A'         ATTRS
@@ -1308,7 +1351,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           LHI  R2,L'RECKEY              SET LENGTH OF ELEMENT NAME
           LA   R3,=C'0'                 POINT TO STEM ELEMENT VALUE
           LHI  R4,1                     SET LENGTH OF ELEMENT VALUE
-          BAS  R5,GET_ELEM              RETRIEVE THE STEM ELEMENT
+          BAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
           IF   SHVVALL,(NH,CLC),=F'0'   IF VALUE LENGTH NOT > ZERO
            MVC MACRO,=CL8'GETVAR'        LAST FAILED MACRO
            LHI R5,-6                     SET RETURN CODE
@@ -1319,7 +1362,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           LHI  R2,L'RECFLD              SET LENGTH OF ELEMENT NAME
           LA   R3,=C'0'                 POINT TO STEM ELEMENT VALUE
           LHI  R4,1                     SET LENGTH OF ELEMENT VALUE
-          BAS  R5,GET_ELEM              RETRIEVE THE STEM ELEMENT
+          BAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
           IF   SHVVALL,(NH,CLC),=F'0'   IF VALUE LENGTH NOT > ZERO
            MVC MACRO,=CL8'GETVAR'        LAST FAILED MACRO
            LHI R5,-7                     SET RETURN CODE
@@ -1417,9 +1460,9 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           IF   RQARG2,EQ,C'I'           IF INPUT
            IF  RQARG3,EQ,C'S'            SEQUENCE
             MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(IN,SEQ)
-            OI FILEOPT,FILESEQU           INDICATE ACCESS SEQUENTIAL
+            SF FILESEQU                   INDICATE ACCESS SEQUENTIAL
            ELSE
-            NI FILEOPT,X'FF'-FILESEQU     INDICATE ACCESS DIRECT
+            CF FILESEQU                   INDICATE ACCESS DIRECT
             IF RQARG3,EQ,C'D'             DYNAMIC
              MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(IN,SKP)
             ELSE                          RANDOM
@@ -1429,9 +1472,9 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           ELSE                          ELSE
            IF  RQARG3,EQ,C'S'            SEQUENCE
             MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(OUT,SEQ)
-            OI FILEOPT,FILESEQU           INDICATE ACCESS SEQUENTIAL
+            SF FILESEQU                   INDICATE ACCESS SEQUENTIAL
            ELSE
-            NI FILEOPT,X'FF'-FILESEQU     INDICATE ACCESS DIRECT
+            CF FILESEQU                   INDICATE ACCESS DIRECT
             IF RQARG3,EQ,C'D'             DYNAMIC
              MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(OUT,SKP)
             ELSE                          RANDOM
@@ -1439,14 +1482,14 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
             ENDIF
            ENDIF
            IF  RQARG2,EQ,C'U'            IF UPDATE
-            OI FILEOPT,FILEUPDT           INDICATE OPENED FOR UPDATE
-            NI FILEOPT,X'FF'-FILEAPND
+            SF FILEUPDT                   INDICATE OPENED FOR UPDATE
+            CF FILEAPND
            ELSE                          ELSE
-            NI FILEOPT,X'FF'-FILEUPDT     NOT OPENED FOR UPDATE
+            CF FILEUPDT                   NOT OPENED FOR UPDATE
             IF RQARG2,EQ,C'A'             IF APPEND
-             OI FILEOPT,FILEAPND           INDICATE OPENED FOR APPEND
+             SF FILEAPND                   INDICATE OPENED FOR APPEND
             ELSE                          ELSE
-             NI FILEOPT,X'FF'-FILEAPND     NOT OPENED FOR APPEND
+             CF FILEAPND                   NOT OPENED FOR APPEND
             ENDIF                         ENDIF
            ENDIF                         ENDIF
           ENDIF                         ENDIF
@@ -1466,7 +1509,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           L    R8,FILEACB               GET ACB ADDRESS
           BAS  R6,OPENACB               OPEN THE ACB
 
-          IF   FILETYPE,(ON,TM),SAMD    IF SAM DATASET
+          IF   SAMD,(ON,TF),$NOOP       IF SAM DATASET
            XGR R2,R2                     CLEAR 64-BIT REGISTER
            L   R8,FILEACB                GET ACB ADDRESS
            USING IKQACB,R8               TEMPORARY ADDRESSABILITY
@@ -1511,11 +1554,11 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ELSE                          ELSE GTEQ
             OI RPLOPT2,RPLKGE             SET KGE PROCESSING
            ENDIF                         ENDIF
-           IF  FILETYPE,(O,TM),KSDS      IF KEY-SEQUENCED
-           AND FILETYPE,(NO,TM),RRDS     AND NOT RELATIVE-RECORD
+           IF  KSDS,(ON,TF),$NOOP        IF KEY-SEQUENCED
+           AND RRDS,(NO,TF),$NOOP        AND NOT RELATIVE-RECORD
             LA R1,KEYLEN                  POINT TO STEM ELEMENT NAME
             LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
-            BAS R5,GET_STEM               GET GENERIC KEY LENGTH
+            BAS R5,GET_STEM2              GET GENERIC KEY LENGTH
             IF SHVVALL,(NH,CLC),=F'0'     IF NO DEF KEY LEN SUPPLIED
              L R2,KMAX                     USE MAX KEY LEN
             ELSE                          ELSE
@@ -1540,7 +1583,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
           ENDIF                         ENDIF
 
-          IF   FILEOPT,(ON,TM),FILESEQU IF ACCESS IS SEQUENTIAL
+          IF   FILESEQU,(ON,TF),$NOOP   IF ACCESS IS SEQUENTIAL
            OI  RPLOPT1,RPLSEQ            SET SEQ PROCESSING
            NI  RPLOPT1,X'FF'-RPLDIR      NOT DIR PROCESSING
           ELSE                          ACCESS IS DIRECT
@@ -1548,13 +1591,13 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            OI  RPLOPT1,RPLDIR            SET DIR PROCESSING
           ENDIF                         ENDIF
 
-          IF   FILEOPT,(ON,TM),FILEUPDT IF OPENED FOR UPDATE
+          IF   FILEUPDT,(ON,TF),$NOOP   IF OPENED FOR UPDATE
            OI  RPLOPT1,RPLUPD            SET UPD PROCESSING
            NI  RPLOPT2,X'FF'-RPLNSP      NOT NSP PROCESSING
            NI  RPLOPT2,X'FF'-RPLNUP      NOT NUP PROCESSING
           ELSE                          ELSE NOT UPDATE
            NI  RPLOPT1,X'FF'-RPLUPD      NOT UPD PROCESSING
-           IF  FILEOPT,(ON,TM),FILESEQU  IF ACCESS IS SEQUENTIAL
+           IF  FILESEQU,(ON,TF),$NOOP    IF ACCESS IS SEQUENTIAL
             NI RPLOPT2,X'FF'-RPLNSP       NOT NSP PROCESSING
             OI RPLOPT2,RPLNUP             SET NUP PROCESSING
            ELSE                          ELSE ACCESS IS DIRECT
@@ -1607,11 +1650,11 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
 
-          IF   FILETYPE,(O,TM),KSDS     IF KEY-SEQUENCED
-          AND  FILETYPE,(NO,TM),RRDS    AND NOT RELATIVE-RECORD
+          IF   KSDS,(ON,TF),$NOOP       IF KEY-SEQUENCED
+          AND  RRDS,(NO,TF),$NOOP       AND NOT RELATIVE-RECORD
            LA  R1,KEYLEN                 POINT TO STEM ELEMENT NAME
            LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
-           BAS R5,GET_STEM               GET GENERIC KEY LENGTH
+           BAS R5,GET_STEM2              GET GENERIC KEY LENGTH
            IF  SHVVALL,(NH,CLC),=F'0'    IF NO DEF KEY LEN SUPPLIED
             L  R2,KMAX                    USE MAX KEY LEN
            ELSE                          ELSE
@@ -1661,7 +1704,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
              NI RPLOPT2,X'FF'-RPLKGE       NOT KGE PROCESSING
             ENDIF                         ENDIF
            ENDIF                         ENDIF
-           IF  FILEOPT,(ON,TM),FILESEQU  IF ACCESS IS SEQUENTIAL
+           IF  FILESEQU,(ON,TF),$NOOP    IF ACCESS IS SEQUENTIAL
             OI RPLOPT1,RPLSEQ             SET SEQ PROCESSING
             NI RPLOPT1,X'FF'-RPLDIR       NOT DIR PROCESSING
            ELSE                          ACCESS IS DIRECT
@@ -1670,13 +1713,13 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
           ENDIF                         ENDIF
 
-          IF   FILEOPT,(ON,TM),FILEUPDT IF OPENED FOR UPDATE
+          IF   FILEUPDT,(ON,TF),$NOOP   IF OPENED FOR UPDATE
            OI  RPLOPT1,RPLUPD            SET UPD PROCESSING
            NI  RPLOPT2,X'FF'-RPLNSP      NOT NSP PROCESSING
            NI  RPLOPT2,X'FF'-RPLNUP      NOT NUP PROCESSING
           ELSE                          ELSE NOT UPDATE
            NI  RPLOPT1,X'FF'-RPLUPD      NOT UPD PROCESSING
-           IF  FILEOPT,(ON,TM),FILESEQU  IF ACCESS IS SEQUENTIAL
+           IF  FILESEQU,(ON,TF),$NOOP    IF ACCESS IS SEQUENTIAL
             NI RPLOPT2,X'FF'-RPLNSP       NOT NSP PROCESSING
             OI RPLOPT2,RPLNUP             SET NUP PROCESSING
            ELSE                          ELSE ACCESS IS DIRECT
@@ -1708,22 +1751,72 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECLEN                POINT BACK TO VAR NAME
           LHI  R4,L'RECLEN              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+4            GET LAST RBA INTO 64-BIT REG
           BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECRBA                POINT BACK TO VAR NAME
           LHI  R4,L'RECRBA              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
-          IF   FILETYPE,(ON,TM),RRDS    IF RELATIVE-RECORD DATASET
+          IF   RRDS,(ON,TF),$NOOP       IF RELATIVE-RECORD DATASET
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            LLGF R2,KEYBUF                GET LAST RRN INTO 64-BIT REG
            BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,RECRRN                 POINT BACK TO VAR NAME
            LHI R4,L'RECRRN               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           BAS R5,SET_STEM2              CREATE THE STEM ELEMENT
+          ENDIF                         ENDIF
+
+          LA   R1,SUBRPLST              POINT TO PARAMETER LIST
+          L    R15,=V(RXVSAMXR)         GET SUBR. ENTRY POINT
+          BASR R14,R15                  EXTRACT RECORD FIELDS
+          IF   R15,(NZ,LTR),R15         IF FAILED
+           LR  R5,R15                    SET RETURN CODE
+           B   R15ZERO                   GO RETURN ERROR
+          ENDIF                         ENDIF
+
+* ------------------------------------------------------------------- *
+         WHEN  REQUEST,EQ,C'P'         "PARSE"
+          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          L    R8,FILERPL               GET RPL ADDRESS
+
+          PUSH ACONTROL
+          ACONTROL FLAG(NOPAGE0)
+          SHOWCB RPL=(8),AREA=(S,SHOWAREA),LENGTH=L'SHOWAREA,          +
+               FIELDS=(RECLEN,RBA)
+          POP  ACONTROL
+          IF   R15,(NZ,LTR),R15         IF FAILED
+           MVC MACRO,=CL8'SHOWCB/R'      INDICATE OPERATION PERFORMED
+           ST  R0,SAVE_R0                SAVE REGISTER 0
+           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
+           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           LHI R5,16                     SET RETURN CODE
+           B   RETERR                    GO RETURN ERROR
+          ENDIF                         ENDIF
+
+          LA   R1,CWORK                 POINT TO "RESULT" AREA
+          LGF  R2,SHOWAREA+0            GET REC LEN INTO 64-BIT REG
+          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          LA   R3,RECLEN                POINT BACK TO VAR NAME
+          LHI  R4,L'RECLEN              SET LENGTH OF VAR NAME
+          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+
+          LA   R1,CWORK                 POINT TO "RESULT" AREA
+          LLGF R2,SHOWAREA+4            GET LAST RBA INTO 64-BIT REG
+          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          LA   R3,RECRBA                POINT BACK TO VAR NAME
+          LHI  R4,L'RECRBA              SET LENGTH OF VAR NAME
+          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+
+          IF   RRDS,(ON,TF),$NOOP       IF RELATIVE-RECORD DATASET
+           LA  R1,CWORK                  POINT TO "RESULT" AREA
+           LLGF R2,KEYBUF                GET LAST RRN INTO 64-BIT REG
+           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           LA  R3,RECRRN                 POINT BACK TO VAR NAME
+           LHI R4,L'RECRRN               SET LENGTH OF VAR NAME
+           BAS R5,SET_STEM2              CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
           LA   R1,SUBRPLST              POINT TO PARAMETER LIST
@@ -1759,7 +1852,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
 
           LA   R1,RECLEN                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECLEN              SET LENGTH OF ELEMENT NAME
-          BAS  R5,GET_STEM              GET RECORD LENGTH
+          BAS  R5,GET_STEM2             GET RECORD LENGTH
           IF   SHVVALL,(NH,CLC),=F'0'   IF NO DEF REC LEN SUPPLIED
            L   R2,RMAX                   USE MAX REC LEN
           ELSE                          ELSE
@@ -1780,7 +1873,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           OI   RPLOPT1,RPLSEQ           SET SEQUENTIAL PROCESSING
           NI   RPLOPT1,X'FF'-RPLDIR     NOT DIRECT PROCESSING
           NI   RPLOPT1,X'FF'-RPLUPD     NOT UPD PROCESSING
-          IF   FILEOPT,(ON,TM),FILESEQU IF ACCESS IS SEQUENTIAL
+          IF   FILESEQU,(ON,TF),$NOOP   IF ACCESS IS SEQUENTIAL
            NI  RPLOPT2,X'FF'-RPLNSP      NOT NSP PROCESSING
            OI  RPLOPT2,RPLNUP            SET NUP PROCESSING
           ELSE                          ELSE ACCESS IS DIRECT
@@ -1808,7 +1901,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
 
           LA   R1,RECLEN                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECLEN              SET LENGTH OF ELEMENT NAME
-          BAS  R5,GET_STEM              GET RECORD LENGTH
+          BAS  R5,GET_STEM2             GET RECORD LENGTH
           IF   SHVVALL,(NH,CLC),=F'0'   IF NO DEF REC LEN SUPPLIED
            L   R2,RMAX                   USE MAX REC LEN
           ELSE                          ELSE
@@ -1915,6 +2008,13 @@ RETERR   DS    0H
           LHI  R4,L'LASTFM              SET LENGTH OF VAR NAME
           BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 *
+          LA   R1,RECNAME               POINT BACK TO VAR DATA
+          LA   R2,RECNAME+L'RECNAME-1   POINT TO LAST BYTE OF DATA
+          BAS  R5,SET_LENG              SET LENGTH IN R2
+          LA   R3,LASTRF                POINT BACK TO VAR NAME
+          LHI  R4,L'LASTRF              SET LENGTH OF VAR NAME
+          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+*
          ENDIF
 * ------------------------------------------------------------------- *
          XR    R15,R15                 CLEAR REG15 FOR RETURN CODE
@@ -1950,17 +2050,17 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
          BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          SELECT                        IDENTIFY FILE TYPE
-         WHEN  FILEOPT,(ON,TM),FILEAIX
+         WHEN  FILEAIX,(ON,TF),$NOOP
           MVC  CWORK(4),=C'AIX '
-         WHEN  FILEOPT,(ON,TM),FILEPATH
+         WHEN  FILEPATH,(ON,TF),$NOOP
           MVC  CWORK(4),=C'PATH'
-         WHEN  FILETYPE,(Z,TM),ESDS    ENTRY-SEQUENCED DATASET?
+         WHEN  ESDS,(Z,TF),$NOOP       ENTRY-SEQUENCED DATASET?
           MVC  CWORK(4),=C'ESDS'
-         WHEN  FILETYPE,(O,TM),VRDS    VARIABLE-RELATIVE DATASET?
+         WHEN  VRDS,(ON,TF),$NOOP      VARIABLE-RELATIVE DATASET?
           MVC  CWORK(4),=C'VRDS'
-         WHEN  FILETYPE,(O,TM),RRDS    RELATIVE-RECORD DATASET?
+         WHEN  RRDS,(ON,TF),$NOOP      RELATIVE-RECORD DATASET?
           MVC  CWORK(4),=C'RRDS'
-         WHEN  FILETYPE,(O,TM),KSDS    KEY-SEQUENCED DATASET?
+         WHEN  KSDS,(ON,TF),$NOOP      KEY-SEQUENCED DATASET?
           L    R6,4(,R8)                GET AMBL ADDRESS FROM ACB
           L    R6,4(,R6)                GET DATA AMDSB ADDRESS
           USING AMDSBDS,R6              TEMPORARY ADDRESSABILITY
@@ -1970,11 +2070,11 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
            MVC CWORK(4),=C'KSDS'         INDICATE NOT XXL DATASET
           ENDIF
           DROP R6                       REMOVE ADDRESSABILITY
-         WHEN  FILETYPE,(O,TM),SAMN    MSAM-NOCIFORMAT DATASET?
+         WHEN  SAMN,(ON,TF),$NOOP      MSAM-NOCIFORMAT DATASET?
           MVC  CWORK(4),=C'SAMN'
-         WHEN  FILETYPE,(O,TM),SAMI    MSAM-IMPLICIT DEFINE?
+         WHEN  SAMI,(ON,TF),$NOOP      MSAM-IMPLICIT DEFINE?
           MVC  CWORK(4),=C'SAMI'
-         WHEN  FILETYPE,(O,TM),SAME    MSAM-EXPLICIT DEFINE?
+         WHEN  SAME,(ON,TF),$NOOP      MSAM-EXPLICIT DEFINE?
           MVC  CWORK(4),=C'SAME'
          WHEN  OTHER
           MVC  CWORK(3),=C'UNK'
@@ -2002,8 +2102,8 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
          ENDIF                         ENDIF
 *
          IF    FILERPL,(EQ,CLC),=F'0'  IF NO RPL, YET
-          IF   FILETYPE,(NZ,TM),ESDS    IF NOT ESDS DATASET
-          AND  FILETYPE,(NO,TM),SAMD    AND NOT MSAM DATASET
+          IF   ESDS,(NZ,TF),$NOOP       IF NOT ESDS DATASET
+          AND  SAMD,(NO,TF),$NOOP       AND NOT MSAM DATASET
            GENCB BLK=RPL,AM=VSAM,ACB=(R8),MF=(L,PARMLIST),             +
                AREA=(S,RECBUF),AREALEN=(*,SHOWAREA+0),                 +
                ARG=(S,KEYBUF),KEYLEN=(*,SHOWAREA+4),                   +
@@ -2174,11 +2274,11 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           ENDIF                         ENDIF
           SELECT
           WHEN SHOWAREA+8,EQ,C'C'       FOR CLUSTER RECORD
-           OI  FILEOPT,FILECLUS          INDICATE DEFINE CLUSTER
+           SF  FILECLUS                  INDICATE DEFINE CLUSTER
           WHEN SHOWAREA+8,EQ,C'G'       FOR AIX RECORD
-           OI  FILEOPT,FILEAIX           INDICATE DEFINE AIX
+           SF  FILEAIX                   INDICATE DEFINE AIX
           WHEN SHOWAREA+8,EQ,C'R'       FOR PATH RECORD
-           OI  FILEOPT,FILEPATH          INDICATE DEFINE PATH
+           SF  FILEPATH                  INDICATE DEFINE PATH
           WHEN OTHER                    OTHERWISE
            LHI R5,-3                     SET RETURN CODE
            B   R15ZERO                   GO RETURN ERROR
@@ -2222,7 +2322,7 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
            B   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
           MVC  FILETYPE,SHOWAREA+9      SAVE FILE TYPE ATTRIBUTE
-          IF   FILETYPE,(ON,TM),SAMN    IF MSAM-NOCIFORMAT
+          IF   SAMN,(ON,TF),$NOOP       IF MSAM-NOCIFORMAT
            LHI R5,-5                     SET RETURN CODE
            B   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
@@ -2243,8 +2343,8 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           ENDIF                         ENDIF
           ST   R1,FILECATR              SAVE CATALOG RPL ADDRESS
 
-          IF   FILETYPE,(NZ,TM),ESDS    IF NOT ESDS DATASET
-          AND  FILETYPE,(NO,TM),SAMD    AND NOT MSAM DATASET
+          IF   ESDS,(NZ,TF),$NOOP       IF NOT ESDS DATASET
+          AND  SAMD,(NO,TF),$NOOP       AND NOT MSAM DATASET
            IF  REQUEST,EQ,C'O'           OPEN
            AND RQARG2,NE,C'I'            INPUT
            AND RQARG2,NE,C'U'            UPDATE
@@ -2508,6 +2608,96 @@ STEMNAME_MVC MVC 0(0,R3),0(R1)         SEE SECOND EXECUTE JUST ABOVE
 * =================================================================== *
          EJECT
 * =================================================================== *
+GET_ELEM2 DS   0H            RETRIEVE A RECNAME ELEMENT
+* ------------------------------------------------------------------- *
+         ST    R5,AWORK4               SAVE RETURN ADDRESS
+*
+         MVC   VARNAME(L'RECNAME),RECNAME   MOVE IN STEM ROOT
+         LA    R5,VARNAME              POINT TO START OF VAR NAME
+         A     R5,RECNAMEL             INCR. VAR NAME ADDRESS
+         MVI   0(R5),C'.'              ADD A PERIOD
+         AHI   R5,1                    INCR. VAR NAME ADDRESS
+*
+         SHI   R2,1                    DECREMENT FOR EXECUTE
+         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         AHI   R2,1                    INCREMENT BACK
+         AR    R5,R2                   ADD TO VAR NAME ADDRESS
+         MVI   0(R5),C'.'              ADD A PERIOD
+         AHI   R5,1                    INCR. VAR NAME ADDRESS
+*
+         LR    R1,R3                   TRANSFER ELEM VALUE ADDRESS
+         LR    R2,R4                   TRANSFER ELEM VALUE LENGTH
+         SHI   R2,1                    DECREMENT FOR EXECUTE
+         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT VALUE
+         AHI   R2,1                    INCREMENT BACK
+         AR    R5,R2                   ADD TO VAR NAME ADDRESS
+*
+         LR    R4,R5                   COPY ADDRESS OF END OF NAME
+         LA    R3,VARNAME              POINT TO START OF VAR NAME
+         SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
+         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+*
+         L     R5,AWORK4               RESTORE RETURN ADDRESS
+         BR    R5                      RETURN TO CALLER
+* =================================================================== *
+         EJECT
+* =================================================================== *
+GET_STEM2 DS   0H            RETRIEVE A RECNAME VARIABLE
+* ------------------------------------------------------------------- *
+         ST    R5,AWORK4               SAVE RETURN ADDRESS
+*
+         MVC   VARNAME(L'RECNAME),RECNAME   MOVE IN STEM ROOT
+         LA    R5,VARNAME              POINT TO START OF VAR NAME
+         A     R5,RECNAMEL             INCR. VAR NAME ADDRESS
+         MVI   0(R5),C'.'              ADD A PERIOD
+         AHI   R5,1                    INCR. VAR NAME ADDRESS
+*
+         SHI   R2,1                    DECREMENT FOR EXECUTE
+         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         AHI   R2,1                    INCREMENT BACK
+         AR    R5,R2                   ADD TO VAR NAME ADDRESS
+*
+         LR    R4,R5                   COPY ADDRESS OF END OF NAME
+         LA    R3,VARNAME              POINT TO START OF VAR NAME
+         SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
+         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+*
+         L     R5,AWORK4               RESTORE RETURN ADDRESS
+         BR    R5                      RETURN TO CALLER
+* =================================================================== *
+         EJECT
+* =================================================================== *
+SET_STEM2 DS   0H            CREATE A RECNAME ELEMENT
+* ------------------------------------------------------------------- *
+         ST    R5,AWORK4               SAVE RETURN ADDRESS
+*
+         SHI   R2,1                    DECREMENT FOR EXECUTE
+         EX    R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
+         AHI   R2,1                    INCREMENT BACK
+         ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
+*
+         LR    R1,R3                   TRANSFER NAME ADDRESS
+         LR    R2,R4                   TRANSFER NAME LENGTH
+         LA    R3,VARNAME              POINT TO VAR NAME BUFFER
+         XR    R4,R4                   STARTING WITH ZERO LENGTH
+         MVC   0(L'RECNAME,R3),RECNAME   MOVE IN STEM NAME
+         A     R3,RECNAMEL             INCR. VAR NAME ADDR.
+         A     R4,RECNAMEL             INCR. VAR NAME LENGTH
+         MVI   0(R3),C'.'              ADD A PERIOD
+         AHI   R3,1                    INCR. VAR NAME ADDR.
+         AHI   R4,1                    INCR. VAR NAME LENGTH
+*
+         SHI   R2,1                    DECREMENT FOR EXECUTE
+         EX    R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
+         AHI   R2,1                    INCREMENT BACK
+         AR    R4,R2                   INCR. VAR NAME LENGTH
+         BAS   R5,SETVAR               CREATE THE VARIABLE
+*
+         L     R5,AWORK4               RESTORE RETURN ADDRESS
+         BR    R5                      RETURN TO CALLER
+* =================================================================== *
+         EJECT
+* =================================================================== *
 VSAMERRC DS    0H    PASS BACK VSAM RTN AND ERR CODES
 * ------------------------------------------------------------------- *
          ST    R5,AWORK4+4             SAVE RETURN ADDRESS
@@ -2600,6 +2790,7 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
 *        LA    R2,18(,R4)              ADD HEADER LEN TO VAR NAME LEN
 *        BAS   R5,SAYIT                GO SAY IT
 *
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -2625,6 +2816,7 @@ SAYIT    DS    0H    USE REXX "SAY" TO DISPLAY MESSAGE
 * ------------------------------------------------------------------- *
          ST    R2,SAYPARM3             PUT BUFFER LENGTH IN SAY PARM 3
 *
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SAYPARMB             GET ADDRESS OF SAY PARM BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -2646,6 +2838,7 @@ SETVAR   DS    0H            SET REXX VARIABLE VALUE
          MVI   SHVCODE,SHVSTORE        SET REQUEST CODE TO 'S'
          ST    R4,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -2674,7 +2867,7 @@ STORAGE  DS    0D
 SAVEAREA DS    18D                     STANDARD OR F4SA REG. SVAEAREA
 SALEN    DC    A(DYNALENG)
 BUFLEN   DC    A(L'RECBUF)
-SPACES   DC    CL8' '
+SPACES   DC    CL10' '
 ENDMARK  DC    XL8'FFFFFFFFFFFFFFFF'
 KMAX     DS    F                       MAXIMUM KEY LENGTH
 RMAX     DS    F                       MAXIMUM REC LENGTH
@@ -2698,6 +2891,7 @@ HIVAL    DC    256X'FF'                CHECK KEY BUFFER
 * ******************************************************************* * 00053700
 LASTFN   DC    C'_LFN'                 last function requested
 LASTFM   DC    C'_LFM'                 last failed macro name
+LASTRF   DC    C'_LRF'                 last record format requested
 VSAMRC   DC    C'_RC'                  VSAM return code
 VSAMEC   DC    C'_EC'                  VSAM error code
 VSAMFC   DC    C'_FC'                  VSAM function code

@@ -28,28 +28,28 @@ FILETBL  DSECT                         FILE TABLE ENTRY
 FILETBLE DS    0CL32                   FILE TABLE ENTRY
 FILEDD   DS    CL7
 FILEOPT  DS    XL1                     OPTION FLAGS
-FILECLUS EQU   B'10000000'             DEFINED AS CLUSTER
-FILEAIX  EQU   B'01000000'             DEFINED AS AIX
-FILEPATH EQU   B'00100000'             DEFINED AS PATH
-FILESEQU EQU   B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
-FILEAPND EQU   B'00000010'             OPENED FOR APPEND
-FILEUPDT EQU   B'00000001'             OPENED FOR UPDATE
+FILECLUS DF    B'10000000'             DEFINED AS CLUSTER
+FILEAIX  DF    B'01000000'             DEFINED AS AIX
+FILEPATH DF    B'00100000'             DEFINED AS PATH
+FILESEQU DF    B'00000100'             ACCESS IS SEQUENTIAL VS. DIRECT
+FILEAPND DF    B'00000010'             OPENED FOR APPEND
+FILEUPDT DF    B'00000001'             OPENED FOR UPDATE
 FILECAT  DS    F                       MY CAT ACB ADDRESS
 FILECATR DS    F                       MY CAT RPL ADDRESS
 FILEACB  DS    F                       MY ACB BASE ADDRESS
 FILERPL  DS    F                       MY RPL BASE ADDRESS
 FILETYPE DS    XL1                     ATTRIBUTE FLAGS
-ESDS     EQU   B'01111000'             ENTRY-SEQUENCED (REVERSED)
-KSDS     EQU   B'01000000'             KEY-SEQUENCED
-RRDS     EQU   B'00001000'             RELATIVE-RECORD
-VRDS     EQU   B'01001000'             VARIABLE-RELATIVE
-SAMD     EQU   B'00010000'             MSAM CIFORMAT DATASET
-SAME     EQU   B'00010000'             MSAM-EXPLICIT DEFINE
-SAMI     EQU   B'10010000'             MSAM-IMPLICIT DEFINE
-SAMN     EQU   B'00100000'             MSAM-NOCIFORMAT
-SAMB     EQU   B'00000100'             MSAM-BLOCKED
-SAMV     EQU   B'00000010'             MSAM-VARIABLE
-SAMF     EQU   B'00000001'             MSAM-FIXED
+ESDS     DF    B'01111000'             ENTRY-SEQUENCED (REVERSED)
+KSDS     DF    B'01000000'             KEY-SEQUENCED
+RRDS     DF    B'00001000'             RELATIVE-RECORD
+VRDS     DF    B'01001000'             VARIABLE-RELATIVE
+SAMD     DF    B'00010000'             MSAM CIFORMAT DATASET
+SAME     DF    B'00010000'             MSAM-EXPLICIT DEFINE
+SAMI     DF    B'10010000'             MSAM-IMPLICIT DEFINE
+SAMN     DF    B'00100000'             MSAM-NOCIFORMAT
+SAMB     DF    B'00000100'             MSAM-BLOCKED
+SAMV     DF    B'00000010'             MSAM-VARIABLE
+SAMF     DF    B'00000001'             MSAM-FIXED
 FILEDCI  DS    XL3                     CATALOG DATA COMP. CI NUMBER
          DS    XL1
 FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
@@ -77,18 +77,23 @@ EWORK    DS    CL34                    EDITED WORK FIELD
 CWORK    DS    CL34                    CHARACTER WORK FIELD
 *
 SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SAYPARM1 DS    CL8                     'WRITE   '
 SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
 SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
 *
+SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
 SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
 SHVPARM1 DS    CL8                     'ARXEXCOM'
 SHVPARM2 DS    XL4
 SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
 *
 DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     STEM NAME
+DDNAME   DS    CL8                     BASE STEM NAME
 REQUEST  DS    CL8                     ACCESS REQUEST
+RECNAMEL DS    F                       STEM NAME LENGTH
+RECNAME  DS    CL10                    RECORD NAME STEM
 RQARG2   DS    CL8                     REQUEST ARGUMENT 2
 RQARG3   DS    CL8                     REQUEST ARGUMENT 3
 *
@@ -99,31 +104,13 @@ RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
 CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
 SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
 CINUM    DS    XL3                     CATALOG CI NUMBER
+         DS    0F
 VARDATA  DS    CL256                   VARIABLE VALUE
 VARNAME  DS    CL256                   VARIABLE NAME
 SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
 PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
 *
-DTEPLIST DS    A                       DTEMAN PLIST
-DTEPARMS DS    0CL32                   DTEMAN PARMS
-DTEREQU  DS    CL1                     REQUEST CODE
-DTERETN  DS    CL1                     RETURN CODE
-DTEGREG  DS    0CL10                   GREGORIAN DATE
-DTEG_FIL DS    CL2                       00
-DTEG_MC  DS    CL2                       CC
-DTEG_YY  DS    CL2                       YY
-DTEG_MM  DS    CL2                       MM
-DTEG_DD  DS    CL2                       DD
-DTEJULN  DS    0CL8                    JULIAN DATE
-DTEJ_FIL DS    CL1                       0
-DTEJ_MC  DS    CL2                       CC
-DTEJ_YY  DS    CL2                       YY
-DTEJ_DDD DS    CL3                       DDD
-DTETOTD  DS    PL4                     TOTAL DAYS
-DTEMNTH  DS    PL2                     MONTH NUMBER (01-12, beg:JAN)
-DTEDAYN  DS    PL1                     DAY NUMBER (1-7, beg:SUNDAY)
-DTELEAP  DS    CL1                     LEAP YEAR INDICATOR (Y/N)
-DTEWORK  DS    PL4                     DTEMAN WORK AREA
+         COPY  DTEMANA
 *
          DS    0D                      ALIGN TRANSLATE TABLE
 TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
@@ -465,9 +452,9 @@ GET_ELEM DS    0H            RETRIEVE A STEM ELEMENT ENTRY
          LA    R5,VARNAME              POINT TO VAR NAME BUFFER
          XR    R6,R6                   STARTING WITH ZERO LENGTH
 *
-         MVC   0(L'DDNAME,R5),DDNAME   MOVE IN STEM ROOT
-         A     R5,DDNLENG              INCR. VAR NAME ADDR.
-         A     R6,DDNLENG              INCR. VAR NAME LENGTH
+         MVC   0(L'RECNAME,R5),RECNAME MOVE IN RECNAME STEM ROOT
+         A     R5,RECNAMEL             INCR. VAR NAME ADDR.
+         A     R6,RECNAMEL             INCR. VAR NAME LENGTH
          MVI   0(R5),C'.'              ADD A PERIOD
          AHI   R5,1                    INCR. VAR NAME ADDR.
          AHI   R6,1                    INCR. VAR NAME LENGTH
@@ -870,6 +857,7 @@ SET_LENG DS    0H    STRIP END OF R1 DATA AREA && RETURN R2 LENGTH
 GETVAR   DS    0H            GET REXX VARIABLE VALUE
 * ------------------------------------------------------------------- *
          MVI   SHVCODE,SHVFETCH        SET REQUEST CODE TO 'F'
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -895,6 +883,7 @@ GETVAR   DS    0H            GET REXX VARIABLE VALUE
 SETVAR   DS    0H            SET REXX VARIABLE VALUE
 * ------------------------------------------------------------------- *
          MVI   SHVCODE,SHVSTORE        SET REQUEST CODE TO 'S'
+         L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R6,EPVECTOR             GET REXX VECTOR TABLE ADDRESS
          USING ARXEXTE,R6              TEMPORARY ADRESSABILITY
@@ -938,7 +927,7 @@ VALIDATE DC    256XL1'01'                                               00020100
          ORG   VALIDATE+C'0'
          DC    X'00000000000000000000' DIGITS ALLOWED
          ORG
-SPACES   DC    CL8' '
+SPACES   DC    CL10' '
 EMAX     DS    H                       MAXIMUM NO. OF ELEMENTS
 KMAX     DS    H                       MAXIMUM KEY LENGTH
 *
