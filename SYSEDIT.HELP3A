@@ -1,0 +1,95 @@
+* layout of help3a -- header and footer done in main procedure                  
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                       Member Update                         hh:mm xx 
+*                                                                               
+*Shortcuts: (entered in the command area at the left of the source lines)       
+*                                                                               
+*I(n) adds (inserts) one or more blank   L(n),LL                                
+*   lines after this line.               U(n),UU translates one or more lines   
+*D(n),DD removes this line (plus n-1        to lowercase or to uppercase.       
+*   more) from the member.                                                      
+*                                        "(n) duplicates the indicated line one 
+*C(n),CC places this line (plus n-1         or more times.                      
+*   more) onto the FIFO queue.                                                  
+*M(n),MM combines the C and D shortcuts  >(n),>>(n) shifts the content of the   
+*   to place this line (plus n-1 more)      indicated line(s) by "n" number of  
+*   onto the FIFO queue and remove          columns to the right.               
+*   them at the same time.               <(n),<<(n) shifts the content of the   
+*                                           indicated line(s) by "n" number of  
+*A(n) inserts all, or "n" number of,        columns to the left.                
+*   queue lines after this line.                                                
+*B(n) inserts all, or "n" number of,     Note that the above two commands may   
+*   queue lines before this line.        cause truncation of line content.      
+*&MSG                                                                           
+*PF:           3=End                                                            
+*                                             8=Forward                         
+*Freeform (with placeholder):  (add 1 to column if NO_FLD attr)                 
+*                              (use  %%%  to reset NO_FLD attr)                 
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+04 001 ASKIP_BRT .   WHITE .   Shortcuts:                                       
+04 012 .         .   TURQU .   (entered in the command area                     
+04 041 .         .   TURQU .   at the left of the source lines)                 
+*                                                                               
+* column 1                                                                      
+06 001 ASKIP_BRT YES WHITE .   I(n)                                             
+06 006 .         .   GREEN .   adds (inserts) one or more blank                 
+07 004 .         .   GREEN .   lines after this line.                           
+08 001 ASKIP_BRT .   WHITE .   D(n)                                             
+08 006 NO_FLD    .   GREEN .   ,                                                
+08 007 NO_FLD    .   WHITE .   DD%%%                                            
+08 009 .         .   GREEN .   removes this line (plus n-1                      
+09 004 .         .   GREEN .   more) from the member.                           
+*                                                                               
+11 001 ASKIP_BRT .   WHITE .   C(n)                                             
+11 006 NO_FLD    .   GREEN .   ,                                                
+11 007 NO_FLD    .   WHITE .   CC%%%                                            
+11 009 .         .   GREEN .   places this line (plus n-1                       
+12 004 .         .   GREEN .   more) onto the FIFO queue.                       
+13 001 ASKIP_BRT .   WHITE .   M(n)                                             
+13 006 NO_FLD    .   GREEN .   ,                                                
+13 007 NO_FLD    .   WHITE .   MM%%%                                            
+13 009 .         .   GREEN .   combines the C and D shortcuts                   
+14 004 .         .   GREEN .   to place this line (plus n-1 more)               
+15 004 .         .   GREEN .   onto the FIFO queue and remove                   
+16 004 .         .   GREEN .   them at the same time.                           
+*                                                                               
+18 001 ASKIP_BRT .   WHITE .   A(n)                                             
+18 006 .         .   GREEN .   inserts all, or "n" number of,                   
+19 004 .         .   GREEN .   queue lines after this line.                     
+20 001 ASKIP_BRT .   WHITE .   B(n)                                             
+20 006 .         .   GREEN .   inserts all, or "n" number of,                   
+21 004 .         .   GREEN .   queue lines before this line.                    
+*                                                                               
+* column 2                                                                      
+06 041 ASKIP_BRT .   WHITE .   L(n)                                             
+06 046 NO_FLD    .   GREEN .   ,                                                
+06 047 NO_FLD    .   WHITE .   LL%%%                                            
+07 041 ASKIP_BRT .   WHITE .   U(n)                                             
+07 046 NO_FLD    .   GREEN .   ,                                                
+07 047 NO_FLD    .   WHITE .   UU%%%                                            
+07 049 .         .   GREEN .   translates one or more lines                     
+08 044 .         .   GREEN .   to lowercase or to uppercase.                    
+*                                                                               
+10 041 ASKIP_BRT .   WHITE .   "(n)                                             
+10 046 .         .   GREEN .   duplicates the indicated line                    
+11 044 .         .   GREEN .   one or more times.                               
+*                                                                               
+13 041 ASKIP_BRT .   WHITE .   >(n)                                             
+13 046 NO_FLD    .   GREEN .   ,                                                
+13 047 NO_FLD    .   WHITE .   >>(n)%%%                                         
+13 052 .         .   GREEN .   shifts the content of the                        
+14 044 .         .   GREEN .   indicated line(s) by "n" number of               
+15 044 .         .   GREEN .   columns to the right.                            
+16 041 ASKIP_BRT .   WHITE .   <(n)                                             
+16 046 NO_FLD    .   GREEN .   ,                                                
+16 047 NO_FLD    .   WHITE .   <<(n)%%%                                         
+16 052 .         .   GREEN .   shifts the content of the                        
+17 044 .         .   GREEN .   indicated line(s) by "n" number of               
+18 044 .         .   GREEN .   columns to the left.                             
+*                                                                               
+20 041 ASKIP_BRT .   WHITE .   Note                                             
+20 046 .         .   GREEN .   that the above two commands may                  
+21 044 .         .   GREEN .   cause truncation of line content.                
+*                                                                               

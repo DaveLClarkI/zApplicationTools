@@ -1,0 +1,65 @@
+* layout of help1b -- header and footer are done in main procedure              
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                    Sublibrary Selection                     hh:mm xx 
+*                                                                               
+*Program Function Keys:                                                         
+*1=Help displays these Help panels.      12=Refresh the sublibrary listing.     
+*                                           In other words, though the presence 
+*3=Exit completely from this                of new and deleted sublibraries     
+*   application.                            (created or deleted from that       
+*                                           screen) are immediately reflected   
+*5=Find a sublibrary based on the full      in the listing, sublibrary          
+*   or partial information entered in       statistics are not re-accessed for  
+*   the Sublibrary input field.             display until this key is pressed.  
+*                                                                               
+*6=Top                                                                          
+*9=Bottom displays the first or last                                            
+*   page of the sublibrary listing.                                             
+*                                                                               
+*7=Forward                                                                      
+*8=Backward scrolls forward or backward                                         
+*   through the pages of the sublibrary                                         
+*   listing.                                                                    
+*&MSG                                                                           
+*PF:           3=End                          7=Backward                        
+*                                                                               
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+* column 1                                                                      
+04 001 ASKIP_BRT .   WHITE .   Program Function Keys:                           
+05 001 ASKIP_BRT YES WHITE .   1=Help                                           
+05 008 .         .   GREEN .   displays these Help panels.                      
+*                                                                               
+07 001 ASKIP_BRT .   WHITE .   3=Exit                                           
+07 008 .         .   GREEN .   completely from this                             
+08 004 .         .   GREEN .   application.                                     
+*                                                                               
+10 001 ASKIP_BRT .   WHITE .   5=Find                                           
+10 008 .         .   GREEN .   a sublibrary based on the full                   
+11 004 .         .   GREEN .   or partial information entered in                
+12 004 .         .   GREEN .   the Sublibrary input field.                      
+*                                                                               
+14 001 ASKIP_BRT .   WHITE .   6=Top                                            
+15 001 ASKIP_BRT .   WHITE .   9=Bottom                                         
+15 010 .         .   GREEN .   displays the first or last                       
+16 004 .         .   GREEN .   page of the sublibrary listing.                  
+*                                                                               
+18 001 ASKIP_BRT .   WHITE .   7=Forward                                        
+19 001 ASKIP_BRT .   WHITE .   8=Backward                                       
+19 012 .         .   GREEN .   scrolls forward or backward                      
+20 004 .         .   GREEN .   through the pages of the sublibrary              
+21 004 .         .   GREEN .   listing.                                         
+*                                                                               
+* column 2                                                                      
+05 041 ASKIP_BRT .   WHITE .   12=Refresh                                       
+05 052 .         .   GREEN .   the sublibrary listing.                          
+06 044 .         .   GREEN .   In other words, though the presence              
+07 044 .         .   GREEN .   of new and deleted sublibraries                  
+08 044 .         .   GREEN .   (created or deleted from that                    
+09 044 .         .   GREEN .   screen) are immediately reflected                
+10 044 .         .   GREEN .   in the listing, sublibrary                       
+11 044 .         .   GREEN .   statistics are not re-accessed for               
+12 044 .         .   GREEN .   display until this key is pressed.               
+*                                                                               

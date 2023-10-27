@@ -49,7 +49,7 @@ RX3270IO RMODE 24
 *                                                                     *
 *             /* initialize REXX program with 3270 literals */        *
 *   Call RX3270IN;                                                    *
-*   If rc ¬= 0 Then Do                                                *
+*   If rc <> 0 Then Do                                                *
 *     Say " RX3270IN call error: rc = "rc", result = "result;         *
 *     Exit 4;                                                         *
 *   End                                                               *
@@ -60,7 +60,7 @@ RX3270IO RMODE 24
 *                                                                     *
 *             /* initialize stem variable with device attributes */   *
 *   Call RX3270IO 'QUERY','map.';                                     *
-*   If rc ¬= 0 Then Do                                                *
+*   If rc <> 0 Then Do                                                *
 *     Say " RX3270IO Query error: rc = "rc", result = "result;        *
 *     Exit 4;                                                         *
 *   End                                                               *
@@ -88,18 +88,18 @@ RX3270IO RMODE 24
 *   map.n.output = '';                                                *
 *                                                                     *
 *             /* begin I/O processing */                              *
-*   Do Until map.my_field.input ¬= ''                                 *
+*   Do Until map.my_field.input <> ''                                 *
 *     Call RX3270IO 'ERWRT','map.';      /* send the map */           *
-*     If rc ¬= 0 Then Do                                              *
+*     If rc <> 0 Then Do                                              *
 *       Say " RX3270IO Write error: rc = "rc", result = "result;      *
 *       Exit 4;                                                       *
 *     End                                                             *
 *     Call RX3270IO 'READM','map.';      /* receive the map */        *
-*     If rc ¬= 0 Then Do                                              *
+*     If rc <> 0 Then Do                                              *
 *       Say " RX3270IO Read error: rc = "rc", result = "result;       *
 *       Exit 4;                                                       *
 *     End                                                             *
-*     If map._aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;           *
+*     If map._aid == RX3270_AID.LIT_CLEAR_KEY Then Leave;             *
 *   End                                                               *
 *             /* end of I/O processing */                             *
 *   Say " Name = "map.my_field.input;                                 *
@@ -141,17 +141,28 @@ RX3270IO RMODE 24
 *                                                                     *
 *   ..._lun     supplies the numeric portion (in binary) of the       *
 *                 assigned programmer logical unit no. (e.g., SYS000) *
-*                 for any I/O operations using this map definition,   *
+*                 for any I/O operations using this map definition;   *
 *   ..._ccc     for 'WRTDS', supplies the full pre-formatted outgoing *
-*                 datastream (first char. is channel command code),   *
+*                 datastream (first char. is channel command code);   *
 *   ..._wcc     supplies the write control character for any          *
-*                 write operations (except 'WRTDS'),                  *
-*   ...n.attrib specifies 4-bytes for the attribute values of the     *
-*                 field, cursor, color, and hilite attributes, and    *
+*                 write operations (except 'WRTDS');                  *
+*   ...n.attrib specifies 4-bytes for the values of the (1) field,    *
+*                 (2) cursor, (3) color, and (4) hilite attributes    *
+*                 (always in that specific order); and,               *
 *   ...n.output specifies the field output data for display.          *
 *                                                                     *
-* Note that 'n' (above) is a RX3270FN-generated field name in the     *
-* format of 'FNnnnn': where, 'nnnn' is the 3270 buffer position.      *
+* Note that 'n' (above)  is  a  RX3270FN-generated field name with an *
+* "FNnnnn" format:  where, 'nnnn' is the 3270 buffer position.   This *
+* format is critical as this function gathers up the stem.FN* entries *
+* to build the output map and to parse the input map.                 *
+*                                                                     *
+* Also note that although the  attribute variable must always be four *
+* bytes in length, the extended color and hilite will only be used if *
+* the queried device indicates that they are supported.  Also, if the *
+* first byte is binary zero (to  indicated there should be no field), *
+* then this function uses  the  SET_ATTRIBUTE order instead of either *
+* START_FIELD or  START_FIELD_EXTENDED  --  but,  again,  only if the *
+* queried device indicates that extended attributes are supported.    *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -736,30 +747,48 @@ RX3270IO HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)MAR04',            X
              B  RETERR                    GO RETURN ERROR
             ENDIF                        ENDIF
 
-            MVC 0(L'SCRSETBA,R6),SCRSETBA  PUT IN SCREEN BUFFER
-            LA  R6,L'SCRSETBA(,R6)         ADD TO BUFFER POINTER
-            LA  R7,L'SCRSETBA(,R7)          AND TO BUFFER LENGTH
+            MVC 0(L'SCRSETBA,R6),SCRSETBA  PUT ORD IN SCREEN BUFFER
+            LA  R6,L'SCRSETBA(,R6)       ADD TO BUFFER POINTER
+            LA  R7,L'SCRSETBA(,R7)        AND TO BUFFER LENGTH
 
-            STH R8,0(,R6)                  PUT IN SCREEN BUFFER
-            LA  R6,2(,R6)                  ADD TO BUFFER POINTER
-            LA  R7,2(,R7)                   AND TO BUFFER LENGTH
+            STH R8,0(,R6)                PUT ADR IN SCREEN BUFFER
+            LA  R6,2(,R6)                ADD TO BUFFER POINTER
+            LA  R7,2(,R7)                 AND TO BUFFER LENGTH
 
             IF  SET_EXC,(NOT,TF),$NOOP,OR,SET_EXH,(NOT,TF),$NOOP
-             MVC 0(L'SCRSTFLD,R6),SCRSTFLD PUT IN SCREEN BUFFER
-             MVC 1(1,R6),VARDATA+0         PUT IN SCREEN BUFFER
+             MVC 0(L'SCRSTFLD,R6),SCRSTFLD PUT ORD IN SCREEN BUFFER
+             MVC 1(1,R6),VARDATA+0         PUT ATR IN SCREEN BUFFER
              LA R6,L'SCRSTFLD(,R6)         ADD TO BUFFER POINTER
              LA R7,L'SCRSTFLD(,R7)          AND TO BUFFER LENGTH
             ELSE
-             MVC 0(L'SCRSTFEX,R6),SCRSTFEX PUT IN SCREEN BUFFER
-             MVC 3(1,R6),VARDATA+0         PUT IN SCREEN BUFFER
-             MVC 5(1,R6),VARDATA+2         PUT IN SCREEN BUFFER
-             MVC 7(1,R6),VARDATA+3         PUT IN SCREEN BUFFER
-             LA R6,L'SCRSTFEX(,R6)         ADD TO BUFFER POINTER
-             LA R7,L'SCRSTFEX(,R7)          AND TO BUFFER LENGTH
+             IF VARDATA+0,EQ,X'00'        IF NO FIELD ATTRIBUTE
+              IF VARDATA+2,EQ,X'00',AND,VARDATA+3,EQ,X'00'
+               MVC 0(L'SCRSETAC,R6),SCRSETAC PUT ORD IN SCREEN BUFFER
+               MVC 1(2,R6),=x'0000'          PUT ALL IN SCREEN BUFFER
+               LA R6,L'SCRSETAC(,R6)         ADD TO BUFFER POINTER
+               LA R7,L'SCRSETAC(,R7)          AND TO BUFFER LENGTH
+              ELSE
+               MVC 0(L'SCRSETAC,R6),SCRSETAC PUT ORD IN SCREEN BUFFER
+               MVC 2(1,R6),VARDATA+2         PUT CLR IN SCREEN BUFFER
+               LA R6,L'SCRSETAC(,R6)         ADD TO BUFFER POINTER
+               LA R7,L'SCRSETAC(,R7)          AND TO BUFFER LENGTH
+               MVC 0(L'SCRSETAH,R6),SCRSETAH PUT ORD IN SCREEN BUFFER
+               MVC 2(1,R6),VARDATA+3         PUT HLT IN SCREEN BUFFER
+               LA R6,L'SCRSETAH(,R6)         ADD TO BUFFER POINTER
+               LA R7,L'SCRSETAH(,R7)          AND TO BUFFER LENGTH
+              ENDIF
+             ELSE                         ELSE START FIELD EXTENDED
+              MVC 0(L'SCRSTFEX,R6),SCRSTFEX PUT ORD IN SCREEN BUFFER
+              MVC 3(1,R6),VARDATA+0         PUT ATR IN SCREEN BUFFER
+              MVC 5(1,R6),VARDATA+2         PUT CLR IN SCREEN BUFFER
+              MVC 7(1,R6),VARDATA+3         PUT HLT IN SCREEN BUFFER
+              LA R6,L'SCRSTFEX(,R6)         ADD TO BUFFER POINTER
+              LA R7,L'SCRSTFEX(,R7)          AND TO BUFFER LENGTH
+             ENDIF
             ENDIF
 
             IF  VARDATA+1(1),(EQ,CLC),SCRCURSR
-             MVC 0(L'SCRCURSR,R6),SCRCURSR PUT IN SCREEN BUFFER
+             MVC 0(L'SCRCURSR,R6),SCRCURSR PUT ORD IN SCREEN BUFFER
              LA R6,L'SCRCURSR(,R6)         ADD TO BUFFER POINTER
              LA R7,L'SCRCURSR(,R7)          AND TO BUFFER LENGTH
             ENDIF
@@ -1428,7 +1457,9 @@ LCLWRSTR DC    X'11'              LOCAL  CC=(WRITE,STRUCTURED)
 AIDNOAID DC    X'60'              NO AID GENERATED (NO DATA TO READ)
 SCRSETBA DC    X'11'              SET BUFFER ADDRESS + 2-BYTE ADDRESS
 SCRCURSR DC    X'13'              INSERT CURSOR
-SCRSTFLD DC    X'1D00'            SF  + ATTRIBUTE
+SCRSTFLD DC    X'1D00'            SF + ATTRIBUTE
+SCRSETAC DC    X'284200'          SA + TYPE-VALUE PAIR
+SCRSETAH DC    X'284100'          SA + TYPE-VALUE PAIR
 SCRSTFEX DC    X'2903C00042004100' SFE + COUNT + TYPE-VALUE PAIRS
          SPACE 3
 * ******************************************************************* *

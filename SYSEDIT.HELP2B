@@ -1,0 +1,65 @@
+* layout of help2b -- header and footer are done in main procedure              
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                      Member Selection                       hh:mm xx 
+*                                                                               
+*Program Function Keys:                                                         
+*1=Help displays these Help panels.      12=Refresh the member listing.         
+*                                           In other words, though the presence 
+*3=End the member listing and go back       of new and deleted members          
+*   to the sublibrary listing.              (created or deleted from that       
+*                                           screen) are immediately reflected   
+*5=Find a member or type based upon the     in the listing, member statistics   
+*   full or partial information entered     are not re-accessed for display     
+*   in the Member.type input field.         until this key is pressed.          
+*                                                                               
+*6=Top                                                                          
+*9=Bottom displays the first or last                                            
+*   page of the member listing.                                                 
+*                                                                               
+*7=Forward                                                                      
+*8=Backward scrolls forward or backward                                         
+*   through the pages of the member                                             
+*   listing.                                                                    
+*&MSG                                                                           
+*PF:           3=End                          7=Backward                        
+*                                                                               
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+* column 1                                                                      
+04 001 ASKIP_BRT .   WHITE .   Program Function Keys:                           
+05 001 ASKIP_BRT YES WHITE .   1=Help                                           
+05 008 .         .   GREEN .   displays these Help panels.                      
+*                                                                               
+07 001 ASKIP_BRT .   WHITE .   3=End                                            
+07 007 .         .   GREEN .   the member listing and go back                   
+08 004 .         .   GREEN .   to the sublibrary listing.                       
+*                                                                               
+10 001 ASKIP_BRT .   WHITE .   5=Find                                           
+10 008 .         .   GREEN .   a member or type based upon the                  
+11 004 .         .   GREEN .   full or partial information entered              
+12 004 .         .   GREEN .   in the Member.type input field.                  
+*                                                                               
+14 001 ASKIP_BRT .   WHITE .   6=Top                                            
+15 001 ASKIP_BRT .   WHITE .   9=Bottom                                         
+15 010 .         .   GREEN .   displays the first or last                       
+16 004 .         .   GREEN .   page of the member listing.                      
+*                                                                               
+18 001 ASKIP_BRT .   WHITE .   7=Forward                                        
+19 001 ASKIP_BRT .   WHITE .   8=Backward                                       
+19 012 .         .   GREEN .   scrolls forward or backward                      
+20 004 .         .   GREEN .   through the pages of the member                  
+21 004 .         .   GREEN .   listing.                                         
+*                                                                               
+* column 2                                                                      
+05 041 ASKIP_BRT .   WHITE .   12=Refresh                                       
+05 052 .         .   GREEN .   the member listing.                              
+06 044 .         .   GREEN .   In other words, though the presence              
+07 044 .         .   GREEN .   of new and deleted members                       
+08 044 .         .   GREEN .   (created or deleted from that                    
+09 044 .         .   GREEN .   screen) are immediately reflected                
+10 044 .         .   GREEN .   in the listing, member statistics                
+11 044 .         .   GREEN .   are not re-accessed for display                  
+12 044 .         .   GREEN .   until this key is pressed.                       
+*                                                                               

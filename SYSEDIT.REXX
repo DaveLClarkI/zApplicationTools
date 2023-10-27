@@ -21,6 +21,7 @@
 /* // SETPFIX LIMIT=8K         /* for online use, only */            */
 /* // EXEC REXX=SYSEDIT,SIZE=256K<,PARM='{ONLINE|BATCH}'>            */
 /*                                        ¯¯¯¯¯¯                     */
+/*      See separate member SYSEDIT.DOC for additional information.  */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -75,307 +76,11 @@
 /*                 member content into the RDR queue.            */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                   */
-/*         MODULE, FUNCTION, and SUBROUTINE Cross-Reference          */
-/*         ------------------------------------------------          */
-/*                                                                   */
-/* MAINLINE MODULES                                                  */
-/* ----------------                                                  */
-/* Map0_Processing           (Index: 994)                            */
-/*             prompts for a library specification.                  */
-/*                                                                   */
-/* Map1_Processing           (Index: 1034)                           */
-/*             prompts for a sublibrary selection.                   */
-/*             Optionally, this process also supports sublibrary     */
-/*             create and delete.                                    */
-/*                                                                   */
-/* Map2_Processing           (Index: 1160)                           */
-/*             prompts for a member selection.                       */
-/*             Optionally, this process also supports member         */
-/*             create, delete, copy, move, and rename.               */
-/*                                                                   */
-/* Map3_Processing           (Index: 1297)                           */
-/*             prompts for member editing.                           */
-/*             Optionally, this process also supports member         */
-/*             submit to POWER.                                      */
-/*                                                                   */
-/* GENERAL ROUTINES                                                  */
-/* ----------------                                                  */
-/* Dump                      (Index: 1399)                           */
-/*             invokes RXDMPVAR to dump all REXX variables for       */
-/*             sorted (SHAKESRT) output to SYSLST.                   */
-/*                                                                   */
-/* IFF                       (Index: 1416)                           */
-/*             is an in-line IF function.                            */
-/*             Arguments:  (all are optional)                        */
-/*                 Boolean condition                                 */
-/*                 value to return if boolean condition is true      */
-/*                 value to return if boolean condition is false     */
-/*                                                                   */
-/* MakeStem                  (Index: 1427)                           */
-/*             is a subroutine to automatically create stem variable */
-/*             Arguments:  (at least the first one is required)      */
-/*                 stem name to create (must include the period)     */
-/*                 one or more comma-separated values to assign to   */
-/*                   sequentially numbered stem variables.           */
-/*                                                                   */
-/* ParseCommandString        (Index: 1440)                           */
-/*             is a subroutine to handle quoted command operands.    */
-/*             Arguments:  (required)                                */
-/*                 string  (format: command oper1 oper2 oper3 ...)   */
-/*                                                                   */
-/* INPUT-OUTPUT ROUTINES                                             */
-/* ---------------------                                             */
-/* Screen_IO                 (Index: 1469)                           */
-/*             erases the screen, writes the specified map to the    */
-/*             screen, and performs a read-modified operation.       */
-/*             Arguments:  (required)                                */
-/*                 stem name of the current map.                     */
-/*                                                                   */
-/* Converse                  (Index: 1483)                           */
-/*             writes supplied argument string to row 22 column 1    */
-/*             and optionally accepts unparsed input data.           */
-/*             Arguments:  (first one is required)                   */
-/*                 output string to write                            */
-/*                 length of optional input                          */
-/*             Note that, except for AID byte and cursor position,   */
-/*                 the optional input data is not parsed and must be */
-/*                 retrieved from the RAW stem variable for the map. */
-/*                                                                   */
-/* Help                      (Index: 1510)                           */
-/*             presents as many pages of the specified help map as   */
-/*             requested by the user.                                */
-/*             Arguments:  (required)                                */
-/*                 group number for the help map(s) to display.      */
-/*                                                                   */
-/* VSE LIBRARY INTERFACE ROUTINES                                    */
-/* ------------------------------                                    */
-/* ListDir_Successful        (Index: 1583)                           */
-/*             function returns a Boolean value as to the success or */
-/*             failure of listing the contents of the specified      */
-/*             library or sublibrary name.                           */
-/*             Arguments:  (required)                                */
-/*                 library or sublibrary name to list.               */
-/*                 Note that this argument must be prefixed by       */
-/*                 "L=" or "S=" to indicate a library or sublibrary. */
-/*                                                                   */
-/* ListMbr_Successful        (Index: 1606)                           */
-/*             function returns a Boolean value as to the success or */
-/*             failure of listing the contents of the specified      */
-/*             sublibrary name.                                      */
-/*             Arguments:  (required)                                */
-/*                 member name selection,                            */
-/*                 sublibrary name to access.                        */
-/*                                                                   */
-/* NewMember                 (Index: 1639)                           */
-/*             prompts for the creation of a new member and returns  */
-/*             a Boolean value on its creation success or failure.   */
-/*             Arguments:  (required)                                */
-/*                 member name to create,                            */
-/*                 sublibrary name to access.                        */
-/*                                                                   */
-/* NewSublibrary             (Index: 1662)                           */
-/*             prompts for the creation of a new sublibrary and      */
-/*             returns a Boolean value on its success or failure.    */
-/*             Arguments:  (required)                                */
-/*                 sublibrary name to create,                        */
-/*                                                                   */
-/* OperationFailed           (Index: 1674)                           */
-/*             invokes LIBR to perform the requested operation and   */
-/*             returns a Boolean value on its success or failure.    */
-/*             Arguments:  (first two are required)                  */
-/*                 operation name,                                   */
-/*                 object on which to perform the operation,         */
-/*                 object in which the operation is performed.       */
-/*                                                                   */
-/* EDIT COMMAND ROUTINES                                             */
-/* ---------------------                                             */
-/* SetTopOfMember            (Index: 1715)                           */
-/*             sets the internal record pointer to the first record  */
-/*             in the internal virtual member.                       */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* SetRecordPointer          (Index: 1720)                           */
-/*             sets the internal record pointer to the argument      */
-/*             record number in the internal virtual member.         */
-/*             Arguments:  (required)                                */
-/*                 line number to position at top of screen.         */
-/*                                                                   */
-/* ResetLocationPointer      (Index: 1728)                           */
-/*             sets the internal location pointer to the beginning   */
-/*             of the current line in the virtual member.            */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* ResetSourceString         (Index: 1733)                           */
-/*             clears the internal source string buffer.             */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* ReadMember                (Index: 1737)                           */
-/*             loads the content of the current VSE Library member   */
-/*             into an internal virtual member.                      */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* WriteMember               (Index: 1751)                           */
-/*             saves the content of the internal virtual member into */
-/*             the current VSE Library member.                       */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* LineAdd                   (Index: 1764)                           */
-/*             inserts a new line into the internal virtual member   */
-/*             and optionally initializes it with a supplied string. */
-/*             Arguments:  (optional)                                */
-/*                 string to initialize new line of virtual member.  */
-/*                                                                   */
-/* LineDrop                  (Index: 1783)                           */
-/*             removes a line from the internal virtual member.      */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* ProcessLineCommands       (Index: 1802)                           */
-/*             processes line commands captured in SaveBodyData.     */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* SubmitMember              (Index: 2172)                           */
-/*             submits the content of the internal virtual member    */
-/*             to VSE/POWER for subsequent processing.               */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* HELPER ROUTINES FOR SCROLLABLE MAPS                               */
-/* -----------------------------------                               */
-/* CursorPosition            (Index: 2193)                           */
-/*             function accepts a zero-offset buffer position for    */
-/*             the cursor and returns the row and column numbers.    */
-/*             Arguments:  (first two are required)                  */
-/*                 buffer-offset-type cursor position                */
-/*                 maximum columns per screen size,                  */
-/*                 optional number of map header rows to subtract    */
-/*                                                                   */
-/* Map1HasSelections         (Index: 2200)                           */
-/*             finds and processes any detail line selections for    */
-/*             Map1.  Returns a Boolean response if any found.       */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* Map2HasSelections         (Index: 2247)                           */
-/*             finds and processes any detail line selections for    */
-/*             Map2.  Returns a Boolean response if any found.       */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* RebuildMap1Detail         (Index: 2341)                           */
-/*             sorts the detail lines for Map1, removing any lines   */
-/*             flagged as deleted, and optionally searches the list  */
-/*             for the specified sublibrary argument named.          */
-/*             Arguments:  (optional)                                */
-/*                 sublibrary name to position to top of detail area */
-/*                                                                   */
-/* RebuildMap2Detail         (Index: 2359)                           */
-/*             sorts the detail lines for Map2, removing any lines   */
-/*             flagged as deleted, and optionally searches the list  */
-/*             for the specified member argument named.              */
-/*             Arguments:  (optional)                                */
-/*                 member name to position to top of detail area     */
-/*                                                                   */
-/* SaveBodyData              (Index: 2378)                           */
-/*             transfers screen data from the body of Map3 into the  */
-/*             internal buffer for the member currently under edit.  */
-/*             Arguments:  (none)                                    */
-/*                                                                   */
-/* HELPER ROUTINES FOR BUILDING MAPS                                 */
-/* ---------------------------------                                 */
-/* BuildAttribute            (Index: 2409)                           */
-/*             function returns 4-byte field attribute value --      */
-/*             for use when calling the BuildField subroutine.       */
-/*             Arguments: (all optional -- defaults provided)        */
-/*                 field attribute selection,                        */
-/*                 cursor option selection,                          */
-/*                 extended color selection,                         */
-/*                 extended hilight selection.                       */
-/*                                                                   */
-/* BuildField                (Index: 2421)                           */
-/*             subroutine creates stem variables for a map field --  */
-/*             called by the BuildHeader & BuildTrailer subroutines. */
-/*             Arguments: (all required -- except for the last one)  */
-/*                 stem name of the current map,                     */
-/*                 maximum rows per screen size,                     */
-/*                 maximum columns per screen size,                  */
-/*                 row position for field attribute,                 */
-/*                 column position for field attribute,              */
-/*                 4-byte field attribute value,                     */
-/*                 optional output (display) value for field.        */
-/*                                                                   */
-/* BuildHeader               (Index: 2434)                           */
-/*             subroutine creates all header fields for a map --     */
-/*             automatically calls the BuildTrailer subroutine.      */
-/*             Arguments: (only the stem name is required)           */
-/*                 stem name of the current map,                     */
-/*                 optional title for 2nd-row-center of map,         */
-/*                 optional value for first PFkey display line,      */
-/*                 optional value for second PFkey display line.     */
-/*                                                                   */
-/* BuildPFkeys               (Index: 2497)                           */
-/*             function returns a formatted PF-key line for a map -- */
-/*             for use when calling the BuildHeader subroutine.      */
-/*             Arguments: (all optional)                             */
-/*                 accepts one or more arguments for concatenation   */
-/*                 into a single string value with imbedded color    */
-/*                 attributes around the PFkey number for emphasis.  */
-/*                                                                   */
-/* BuildTrailer              (Index: 2524)                           */
-/*             subroutine creates all trailer fields for a map --    */
-/*             called by the BuildHeader subroutine.                 */
-/*             Arguments: (only the stem name is required)           */
-/*                 stem name of the current map,                     */
-/*                 optional value for first PFkey display line,      */
-/*                 optional value for second PFkey display line.     */
-/*                                                                   */
-/* MAP BUILDING ROUTINES  (the following have no arguments)          */
-/* ---------------------                                             */
-/* BuildMap0                 (Index: 2545)                           */
-/*             builds the field definitions  for  Map0 -- which is a */
-/*             single,  full-screen map that  is displayed only once */
-/*             for the sole purpose of obtaining the name of the VSE */
-/*             library to use throughout the edit session.           */
-/*                                                                   */
-/* BuildMap1Detail           (Index: 2751)                           */
-/* BuildMap1Body             (Index: 2702)                           */
-/* BuildMap1                 (Index: 2619)                           */
-/*             builds the field definitions  for  Map1 -- which is a */
-/*             scrollable map  that  displays  sublibraries,  in the */
-/*             current   library,    for   selection   and   further */
-/*             processing.                                           */
-/*                                                                   */
-/* BuildMap2Detail           (Index: 2917)                           */
-/* BuildMap2Body             (Index: 2868)                           */
-/* BuildMap2                 (Index: 2785)                           */
-/*             builds the field definitions  for  Map2 -- which is a */
-/*             scrollable map that displays members,  in the current */
-/*             sublibrary, for selection and further processing.     */
-/*                                                                   */
-/* BuildMap3Body             (Index: 3084)                           */
-/* BuildMap3                 (Index: 2955)                           */
-/*             builds the field definitions  for  Map3 -- which is a */
-/*             scrollable map  that  displays  the  content,  of the */
-/*             current member, for editing purposes.                 */
-/*                                                                   */
-/* BuildHelp1a               (Index: 3142)                           */
-/* BuildHelp1b               (Index: 3260)                           */
-/* BuildHelp2a               (Index: 3371)                           */
-/* BuildHelp2b               (Index: 3510)                           */
-/* BuildHelp3a               (Index: 3621)                           */
-/* BuildHelp3b               (Index: 3838)                           */
-/* BuildHelp3c               (Index: 3981)                           */
-/* BuildHelp3d               (Index: 4100)                           */
-/*             build the  field  definitions  for  the  help screens */
-/*             associated with a given Map.   These help screens are */
-/*             single, full-screen maps (without input fields) which */
-/*             provide function  keys  for  navigation  from  one to */
-/*             another.                                              */
-/*                                                                   */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 Parse Source sys env pgm tokens;
 
 False  = (1=0);
 True   = (0=0);
+
 luno   = '000';                        /* logical unit number */
 cuu    = '';                           /* control unit address */
 rc     = 0;
@@ -413,6 +118,7 @@ Else Do
 End
 
 mbuild. = online;                      /* reflect online status */
+maplib  = 'DAP.DLC';                   /* library for map members */
 exclude = '|DTSAFE|DUMP|LIST|OBJ|PHASE|SYSDEBUG|';
 
 /* ----------------------------------------------------------------- */
@@ -429,6 +135,8 @@ End
 /* ----------------------------------------------------------------- */
 
 Do While rc = 0
+
+  src = '';
 
   If online Then Do
     lib = '';
@@ -511,7 +219,8 @@ Do While rc = 0
   rec.  = '';
   rec.0 = 0;
   ruler = '....+....1....+....2....+....3....+....4....';
-  str   = '';
+  src   = '';
+  tgt   = '';
   mixed = True;
   upd_flag = False;
   lower_case = 'abcdefghijklmnopqrstuvwxyz';
@@ -556,7 +265,7 @@ Do While rc = 0
     Parse External cmd_string;
   End
 
-  Call ParseCommandString cmd_string;
+  cmd = ParseCommandString(cmd_string);
 
 /* ----------------------------------------------------------------- */
 /* Process edit commands                                             */
@@ -843,9 +552,12 @@ Do While rc = 0
             End
           End
           Else Do
-            Call ResetSourceString;
             p = Pos(Translate(oper.1),Translate(rec.s),p);
-            If p > 0 Then src = oper.1;
+            If p > 0 Then
+              src = oper.1;
+            Else Do
+              Call ResetSourceString;
+            End
             r = s;
           End
           Call SetRecordPointer r;
@@ -1060,16 +772,18 @@ Map1_Processing:
       When map1._aid == RX3270_AID.LIT_PF5_KEY,
          | map1._aid == RX3270_AID.LIT_PF17_KEY  Then
         Do
-          str = Strip(map1.map1_sublib.input);
-          If Length(str) = 0 Then
+          If map1.map1_sublib.input > ' ' Then Do
+            src = Strip(map1.map1_sublib.input);
+          End
+          If Length(src) = 0 Then
             map1.err_mesg.output = 'No find string entered.';
           Else Do
             i = map1_ptr + 1;
             Do i = i to map1_dtl.0,
-              While Pos(str,Left(map1_dtl.i,8)) = 0
+              While Pos(src,Left(map1_dtl.i,8)) = 0
             End
             If i > map1_dtl.0 Then Do
-              map1.map1_sublib.output = str;
+              map1.map1_sublib.output = src;
               map1.err_mesg.output = 'String not found.';
             End
             Else Do
@@ -1189,16 +903,18 @@ Map2_Processing:
       When map2._aid == RX3270_AID.LIT_PF5_KEY,
          | map2._aid == RX3270_AID.LIT_PF17_KEY  Then
         Do
-          str = Strip(map2.map2_member.input);
-          If Length(str) = 0 Then
+          If map2.map2_member.input > ' ' Then Do
+            src = Strip(map2.map2_member.input);
+          End
+          If Length(src) = 0 Then
             map2.err_mesg.output = 'No find string entered.';
           Else Do
             i = map2_ptr + 1;
             Do i = i to map2_dtl.0,
-              While Pos(str,Left(map2_dtl.i,17)) = 0
+              While Pos(src,Left(map2_dtl.i,17)) = 0
             End
             If i > map2_dtl.0 Then Do
-              map2.map2_member.output = str;
+              map2.map2_member.output = src;
               map2.err_mesg.output = 'String not found.';
             End
             Else Do
@@ -1249,7 +965,7 @@ Map2_Processing:
             If row > 0 & row <= map2_fnm.0 Then Do
               i = map2_ptr + (row - 1);
               If i > 0 & i <= map2_dtl.0 Then Do
-                Parse Var map2_dtl.i n1 n2 .;
+                Parse Var map2_dtl.i n2 n1 .;
                 map2.map2_member.input = n1'.'n2;
               End
             End
@@ -1353,7 +1069,7 @@ Map3_Processing:
           If map3.map3_command.input > ' ' Then
             cmd_string = 'CHANGE' map3.map3_command.input;
           Else Do
-            cmd_string = 'CHANGE' src tgt;
+            cmd_string = 'CHANGE' '"'src'"' '"'tgt'"';
           End
         End
       When map3._aid == RX3270_AID.LIT_PF5_KEY,
@@ -1362,7 +1078,7 @@ Map3_Processing:
           If map3.map3_command.input > ' ' Then
             cmd_string = 'FIND' map3.map3_command.input;
           Else Do
-            cmd_string = 'FIND' src;
+            cmd_string = 'FIND' '"'src'"';
           End
         End
       When map3._aid == RX3270_AID.LIT_PF6_KEY,
@@ -1395,17 +1111,11 @@ Return;
 /* ----------------------------------------------------------------- */
 /* Dump on non-zero return codes                                     */
 /* ----------------------------------------------------------------- */
-
 Dump:
-  str = RXDMPVAR('List');    /* list all variable names */
-  Parse Var str resp list
+  str = RXDMPVAR('Dump');    /* dump all variable names */
+  Parse Var str resp .;
   If resp <> 'OK' Then Do
-    Say ' Response = 'str;
-    Exit 4;
-  End
-  list = SHAKESRT(list);     /* do a Shaker-Sort of list */
-  Do n = 1 To Words(list)
-    Interpret "Say ' "Word(list,n)" =' "Word(list,n);
+    Say ' RXDMPVAR response = 'str;
   End
 Exit 4;
 
@@ -1433,11 +1143,11 @@ MakeStem:
 Return;
 
 /* -------------------------------------------------------------- */
-/* ParseCommandString procedure handles command string operands   */
-/*                              that may optionally be delimited  */
-/*                              with double or single quotes.     */
+/* ParseCommandString function handles command string operands    */
+/*                             that may optionally be delimited   */
+/*                             with double or single quotes.      */
 /* -------------------------------------------------------------- */
-ParseCommandString: Procedure Expose cmd oper.;
+ParseCommandString: Procedure Expose oper.;
   Parse Arg cmd str;
   cmd = Translate(cmd);
   str = Strip(str);
@@ -1460,14 +1170,14 @@ ParseCommandString: Procedure Expose cmd oper.;
     str = Strip(str);
   End
   oper.0 = n;
-Return;
+Return cmd;
 
 /* ----------------------------------------------------------------- */
 /* INPUT-OUTPUT ROUTINES                                             */
 /* ----------------------------------------------------------------- */
 
 Screen_IO:
-  Arg stem;
+  Parse Arg stem;
   Call RX3270IO 'ERWRT',stem;          /* send the map */
   If rc <> 0 Then Do
     Say " RX3270IO Write error: rc = "rc", result = "result;
@@ -1508,11 +1218,12 @@ Converse:
 Return;
 
 Help:
-  Arg m;
-  cname = 'h'm'a';
-  mname = 'help'm'a';
+  Parse Arg mp;
+  pg = 'a';
+  cname = 'h'mp||pg;
+  mname = 'help'mp||pg;
   Do While rc = 0
-    If mbuild.cname Then Interpret "Call Build"mname;
+    If mbuild.cname Then Call BuildHelp mp,pg;
     d = Left(Date('Usa'),6)||Right(Date(),4);
     t = Right(Time('Civilian'),7,'0');
     t = Left(t,5)' 'Right(t,2);
@@ -1522,56 +1233,36 @@ Help:
     Interpret mname".err_mesg.output = ''";
     Interpret "aid = "mname"._aid";
     Select
-    When aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
-    When aid == RX3270_AID.LIT_PF3_KEY,
-       | aid == RX3270_AID.LIT_PF15_KEY  Then Return;
-    When aid == RX3270_AID.LIT_PF7_KEY,
-       | aid == RX3270_AID.LIT_PF19_KEY  Then
-      Do
-        Select
-        When Right(mname,1) == 'd' Then
-          Do
-            cname = Left(cname,2)'c';
-            mname = Left(mname,5)'c';
+      When aid == RX3270_AID.LIT_CLEAR_KEY Then Iterate;
+      When aid == RX3270_AID.LIT_PF3_KEY,
+         | aid == RX3270_AID.LIT_PF15_KEY  Then Return;
+      When aid == RX3270_AID.LIT_PF7_KEY,
+         | aid == RX3270_AID.LIT_PF19_KEY  Then
+        Do
+          Select
+            When pg = 'd' Then pg = 'c';
+            When pg = 'c' Then pg = 'b';
+            When pg = 'b' Then pg = 'a';
+            Otherwise
+              Interpret mname".err_mesg.output = 'First help page.';";
           End
-        When Right(mname,1) == 'c' Then
-          Do
-            cname = Left(cname,2)'b';
-            mname = Left(mname,5)'b';
-          End
-        When Right(mname,1) == 'b' Then
-          Do
-            cname = Left(cname,2)'a';
-            mname = Left(mname,5)'a';
-          End
-        Otherwise
-          Interpret mname".err_mesg.output = 'First help page.';";
+          cname = 'h'mp||pg;
+          mname = 'help'mp||pg;
         End
-      End
-    When aid == RX3270_AID.LIT_PF8_KEY,
-       | aid == RX3270_AID.LIT_PF20_KEY  Then
-      Do
-        Select
-        When Right(mname,1) == 'a' Then
-          Do
-            cname = Left(cname,2)'b';
-            mname = Left(mname,5)'b';
+      When aid == RX3270_AID.LIT_PF8_KEY,
+         | aid == RX3270_AID.LIT_PF20_KEY  Then
+        Do
+          Select
+            When pg = 'a'            Then pg = 'b';
+            When pg = 'b' & mp = '3' Then pg = 'c';
+            When pg = 'c' & mp = '3' Then pg = 'd';
+            Otherwise
+              Interpret mname".err_mesg.output = 'Last help page.';";
           End
-        When Right(mname,1) == 'b' & m = '3' Then
-          Do
-            cname = Left(cname,2)'c';
-            mname = Left(mname,5)'c';
-          End
-        When Right(mname,1) == 'c' & m = '3' Then
-          Do
-            cname = Left(cname,2)'d';
-            mname = Left(mname,5)'d';
-          End
-        Otherwise
-          Interpret mname".err_mesg.output = 'Last help page.';";
+          cname = 'h'mp||pg;
+          mname = 'help'mp||pg;
         End
-      End
-    Otherwise
+      Otherwise
     End
   End
 Return;
@@ -1648,14 +1339,15 @@ NewMember:
                   '"ON" for this member.';
     If map0._aid == RX3270_AID.LIT_PF2_KEY Then opt = 'DATA';
   End
-
+  Drop rec.;                 /* clear residual data */
+  rec. = '';                 /* start fresh */
   rec.0 = 1;
   rec.1 = ' ';
   "EXECIO * DISKW" n2'.'n1 "( OPEN FINIS" opt "STEM rec. )";
   If rc <> 0 Then Return False;
   n = map2_dtl.0 + 1;
   Parse Var n1 n1 '.' n2 .;
-  map2_dtl.n = Left(n1,8) Left(n2,8) '*** New Member ***';
+  map2_dtl.n = Left(n2,8) Left(n1,8) '*** New Member ***';
   map2_dtl.0 = n;
 Return True;
 
@@ -1732,6 +1424,7 @@ Return;
 
 ResetSourceString:
   src = '';
+  tgt = '';
 Return;
 
 ReadMember:
@@ -2190,7 +1883,7 @@ Return;
 /* HELPER ROUTINES FOR SCROLLABLE MAPS                               */
 /* ----------------------------------------------------------------- */
 
-CursorPosition: Procedure
+CursorPosition: Procedure;
   Arg cpos,cmax,rhdc;
   row = cpos  % cmax + 1;
   col = cpos // cmax + 1;
@@ -2260,7 +1953,7 @@ Map2HasSelections:
           answer = True;
           i = map2_ptr + (row - 1);
           If i > 0 & i <= map2_dtl.0 Then Do
-            Parse Var map2_dtl.i n1 n2 .;
+            Parse Var map2_dtl.i n2 n1 .;
             map2.map2_member.input = n1'.'n2;
           End
         End
@@ -2269,7 +1962,7 @@ Map2HasSelections:
           answer = True;
           i = map2_ptr + (row - 1);
           If i > 0 & i <= map2_dtl.0 Then Do
-            Parse Var map2_dtl.i n1 n2 .;
+            Parse Var map2_dtl.i n2 n1 .;
             Call Converse 'Press PF2 to confirm deletion of the "'||,
                           n1'.'n2'" member.';
             If map0._aid == RX3270_AID.LIT_PF2_KEY Then Do
@@ -2289,7 +1982,7 @@ Map2HasSelections:
           oper = IFF(map2.n.input = 'M','move','copy');
           i = map2_ptr + (row - 1);
           If i > 0 & i <= map2_dtl.0 Then Do
-            Parse Var map2_dtl.i n1 n2 .;
+            Parse Var map2_dtl.i n2 n1 .;
             Call Converse 'Enter the sublibrary name to 'oper' "'||,
                           n1'.'n2'" to...',8;
             If Length(map0._raw) > 6 Then Do
@@ -2298,7 +1991,7 @@ Map2HasSelections:
                 map2.err_mesg.output = 'The 'oper' failed.';
               Else Do
                 If oper = 'copy' Then
-                  map2_dtl.i = Left(n1,8) Left(n2,8) '*** Copied ***';
+                  map2_dtl.i = Left(n2,8) Left(n1,8) '*** Copied ***';
                 Else Do
                   map2_dtl.i = 'FF'x;
                   delete = True;
@@ -2312,7 +2005,7 @@ Map2HasSelections:
           answer = True;
           i = map2_ptr + (row - 1);
           If i > 0 & i <= map2_dtl.0 Then Do
-            Parse Var map2_dtl.i n1 n2 .;
+            Parse Var map2_dtl.i n2 n1 .;
             rf = n1'.'n2;
             Call Converse 'Enter the member.type name to rename "'||,
                           rf'" to...',17;
@@ -2322,7 +2015,7 @@ Map2HasSelections:
                 map2.err_mesg.output = 'Rename failed.';
               Else Do
                 Parse Var rt n1 '.' n2 .;
-                map2_dtl.i = Left(n1,8) Left(n2,8) '*** Renamed ***';
+                map2_dtl.i = Left(n2,8) Left(n1,8) '*** Renamed ***';
                 delete = True;
               End
             End
@@ -2367,7 +2060,7 @@ RebuildMap2Detail: Procedure Expose map2_ptr map2_dtl.;
   map2_dtl.0 = i;
   If Arg() > 0 Then Do
     Parse Upper Arg nam '.' typ .;
-    str = Left(nam,8)' 'Left(typ,8);
+    str = Left(typ,8)' 'Left(nam,8);
     Do i = 1 to map2_dtl.0 Until Left(map2_dtl.i,17) == str
     End
   End
@@ -2420,14 +2113,16 @@ Return atrb;
 
 BuildField:
   Parse Arg stem,rmax,cmax,row,col,atr,out;
-  n = RX3270FN(rmax, cmax, row, col);
-  If n = -1 | n = -2 Then Do
-    Say " RX3270FN error: rc = "n;
+  fn = RX3270FN(rmax, cmax, row, col);
+  If fn = -1 | fn = -2 Then Do
+    Say " RX3270FN error: rc = "fn;
     Signal Dump;
   End
-  Interpret stem||"n.attrib = atr";
+  Interpret stem||"fn.attrib = atr";
   If out <> '' Then Do
-    Interpret stem||"n.output = out";
+    q = Pos('%%%',out);
+    If q > 0 Then out = Overlay('280000'x,out,q,3);
+    Interpret stem||"fn.output = out";
   End
 Return;
 
@@ -2471,7 +2166,7 @@ BuildHeader:
   Call BuildField stem,map0._rows,map0._cols,1,69,,
                   BuildAttribute('ASKIP_NORM',,'BLUE',),,
                   'mm/dd/yyyy';
-  hdr_date = n;
+  hdr_date = fn;
   Call BuildField stem,map0._rows,map0._cols,2,1,,
                   BuildAttribute('ASKIP_NORM',,'BLUE',),,
                   'CUU:';
@@ -2484,11 +2179,11 @@ BuildHeader:
   Call BuildField stem,map0._rows,map0._cols,2,71,,
                   BuildAttribute('ASKIP_NORM',,'BLUE',),,
                   'hh:mm xx';
-  hdr_time = n;
+  hdr_time = fn;
   Call BuildField stem,map0._rows,map0._cols,22,1,,
                   BuildAttribute('ASKIP_BRT',,'RED',),,
                   '';
-  err_mesg = n;
+  err_mesg = fn;
   Call BuildField stem,map0._rows,map0._cols,22,80,,
                   BuildAttribute();
   Call BuildTrailer stem,pf1,pf2;
@@ -2543,112 +2238,23 @@ Return;
 /* ----------------------------------------------------------------- */
 
 BuildMap0:
-/* layout of map0
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                    Library Entry Screen                     hh:mm xx
-
-
-      Welcome to Dave Clark's Stand-alone Emergency System Editor.  As was just
- hinted, this tool is actually intended for those times when no other editor is
- available.   However, smaller VSE shops could certainly use this tool as their
- only editor (where each user would  require  their own dynamic partition and a
- local non-SNA 3270 device address from which to run this tool).   Please note,
- however, that there is no protection from two users editing the same member.
-
-      This screen is only presented once  per session.   Its sole purpose is to
- obtain the VSE library name which will drive the remainder of the session.
-
-
-      VSE Library name: _______
-
-
-
-
-
- &MSG
- PF:           3=Exit
-
-*/
   mbuild.m0 = False;
+  mname = 'map0';
   Call MakeStem 'pfc.',8,8,10,10,12,10,10;
-  Call BuildHeader 'map0.','Library Entry Screen',,
-                  BuildPFkeys('','3=Exit');
-
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  "     Welcome to Dave Clark's Stand-alon"||,
-                  'e Emergency System Editor.  As was just';
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'hinted, this tool is actually intended '||,
-                  'for those times when no other editor is';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'available.   However, smaller VSE shops'||,
-                  ' could certainly use this tool as their';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'only editor (where each user would  req'||,
-                  'uire  their own dynamic partition and a';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'local non-SNA 3270 device address from '||,
-                  'which to run this tool).   Please note,';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'however, that there is no protection fr'||,
-                  'om two users editing the same member.  ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '     This screen is only presented once'||,
-                  '  per session.   Its sole purpose is to';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'obtain the VSE library name which will '||,
-                  'drive the remainder of the session.    ';
-  Call BuildField stem,map0._rows,map0._cols,16,6,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  'VSE Library name:';
-  Call BuildField stem,map0._rows,map0._cols,16,24,,
-                  BuildAttribute('UNPROT_NORM','YES','YELLOW','UNDERLINE');
-  map0_library = n;
-  Call BuildField stem,map0._rows,map0._cols,16,32,,
-                  BuildAttribute();
+  Call BuildHeader mname'.','Library Entry Screen',,
+                   BuildPFkeys('','3=Exit');
+  Call GetMapMember mname;
 Return;
 
 BuildMap1:
-/* layout of map1
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                    SubLibrary Selection                     hh:mm xx
-
- Sublibrary: ________   else, select by cursor from the list below.
-
- ListDir Library=&LIB
-
-   SUBLIBRARY CREATION   SPACE     NO. OF      USED  DELAYED    % LIBR.
-              DATE       REUSAGE   MEMBERS     LB'S  LB'S       SPACE
-   --------------------------------------------------------------------
- _ BSITEMP    2003-09-30   IMMED         0        1        0       0 %
- _ CICS       1997-08-23   AUTO          1        2        0       0 %
- _ JOBS       1997-08-23   AUTO         51      314        0       0 %
- _ PROD       1997-08-23   AUTO       8094   139478      281      84 %
- _ SAVE       1997-08-23   AUTO          7       66        0       0 %
- _ TCPIP      1999-11-19   AUTO         11       93        0       0 %
- _ TEST       1997-08-23   AUTO          6      116        0       0 %
- _ *** End of List ***
- _
- _
- _
- &MSG
- PF:  1=Help   3=Exit              6=Top      7=Backward              12=Refresh
-                        5=Find     9=Bottom   8=Forward
-*/
   Drop map1. map1_fnm.;
   map1_fnm.  = '';
   map1_fnm.0 = 0;
   map1_hdc = 10;
   map1_cnt = 11;
-  Call BuildHeader 'map1.','SubLibrary Selection',,
+
+  mname = 'map1';
+  Call BuildHeader mname'.','SubLibrary Selection',,
                   BuildPFkeys('1=Help',,
                               '3=Exit',,
                               '',,
@@ -2661,42 +2267,7 @@ BuildMap1:
                               '5=Find',,
                               '9=Bottom',,
                               '8=Forward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  'Sublibrary:';
-  Call BuildField stem,map0._rows,map0._cols,4,13,,
-                  BuildAttribute('UNPROT_NORM','YES','YELLOW','UNDERLINE');
-  map1_sublib = n;
-  Call BuildField stem,map0._rows,map0._cols,4,22,,
-                  BuildAttribute();
-  Call BuildField stem,map0._rows,map0._cols,4,24,,
-                  BuildAttribute(,,'BLUE',),,
-                  'else, select by cursor from the list below.';
-
-  dlbl = map0.map0_library.input;
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'ListDir Library='           ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_RED           ||,
-                  dlbl                      ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT         ;
-
-  Call BuildMap1Detail;
-
-  Call BuildField stem,map0._rows,map0._cols,8,3,,
-                  BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
-                  map1_hdr.1;
-  Call BuildField stem,map0._rows,map0._cols,9,3,,
-                  BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
-                  map1_hdr.2;
-  Call BuildField stem,map0._rows,map0._cols,10,3,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  map1_hdr.3;
+  Call GetMapMember mname;
 Return;
 
 BuildMap1Body:
@@ -2719,7 +2290,7 @@ BuildMap1Body:
   Do i = map1_ptr to map1_dtl.0
     If s = 1 & i = 0 Then
       Call BuildField stem,map0._rows,map0._cols,map1_hdc+s,3,,
-                      BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                      BuildAttribute('ASKIP_BRT',,'BLUE',),,
                       '*** Top of List ***';
     Else
     Call BuildField stem,map0._rows,map0._cols,map1_hdc+s,1,,
@@ -2735,16 +2306,16 @@ BuildMap1Body:
                     RX3270_EXH.LIT_OFF                 ||,
                     map1_dtl.i                           ;
     map1_fnm.0 = s;
-    map1_fnm.s = n;
+    map1_fnm.s = fn;
     s = s + 1;
     If s > map1_cnt Then Leave;
   End
   If s <= map1_cnt Then Do
     Call BuildField stem,map0._rows,map0._cols,map1_hdc+s,3,,
-                    BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                    BuildAttribute('ASKIP_BRT',,'BLUE',),,
                     '*** End of List ***';
     map1_fnm.0 = s;
-    map1_fnm.s = n;
+    map1_fnm.s = fn;
   End
 Return;
 
@@ -2783,38 +2354,14 @@ BuildMap1Detail: Procedure Expose syslst. map1_hdr. map1_dtl. map1_ptr;
 Return;
 
 BuildMap2:
-/* layout of map2
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                      Member Selection                       hh:mm xx
-
- Member.type: _________________   else, select by cursor from the list below.
-
- ListDir SubLibrary=&SUBLIB
-
-    M E M B E R      CREATION   LAST     BYTES    LIBR CONT SVA  A- R-
-   NAME     TYPE     DATE      UPDATE   RECORDS   BLKS STOR ELIG MODE
-   --------------------------------------------------------------------
- _ INSERTS  A        02-06-07 02-06-07    194 R       7 YES   -   -   -
- _ FIXSOCK  JCL      02-06-10   -  -      863 R      52 YES   -   -   -
- _ APLASER  PHASE    04-01-06 04-04-09  21184 B      22  NO  NO  31 ANY
- _ BITBANG  PHASE    01-07-25 01-08-15    152 B       1 YES  NO  24  24
- _ DAPFXFER PHASE    00-04-17 00-04-18  19440 B      20 YES  NO  31 ANY
- _ PRPCDRDB PHASE    00-04-14   -  -    10176 B      11  NO  NO  24  24
- _ *** End of List ***
- _
- _
- _
- _
- &MSG
- PF:  1=Help   3=End               6=Top      7=Backward              12=Refresh
-                        5=Find     9=Bottom   8=Forward
-*/
   Drop map2. map2_fnm.;
   map2_fnm.  = '';
   map2_fnm.0 = 0;
   map2_hdc = 10;
   map2_cnt = 11;
-  Call BuildHeader 'map2.','Member Selection',,
+
+  mname = 'map2';
+  Call BuildHeader mname'.','Member Selection',,
                   BuildPFkeys('1=Help',,
                               '3=End',,
                               '',,
@@ -2827,42 +2374,7 @@ BuildMap2:
                               '5=Find',,
                               '9=Bottom',,
                               '8=Forward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  'Member.type:';
-  Call BuildField stem,map0._rows,map0._cols,4,14,,
-                  BuildAttribute('UNPROT_NORM','YES','YELLOW','UNDERLINE');
-  map2_member = n;
-  Call BuildField stem,map0._rows,map0._cols,4,32,,
-                  BuildAttribute();
-  Call BuildField stem,map0._rows,map0._cols,4,34,,
-                  BuildAttribute(,,'BLUE',),,
-                  'else, select by cursor from the list below.';
-
-  lib = dlbl'.'map1.map1_sublib.input;
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'ListDir SubLibrary='        ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_RED           ||,
-                  lib                      ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT         ;
-
-  Call BuildMap2Detail;
-
-  Call BuildField stem,map0._rows,map0._cols,8,3,,
-                  BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
-                  map2_hdr.1;
-  Call BuildField stem,map0._rows,map0._cols,9,3,,
-                  BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
-                  map2_hdr.2;
-  Call BuildField stem,map0._rows,map0._cols,10,3,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  map2_hdr.3;
+  Call GetMapMember mname;
 Return;
 
 BuildMap2Body:
@@ -2885,32 +2397,35 @@ BuildMap2Body:
   Do i = map2_ptr to map2_dtl.0
     If s = 1 & i = 0 Then
       Call BuildField stem,map0._rows,map0._cols,map2_hdc+s,3,,
-                      BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                      BuildAttribute('ASKIP_BRT',,'BLUE',),,
                       '*** Top of List ***';
-    Else
-    Call BuildField stem,map0._rows,map0._cols,map2_hdc+s,1,,
-                    BuildAttribute('UNPROT_NORM',,'TURQUOISE','UNDERLINE'),,
-                    '00'x                              ||,
-                    RX3270_DSO.LIT_START_FIELD_EXTENDED||,
-                    '03'x                              ||,
-                    RX3270_TYP.LIT_FIELD_ATTRIBUTE     ||,
-                    RX3270_ATR.LIT_ASKIP_NORM          ||,
-                    RX3270_TYP.LIT_EXTENDED_COLOR      ||,
-                    RX3270_EXC.LIT_GREEN               ||,
-                    RX3270_TYP.LIT_EXTENDED_HILIGHT    ||,
-                    RX3270_EXH.LIT_OFF                 ||,
-                    map2_dtl.i                           ;
+    Else Do
+      Parse Var map2_dtl.i n2 n1 . 19 str;
+      str = Left(n1,8) Left(n2,8) str;
+      Call BuildField stem,map0._rows,map0._cols,map2_hdc+s,1,,
+                      BuildAttribute('UNPROT_NORM',,'TURQUOISE','UNDERLINE'),,
+                      '00'x                              ||,
+                      RX3270_DSO.LIT_START_FIELD_EXTENDED||,
+                      '03'x                              ||,
+                      RX3270_TYP.LIT_FIELD_ATTRIBUTE     ||,
+                      RX3270_ATR.LIT_ASKIP_NORM          ||,
+                      RX3270_TYP.LIT_EXTENDED_COLOR      ||,
+                      RX3270_EXC.LIT_GREEN               ||,
+                      RX3270_TYP.LIT_EXTENDED_HILIGHT    ||,
+                      RX3270_EXH.LIT_OFF                 ||,
+                      str;
+    End
     map2_fnm.0 = s;
-    map2_fnm.s = n;
+    map2_fnm.s = fn;
     s = s + 1;
     If s > map2_cnt Then Leave;
   End
   If s <= map2_cnt Then Do
     Call BuildField stem,map0._rows,map0._cols,map2_hdc+s,3,,
-                    BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                    BuildAttribute('ASKIP_BRT',,'BLUE',),,
                     '*** End of List ***';
     map2_fnm.0 = s;
-    map2_fnm.s = n;
+    map2_fnm.s = fn;
   End
 Return;
 
@@ -2945,7 +2460,8 @@ BuildMap2Detail: Procedure Expose syslst. map2_hdr. map2_dtl. map2_ptr;
       Parse Var syslst.i . t . 44 m 45 .;
       If m = 'R' & Pos('|'t'|',exclude) = 0 Then Do
         n = map2_dtl.0 + 1;
-        map2_dtl.n = Strip(syslst.i,'Trailing');
+        Parse Var syslst.i n1 n2 . 19 str;
+        map2_dtl.n = Left(n2,8) Left(n1,8) str;
         map2_dtl.0 = n;
       End
     End
@@ -2953,32 +2469,6 @@ BuildMap2Detail: Procedure Expose syslst. map2_hdr. map2_dtl. map2_ptr;
 Return;
 
 BuildMap3:
-/* layout of map3
- SYSEDIT: &MBR                               Line nnnnnnn of nnnnnnn mm/dd/yyyy
- ====> ____________________________________________________________    hh:mm xx
- U=&CU ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-       *** Top of Member ***
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
- *===*
-       *** End of Member ***
- MIXED ----+----1----+----2----+----3----+----4----+----5----+----6----+----7--
- PF:  1=Help   3=Save   4=Change   6=Top      7=Backward   10=Left    12=Cancel
-      2=Recall          5=Find     9=Bottom   8=Forward    11=Right
-*/
   Drop map3. map3_fnm.;
   map3_fnm.  = '';
   map3_fnm.0 = 0;
@@ -2987,9 +2477,8 @@ BuildMap3:
   map3_ptr = 1;
 
   stem = 'map3.';
-/*Interpret stem" =''";*/
-  Interpret stem"_lun = D2C(luno)";
-  Interpret stem"_wcc = RX3270_WCC.LIT_FREEKB_FRSET";
+  Interpret stem"_lun   = D2C(luno)";
+  Interpret stem"_wcc   = RX3270_WCC.LIT_FREEKB_FRSET";
   Interpret stem"_qry   = map0._qry";
   Interpret stem"_dev   = map0._dev";
   Interpret stem"_bufsz = map0._bufsz";
@@ -3004,67 +2493,9 @@ BuildMap3:
   source_ruler = '----+----1----+----2----+----3----+----4'||,
                  '----+----5----+----6----+----7----+----8';
 
-  Call BuildField 'map3.',map0._rows,map0._cols,1,1,,
-                  BuildAttribute(,,'BLUE',),,
-                  'SYSEDIT:';
-  mbr = map2.map2_member.input;
-  Call BuildField 'map3.',map0._rows,map0._cols,1,10,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  lib'.'mbr;
-  Call BuildField 'map3.',map0._rows,map0._cols,1,45,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  'Line';
-  Call BuildField 'map3.',map0._rows,map0._cols,1,50,,
-                  BuildAttribute(,,'GREEN',),,
-                  '0';
-  map3_curl = n;
-  Call BuildField 'map3.',map0._rows,map0._cols,1,58,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  'of';
-  Call BuildField 'map3.',map0._rows,map0._cols,1,61,,
-                  BuildAttribute(,,'GREEN',),,
-                  '0';
-  map3_maxl = n;
-  Call BuildField stem,map0._rows,map0._cols,1,69,,
-                  BuildAttribute(,,'BLUE',),,
-                  'mm/dd/yyyy';
-  map3_date = n;
-  Call BuildField stem,map0._rows,map0._cols,2,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '====>';
-  Call BuildField stem,map0._rows,map0._cols,2,7,,
-                  BuildAttribute('UNPROT_NORM','YES','YELLOW','UNDERLINE');
-  map3_command = n;
-  Call BuildField stem,map0._rows,map0._cols,2,68,,
-                  BuildAttribute();
-  Call BuildField stem,map0._rows,map0._cols,2,71,,
-                  BuildAttribute(,,'BLUE',),,
-                  'hh:mm xx';
-  map3_time = n;
-  Call BuildField stem,map0._rows,map0._cols,3,1,,
-                  BuildAttribute(,,'BLUE',),,
-                  'U='||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  cuu                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT         ;
-  Call BuildField stem,map0._rows,map0._cols,3,7,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  SubStr(source_ruler,map3_view,72);
-  map3_Truler = n;
-  Call BuildField stem,map0._rows,map0._cols,22,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'MIXED';
-  map3_case = n;
-  Call BuildField stem,map0._rows,map0._cols,22,7,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  SubStr(source_ruler,map3_view,72);
-  map3_Bruler = n;
-  Call BuildField stem,map0._rows,map0._cols,22,80,,
-                  BuildAttribute();
+  mname = 'map3';
+  Call GetMapMember mname;
+
   Call BuildTrailer stem,,
                   BuildPFkeys('1=Help',,
                               '3=Save',,
@@ -3110,1131 +2541,96 @@ BuildMap3Body:
     If s = 1 & i = 0 Then Do
       map3_fnm.s = 'x';
       Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,7,,
-                      BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                      BuildAttribute('ASKIP_BRT',,'BLUE',),,
                       '*** Top of Member ***';
     End
     Else Do
       Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,1,,
                       BuildAttribute('UNPROT_NORM',,'YELLOW',),,
                       IFF(lca.i>'',lca.i,'*===*');
-      map3_fnm.s = n;
+      map3_fnm.s = fn;
       Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,7,,
                       BuildAttribute('UNPROT_NORM',,'GREEN',),,
                       SubStr(rec.i,map3_view,72);
     End
     map3_fnm.0 = s;
-    map3_fnm.s = map3_fnm.s n;
+    map3_fnm.s = map3_fnm.s fn;
     s = s + 1;
     If s > map3_cnt Then Leave;
   End
   If s <= map3_cnt Then Do
     map3_fnm.s = 'x';
     Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,7,,
-                    BuildAttribute('ASKIP_BRT',,'TURQUOISE',),,
+                    BuildAttribute('ASKIP_BRT',,'BLUE',),,
                     '*** End of Member ***';
     map3_fnm.0 = s;
-    map3_fnm.s = map3_fnm.s n;
+    map3_fnm.s = map3_fnm.s fn;
   End
   Call BuildField stem,map0._rows,map0._cols,map3_hdc+s,80,,
                   BuildAttribute();
 Return;
 
-BuildHelp1a:
-/* layout of help1a
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                    Sublibrary Selection                     hh:mm xx
-
- To obtain a member listing, enter a     The following operations are available
- valid sublibrary name (in the input     from the Sublibrary Selection screen:
- field provided for that purpose) and
- press ENTER.  Alternatively, you may    S   select the indicated sublibrary
- use the cursor to select from the           and display its member contents.
- sublibrary listing shown.                   Cursor selection performs this
-                                             operation by default.
- For the purposes of creating a new
- sublibrary, enter a valid (but non-     D   delete the indicated sublibrary
- existent) name in the Sublibrary            (a verification prompt is issued).
- input field and press ENTER.  This          This also deletes any members
- application then issues a verifica-         currently in that sublibrary.
- tion prompt to allow you the
- opportunity to agree or disagree to
- the definition of a new sublibrary.
-
-
-
-
- PF:           3=End
-                                              8=Forward
-*/
-  mbuild.h1a = False;
-  Call BuildHeader 'help1a.','Sublibrary Selection',,
-                  BuildPFkeys('1=Help',,
-                              '3=End'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '',,
-                              '',,
-                              '8=Forward');
-  /* column 1 */
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'To obtain a member listing, enter a    ';
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'valid sublibrary name (in the input    ';
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'field provided for that purpose) and   ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'press ENTER.  Alternatively, you may   ';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'use the cursor to select from the      ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'sublibrary listing shown.              ';
-  Call BuildField stem,map0._rows,map0._cols,11,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'For the purposes of creating a new     ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'sublibrary, enter a valid (but non-    ';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'existent) name in the Sublibrary       ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'input field and press ENTER.  This     ';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'application then issues a verifica-    ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'tion prompt to allow you the           ';
-  Call BuildField stem,map0._rows,map0._cols,17,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'opportunity to agree or disagree to    ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the definition of a new sublibrary.    ';
-  /* column 2 */
-  Call BuildField stem,map0._rows,map0._cols,4,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  'The following operations are available ';
-  Call BuildField stem,map0._rows,map0._cols,5,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  'from the Sublibrary Selection screen:  ';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'S';
-  Call BuildField stem,map0._rows,map0._cols,7,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  select the indicated sublibrary    ';
-  Call BuildField stem,map0._rows,map0._cols,8,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    and display its member contents.   ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    Cursor selection performs this     ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    operation by default.              ';
-  Call BuildField stem,map0._rows,map0._cols,12,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'D';
-  Call BuildField stem,map0._rows,map0._cols,12,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  delete the indicated sublibrary    ';
-  Call BuildField stem,map0._rows,map0._cols,13,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    (a verification prompt is issued). ';
-  Call BuildField stem,map0._rows,map0._cols,14,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    This also deletes any members      ';
-  Call BuildField stem,map0._rows,map0._cols,15,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    currently in that sublibrary.      ';
+BuildHelp:
+  Parse Arg mp,pg;           /* get map number and page letter */
+  mbuild.cname = False;      /* build help page just one time  */
+  Select
+    When mp = 3 Then title = 'Member Update';
+    When mp = 2 Then title = 'Member Selection';
+    Otherwise        title = 'Sublibrary Selection';
+  End
+  Select
+    When pg = 'd' Then Do
+      pf1 = BuildPFkeys(,'3=End',,,'7=Backward');
+      pf2 = '';
+    End
+    When pg = 'c' Then Do
+      pf1 = BuildPFkeys(,'3=End',,,'7=Backward');
+      pf2 = BuildPFkeys(,,,,'8=Forward');
+    End
+    When pg = 'b' & mp = 3 Then Do
+      pf1 = BuildPFkeys(,'3=End',,,'7=Backward');
+      pf2 = BuildPFkeys(,,,,'8=Forward');
+    End
+    When pg = 'b' Then Do
+      pf1 = BuildPFkeys(,'3=End',,,'7=Backward');
+      pf2 = '';
+    End
+    Otherwise
+      pf1 = BuildPFkeys(,'3=End');
+      pf2 = BuildPFkeys(,,,,'8=Forward');
+  End
+  Call BuildHeader mname'.',title,pf1,pf2;
+  Call GetMapMember mname;
 Return;
 
-BuildHelp1b:
-/* layout of help1b
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                    Sublibrary Selection                     hh:mm xx
-
- Program Function Keys:
- 1=Help displays these Help panels.      12=Refresh the sublibrary listing.
-                                            In other words, though the presence
- 3=Exit completely from this                of new and deleted sublibraries
-    application.                            (created or deleted from that
-                                            screen) are immediately reflected
- 5=Find a sublibrary based on the full      in the listing, sublibrary
-    or partial information entered in       statistics are not re-accessed for
-    the Sublibrary input field.             display until this key is pressed.
-
- 6=Top
- 9=Bottom displays the first or last
-    page of the sublibrary listing.
-
- 7=Forward
- 8=Backward scrolls forward or backward
-    through the pages of the sublibrary
-    listing.
-
- PF:           3=End                          7=Backward
-
-*/
-  mbuild.h1b = False;
-  Call BuildHeader 'help1b.','Sublibrary Selection',,
-                  BuildPFkeys('',,
-                              '3=End',,
-                              '',,
-                              '',,
-                              '7=Backward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Program Function Keys:';
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'1=Help';
-  Call BuildField stem,map0._rows,map0._cols,5,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays these Help panels.     ';
-  Call BuildField stem,map0._rows,map0._cols,5,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '12=Refresh';
-  Call BuildField stem,map0._rows,map0._cols,5,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the sublibrary listing.     ';
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   In other words, though the presence ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '3=Exit';
-  Call BuildField stem,map0._rows,map0._cols,7,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'completely from this            ',
-                  '   of new and deleted sublibraries     ';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   application.                        ',
-                  '   (created or deleted from that       ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   screen) are immediately reflected   ';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '5=Find';
-  Call BuildField stem,map0._rows,map0._cols,10,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'a sublibrary based on the full  ',
-                  '   in the listing, sublibrary          ';
-  Call BuildField stem,map0._rows,map0._cols,11,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   or partial information entered in   ',
-                  '   statistics are not re-accessed for  ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   the Sublibrary input field.         ',
-                  '   display until this key is pressed.  ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '6=Top';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '9=Bottom';
-  Call BuildField stem,map0._rows,map0._cols,15,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays the first or last    ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   page of the sublibrary listing.     ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '7=Forward';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '8=Backward';
-  Call BuildField stem,map0._rows,map0._cols,19,12,,
-                  BuildAttribute(,,'GREEN',),,
-                  'scrolls forward or backward ';
-  Call BuildField stem,map0._rows,map0._cols,20,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   through the pages of the sublibrary ';
-  Call BuildField stem,map0._rows,map0._cols,21,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   listing.                            ';
-Return;
-
-BuildHelp2a:
-/* layout of help2a
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                      Member Selection                       hh:mm xx
-
- To alter a member's source, enter a     The following operations are available
- valid member.type name (in the input    from the Member Selection screen:
- field provided for that purpose) and
- press ENTER.  Alternatively, you may    S   select the indicated member and
- use the cursor to select from the           display its contents for update.
- member listing shown.                       Cursor selection performs this
-                                             operation by default.
- For the purposes of creating a new
- member, enter a valid (but non-         D   delete the indicated member
- existent) name and type into the            (a verification prompt is issued).
- Member.type input field and press
- ENTER.  This application then issues    C   copy or
- a verification prompt to allow you      M   move the indicated member to a
- the opportunity to agree or disagree        different sublibrary within the
- to the definition of a new member.          same library.
-
-                                         R   rename the indicated member
-                                             within the same sublibrary.
-
- PF:           3=End
-                                              8=Forward
-*/
-  mbuild.h2a = False;
-  Call BuildHeader 'help2a.','Member Selection',,
-                  BuildPFkeys('1=Help',,
-                              '3=End'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '',,
-                              '',,
-                              '8=Forward');
-  /* column 1 */
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  "To alter a member's source, enter a    ";
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'valid member.type name (in the input   ';
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'field provided for that purpose) and   ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'press ENTER.  Alternatively, you may   ';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'use the cursor to select from the      ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'member listing shown.                  ';
-  Call BuildField stem,map0._rows,map0._cols,11,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'For the purposes of creating a new     ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'member, enter a valid (but non-        ';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'existent) name and type into the       ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'Member.type input field and press      ';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'ENTER.  This application then issues   ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'a verification prompt to allow you     ';
-  Call BuildField stem,map0._rows,map0._cols,17,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the opportunity to agree or disagree   ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  'to the definition of a new member.     ';
-  /* column 2 */
-  Call BuildField stem,map0._rows,map0._cols,4,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  'The following operations are available ';
-  Call BuildField stem,map0._rows,map0._cols,5,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  'from the Member Selection screen:      ';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'S';
-  Call BuildField stem,map0._rows,map0._cols,7,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  select the indicated member and    ';
-  Call BuildField stem,map0._rows,map0._cols,8,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    display its contents for update.   ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    Cursor selection performs this     ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    operation by default.              ';
-  Call BuildField stem,map0._rows,map0._cols,12,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'D';
-  Call BuildField stem,map0._rows,map0._cols,12,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  delete the indicated member        ';
-  Call BuildField stem,map0._rows,map0._cols,13,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    (a verification prompt is issued). ';
-  Call BuildField stem,map0._rows,map0._cols,15,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'C';
-  Call BuildField stem,map0._rows,map0._cols,15,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  copy or                            ';
-  Call BuildField stem,map0._rows,map0._cols,16,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'M';
-  Call BuildField stem,map0._rows,map0._cols,16,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  move the indicated member to a     ';
-  Call BuildField stem,map0._rows,map0._cols,17,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    different sublibrary within the    ';
-  Call BuildField stem,map0._rows,map0._cols,18,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    same library.                      ';
-  Call BuildField stem,map0._rows,map0._cols,20,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'R';
-  Call BuildField stem,map0._rows,map0._cols,20,43,,
-                  BuildAttribute(,,'GREEN',),,
-                  '  rename the indicated member        ';
-  Call BuildField stem,map0._rows,map0._cols,21,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '    within the same sublibrary.        ';
-Return;
-
-BuildHelp2b:
-/* layout of help2b
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                      Member Selection                       hh:mm xx
-
- Program Function Keys:
- 1=Help displays these Help panels.      12=Refresh the member listing.
-                                            In other words, though the presence
- 3=End the member listing and go back       of new and deleted members
-    to the sublibrary listing.              (created or deleted from that
-                                            screen) are immediately reflected
- 5=Find a member or type based upon the     in the listing, member statistics
-    full or partial information entered     are not re-accessed for display
-    in the Member.type input field.         until this key is pressed.
-
- 6=Top
- 9=Bottom displays the first or last
-    page of the member listing.
-
- 7=Forward
- 8=Backward scrolls forward or backward
-    through the pages of the member
-    listing.
-
- PF:           3=End                          7=Backward
-
-*/
-  mbuild.h2b = False;
-  Call BuildHeader 'help2b.','Member Selection',,
-                  BuildPFkeys('',,
-                              '3=End',,
-                              '',,
-                              '',,
-                              '7=Backward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Program Function Keys:';
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'1=Help';
-  Call BuildField stem,map0._rows,map0._cols,5,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays these Help panels.     ';
-  Call BuildField stem,map0._rows,map0._cols,5,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '12=Refresh';
-  Call BuildField stem,map0._rows,map0._cols,5,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the member listing.         ';
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   In other words, though the presence ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '3=End';
-  Call BuildField stem,map0._rows,map0._cols,7,7,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the member listing and go back   ',
-                  '   of new and deleted members          ';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   to the sublibrary listing.          ',
-                  '   (created or deleted from that       ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   screen) are immediately reflected   ';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '5=Find';
-  Call BuildField stem,map0._rows,map0._cols,10,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'a member or type based upon the ',
-                  '   in the listing, member statistics   ';
-  Call BuildField stem,map0._rows,map0._cols,11,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   full or partial information entered ',
-                  '   are not re-accessed for display     ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   in the Member.type input field.     ',
-                  '   until this key is pressed.          ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '6=Top';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '9=Bottom';
-  Call BuildField stem,map0._rows,map0._cols,15,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays the first or last    ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   page of the member listing.         ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '7=Forward';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '8=Backward';
-  Call BuildField stem,map0._rows,map0._cols,19,12,,
-                  BuildAttribute(,,'GREEN',),,
-                  'scrolls forward or backward ';
-  Call BuildField stem,map0._rows,map0._cols,20,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   through the pages of the member     ';
-  Call BuildField stem,map0._rows,map0._cols,21,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   listing.                            ';
-Return;
-
-BuildHelp3a:
-/* layout of help3a
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                       Member Update                         hh:mm xx
-
- Shortcuts: (entered in the command area at the left of the source lines)
-
- I(n) adds (inserts) one or more blank   L(n),LL
-    lines after this line.               U(n),UU translates one or more lines
- D(n),DD removes this line (plus n-1        to lowercase or to uppercase.
-    more) from the member.
-                                         "(n) duplicates the indicated line one
- C(n),CC places this line (plus n-1         or more times.
-    more) onto the FIFO stack.
- M(n),MM combines the C and D shortcuts  >(n),>>(n) shifts the content of the
-    to place this line (plus n-1 more)      indicated line(s) by "n" number of
-    onto the FIFO stack and remove          columns to the right.
-    them at the same time.               <(n),<<(n) shifts the content of the
-                                            indicated line(s) by "n" number of
- A(n) inserts all, or "n" number of,        columns to the left.
-    stack lines after this line.
- B(n) inserts all, or "n" number of,     Note that the above two commands may
-    stack lines before this line.        cause truncation of line content.
-
- PF:           3=End
-                                              8=Forward
-*/
-  mbuild.h3a = False;
-  Call BuildHeader 'help3a.','Member Update',,
-                  BuildPFkeys('',,
-                              '3=End'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '',,
-                              '',,
-                              '8=Forward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Shortcuts:';
-  Call BuildField stem,map0._rows,map0._cols,4,12,,
-                  BuildAttribute(,,'TURQUOISE',),,
-        '(entered in the command area at the left of the source lines)';
-  /* column 1 */
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'I(n)';
-  Call BuildField stem,map0._rows,map0._cols,6,6,,
-                  BuildAttribute(,,'GREEN',),,
-                  'adds (inserts) one or more blank  ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   lines after this line.              ';
-  Call BuildField stem,map0._rows,map0._cols,8,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'D(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  'DD';
-  Call BuildField stem,map0._rows,map0._cols,8,9,,
-                  BuildAttribute(,,'GREEN',),,
-                  'removes this line (plus n-1    ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   more) from the member.              ';
-  Call BuildField stem,map0._rows,map0._cols,11,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'C(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  'CC';
-  Call BuildField stem,map0._rows,map0._cols,11,9,,
-                  BuildAttribute(,,'GREEN',),,
-                  'places this line (plus n-1     ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   more) onto the FIFO stack.          ';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'M(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  'MM';
-  Call BuildField stem,map0._rows,map0._cols,13,9,,
-                  BuildAttribute(,,'GREEN',),,
-                  'combines the C and D shortcuts ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   to place this line (plus n-1 more)  ';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   onto the FIFO stack and remove      ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   them at the same time.              ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'A(n)';
-  Call BuildField stem,map0._rows,map0._cols,18,6,,
-                  BuildAttribute(,,'GREEN',),,
-                  'inserts all, or "n" number of,    ';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   stack lines after this line.        ';
-  Call BuildField stem,map0._rows,map0._cols,20,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'B(n)';
-  Call BuildField stem,map0._rows,map0._cols,20,6,,
-                  BuildAttribute(,,'GREEN',),,
-                  'inserts all, or "n" number of,    ';
-  Call BuildField stem,map0._rows,map0._cols,21,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   stack lines before this line.       ';
-  /* column 2 */
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'L(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  'LL';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'U(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  'UU';
-  Call BuildField stem,map0._rows,map0._cols,7,49,,
-                  BuildAttribute(,,'GREEN',),,
-                  'translates one or more lines';
-  Call BuildField stem,map0._rows,map0._cols,8,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   to lowercase or to uppercase.       ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '"(n)';
-  Call BuildField stem,map0._rows,map0._cols,10,46,,
-                  BuildAttribute(,,'GREEN',),,
-                  'duplicates the indicated line     ';
-  Call BuildField stem,map0._rows,map0._cols,11,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   one or more times.                  ';
-  Call BuildField stem,map0._rows,map0._cols,13,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '>(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  '>>(n)';
-  Call BuildField stem,map0._rows,map0._cols,13,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'shifts the content of the   ';
-  Call BuildField stem,map0._rows,map0._cols,14,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   indicated line(s) by "n" number of  ';
-  Call BuildField stem,map0._rows,map0._cols,15,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   columns to the right.               ';
-  Call BuildField stem,map0._rows,map0._cols,16,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '<(n)'                       ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_GREEN         ||,
-                  ','                          ||,
-                  RX3270_DSO.LIT_SET_ATTRIBUTE ||,
-                  RX3270_TYP.LIT_EXTENDED_COLOR||,
-                  RX3270_EXC.LIT_DEFAULT       ||,
-                  '<<(n)';
-  Call BuildField stem,map0._rows,map0._cols,16,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'shifts the content of the   ';
-  Call BuildField stem,map0._rows,map0._cols,17,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   indicated line(s) by "n" number of  ';
-  Call BuildField stem,map0._rows,map0._cols,18,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   columns to the left.                ';
-  Call BuildField stem,map0._rows,map0._cols,20,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Note';
-  Call BuildField stem,map0._rows,map0._cols,20,46,,
-                  BuildAttribute(,,'GREEN',),,
-                  'that the above two commands may';
-  Call BuildField stem,map0._rows,map0._cols,21,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  'cause truncation of line content.      ';
-Return;
-
-BuildHelp3b:
-/* layout of help3b
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                       Member Update                         hh:mm xx
-
- Commands: (entered into the command field above the source lines)
-
- Function key text may be entered as     Change src tgt changes the matching
-    commands (see last page of help).       string on the current line to the
-                                            second string specified.  Both
- CASE {Mixed|Upper} toggles translation     strings are saved for use with the
-    of changed member lines.                PF4 and PF5 keys.
-
- Up (n) moves current line pointer up    Insert str before current line content
-    by one or more lines.                   or before position of last Find.
-
- DOwn (n) moves current line pointer     Delete erases the last Find string
-    down by one or more lines.              moving other content to the left.
-
- Find src searches for the string from   Overlay str clears current line and
-    the current line forward.  String       fills with the specified string.
-    is saved for use with the PF5 key.
-
-
- PF:           3=End                          7=Backward
-                                              8=Forward
-*/
-  mbuild.h3b = False;
-  Call BuildHeader 'help3b.','Member Update',,
-                  BuildPFkeys('',,
-                              '3=End',,
-                              '',,
-                              '',,
-                              '7=Backward'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '',,
-                              '',,
-                              '8=Forward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Commands:';
-  Call BuildField stem,map0._rows,map0._cols,4,11,,
-                  BuildAttribute(,,'TURQUOISE',),,
-              '(entered into the command field above the source lines)';
-  /* column 1 */
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'Function key text';
-  Call BuildField stem,map0._rows,map0._cols,6,19,,
-                  BuildAttribute(,,'GREEN',),,
-                  'may be entered as';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   commands (see last page of help).   ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'CASE {Mixed|Upper}';
-  Call BuildField stem,map0._rows,map0._cols,9,20,,
-                  BuildAttribute(,,'GREEN',),,
-                  'toggles translation ';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   of changed member lines.            ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Up (n)';
-  Call BuildField stem,map0._rows,map0._cols,12,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'moves current line pointer up';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   by one or more lines.               ';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'DOwn (n)';
-  Call BuildField stem,map0._rows,map0._cols,15,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'moves current line pointer';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   down by one or more lines.          ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Find src';
-  Call BuildField stem,map0._rows,map0._cols,18,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'searches for the string from';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   the current line forward.  String   ';
-  Call BuildField stem,map0._rows,map0._cols,20,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   is saved for use with the PF5 key.  ';
-  /* column 2 */
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'CHange src tgt';
-  Call BuildField stem,map0._rows,map0._cols,6,56,,
-                  BuildAttribute(,,'GREEN',),,
-                  'changes the matching';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   source string on the current line   ';
-  Call BuildField stem,map0._rows,map0._cols,8,41,,
-                  BuildAttribute('ASKIP_BRT',,'GREEN',),,
-                  '   to the target string specified.     ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   Both strings are saved for use      ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   with the PF4 and PF5 keys.          ';
-  Call BuildField stem,map0._rows,map0._cols,12,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Insert str';
-  Call BuildField stem,map0._rows,map0._cols,12,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'before current line content';
-  Call BuildField stem,map0._rows,map0._cols,13,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   or before position of last Find.    ';
-  Call BuildField stem,map0._rows,map0._cols,15,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Delete';
-  Call BuildField stem,map0._rows,map0._cols,15,48,,
-                  BuildAttribute(,,'GREEN',),,
-                  'erases the last Find string';
-  Call BuildField stem,map0._rows,map0._cols,16,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   moving other content to the left.   ';
-  Call BuildField stem,map0._rows,map0._cols,18,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Overlay str';
-  Call BuildField stem,map0._rows,map0._cols,18,53,,
-                  BuildAttribute(,,'GREEN',),,
-                  'clears current line and';
-  Call BuildField stem,map0._rows,map0._cols,19,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   fills with the specified string.    ';
-Return;
-
-BuildHelp3c:
-/* layout of help3c
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                       Member Update                         hh:mm xx
-
- Commands: (continued)
-
- LAdd (str) inserts the string as a      CLear empties the stack.  Note that
-    new line after the current line.        Job Control processes (as JCL) what
-                                            remains in the stack on exit.
- LDrop removes the current line from
-    the member.                          SUBmit places the current content into
-                                            the POWER RDR queue (if POWER is
- COpy (n) places the current line (plus     active, of course).
-    n-1 more) onto the FIFO stack.  An
-    '*' goes to end of member.
-
- Paste (n) inserts one or more lines
-    off the stack ('*' to end of stack)
-    after the current line.  You must
-    copy again in order to paste again.
-
-
-
- PF:           3=End                          7=Backward
-                                              8=Forward
-*/
-  mbuild.h3c = False;
-  Call BuildHeader 'help3c.','Member Update',,
-                  BuildPFkeys('',,
-                              '3=End',,
-                              '',,
-                              '',,
-                              '7=Backward'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '',,
-                              '',,
-                              '8=Forward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Commands:';
-  Call BuildField stem,map0._rows,map0._cols,4,11,,
-                  BuildAttribute(,,'TURQUOISE',),,
-                  '(continued)';
-  /* column 1 */
-  Call BuildField stem,map0._rows,map0._cols,6,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'LAdd (str)';
-  Call BuildField stem,map0._rows,map0._cols,6,12,,
-                  BuildAttribute(,,'GREEN',),,
-                  'inserts the string as a';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   new line after the current line.    ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'LDrop';
-  Call BuildField stem,map0._rows,map0._cols,9,7,,
-                  BuildAttribute(,,'GREEN',),,
-                  'removes the current line from';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   the member.                         ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'COpy (n)';
-  Call BuildField stem,map0._rows,map0._cols,12,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'places the current line (plus';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   n-1 more) onto the FIFO stack.  An  ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  "   '*' goes to end of member.          ";
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Paste (n)';
-  Call BuildField stem,map0._rows,map0._cols,16,11,,
-                  BuildAttribute(,,'GREEN',),,
-                  'inserts one or more lines';
-  Call BuildField stem,map0._rows,map0._cols,17,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  "   off the stack ('*' to end of stack) ";
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   after the current line.  You must   ';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   copy again in order to paste again. ';
-  /* column 2 */
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'CLear';
-  Call BuildField stem,map0._rows,map0._cols,6,47,,
-                  BuildAttribute(,,'GREEN',),,
-                  'empties the stack.  Note that';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   Job Control processes (as JCL) what ';
-  Call BuildField stem,map0._rows,map0._cols,8,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   remains in the stack on exit.       ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'SUBmit';
-  Call BuildField stem,map0._rows,map0._cols,10,48,,
-                  BuildAttribute(,,'GREEN',),,
-                  'places the current content into ';
-  Call BuildField stem,map0._rows,map0._cols,11,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   the POWER RDR queue (if POWER is    ';
-  Call BuildField stem,map0._rows,map0._cols,12,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   active, of course).                 ';
-Return;
-
-BuildHelp3d:
-/* layout of help3d
- SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy
- CUU: &CUU                       Member Update                         hh:mm xx
-
- Program Function Keys:
- 1=Help displays these Help panels.      6=Top
-                                         9=Bottom displays the first or last
- 2=Recall the last command entered.         page of the member listing.
-
- 3=Save the updated member and go back   7=Forward
-    to the member listing.               8=Backward scrolls forward or backward
-                                            through the pages of the member
- 4=Change                                   listing.  (cursor-sensitive)
- 5=Find a string from the current line
-    to the end of the member source      10=Left
-    for optional replacement.  These     11=Right shift of the source lines by
-    keys will substitute strings from       8 columns in either direction.
-    the command line as find and            Provides update access to source
-    replace strings.  If the command        lines up to 80 characters wide.
-    line is blank, the last find or
-    replacement string is reused to      12=Cancel any member updates and go
-    repeat the find/change.                 back to the member listing.
-
- PF:           3=End                          7=Backward
-
-*/
-  mbuild.h3d = False;
-  Call BuildHeader 'help3d.','Member Update',,
-                  BuildPFkeys('',,
-                              '3=End',,
-                              '',,
-                              '',,
-                              '7=Backward');
-
-  Call BuildField stem,map0._rows,map0._cols,4,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  'Program Function Keys:';
-  Call BuildField stem,map0._rows,map0._cols,5,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  RX3270_DSO.LIT_INSERT_CURSOR'1=Help';
-  Call BuildField stem,map0._rows,map0._cols,5,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays these Help panels.     ';
-  Call BuildField stem,map0._rows,map0._cols,5,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '6=Top';
-  Call BuildField stem,map0._rows,map0._cols,6,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '9=Bottom';
-  Call BuildField stem,map0._rows,map0._cols,6,51,,
-                  BuildAttribute(,,'GREEN',),,
-                  'displays the first or last    ';
-  Call BuildField stem,map0._rows,map0._cols,7,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '2=Recall';
-  Call BuildField stem,map0._rows,map0._cols,7,10,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the last command entered.     ';
-  Call BuildField stem,map0._rows,map0._cols,7,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   page of the member listing.         ';
-  Call BuildField stem,map0._rows,map0._cols,9,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '3=Save';
-  Call BuildField stem,map0._rows,map0._cols,9,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'the updated member and go back  ';
-  Call BuildField stem,map0._rows,map0._cols,9,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '7=Forward';
-  Call BuildField stem,map0._rows,map0._cols,10,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   to the member listing.              ';
-  Call BuildField stem,map0._rows,map0._cols,10,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '8=Backward';
-  Call BuildField stem,map0._rows,map0._cols,10,52,,
-                  BuildAttribute(,,'GREEN',),,
-                  'scrolls forward or backward ';
-  Call BuildField stem,map0._rows,map0._cols,11,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   through the pages of the member     ';
-  Call BuildField stem,map0._rows,map0._cols,12,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '4=Change';
-  Call BuildField stem,map0._rows,map0._cols,12,41,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   listing.  (cursor-sensitive)        ';
-  Call BuildField stem,map0._rows,map0._cols,13,1,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '5=Find';
-  Call BuildField stem,map0._rows,map0._cols,13,8,,
-                  BuildAttribute(,,'GREEN',),,
-                  'a string from the current line  ';
-  Call BuildField stem,map0._rows,map0._cols,14,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   to the end of the member source     ';
-  Call BuildField stem,map0._rows,map0._cols,14,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '10=Left';
-  Call BuildField stem,map0._rows,map0._cols,15,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   for optional replacement.  These    ';
-  Call BuildField stem,map0._rows,map0._cols,15,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '11=Right';
-  Call BuildField stem,map0._rows,map0._cols,15,51,,
-                  BuildAttribute(,,'GREEN',),,
-                  'shift of the source lines by  ';
-  Call BuildField stem,map0._rows,map0._cols,16,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   keys will substitute strings from   ',
-                  '   8 columns in either direction.      ';
-  Call BuildField stem,map0._rows,map0._cols,17,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   the command line as find and        ',
-                  '   Provides update access to source    ';
-  Call BuildField stem,map0._rows,map0._cols,18,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   replace strings.  If the command    ',
-                  '   lines up to 80 characters wide.     ';
-  Call BuildField stem,map0._rows,map0._cols,19,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   line is blank, the last find or     ';
-  Call BuildField stem,map0._rows,map0._cols,20,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   replacement string is reused to     ';
-  Call BuildField stem,map0._rows,map0._cols,20,41,,
-                  BuildAttribute('ASKIP_BRT',,'WHITE',),,
-                  '12=Cancel';
-  Call BuildField stem,map0._rows,map0._cols,20,51,,
-                  BuildAttribute(,,'GREEN',),,
-                  'any member updates and go    ';
-  Call BuildField stem,map0._rows,map0._cols,21,1,,
-                  BuildAttribute(,,'GREEN',),,
-                  '   repeat the find/change.             ',
-                  '   back to the member listing.         ';
+GetMapMember:
+  Parse Arg _map;
+  map.  = '';
+  map.0 = 0;
+  "EXECIO * DISKR" maplib'.'pgm'.'_map "( OPEN FINIS STEM map. )";
+  If rc <> 0 Then Do
+    Say ' Error: Reading map "'maplib'.'pgm'.'_map'"; rc = 'rc;
+    Exit rc;
+  End
+  _map = _map'.';
+  Do n = 1 to map.0
+    If Left(map.n,1) = '*' Then Iterate;
+    If Left(map.n,5) <> 'STMT:' Then Do
+      Parse Var map.n row col atr csr exc exh init;
+      If atr = '.' Then atr = '';
+      If csr = '.' Then csr = '';
+      If exc = '.' Then exc = '';
+      If exh = '.' Then exh = '';
+      init = Strip(init,'B');
+      Call BuildField _map,map0._rows,map0._cols,row,col,,
+                      BuildAttribute(atr,csr,exc,exh),init;
+    End
+    Else Do
+      Parse Var map.n . stmt;
+      Interpret stmt;
+    End
+  End
+  Drop _map map. stmt init;
 Return;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

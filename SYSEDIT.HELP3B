@@ -1,0 +1,75 @@
+* layout of help3b -- header and footer done in main procedure                  
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                       Member Update                         hh:mm xx 
+*                                                                               
+*Commands: (entered in the command field above the source lines)                
+*                                                                               
+*Function key text may be entered as     Change src tgt changes the matching    
+*   commands (see last page of help).       string on the current line to the   
+*                                           second string specified.  Both      
+*CASE {Mixed|Upper} toggles translation     strings are saved for use with the  
+*   of changed member lines.                PF4 and PF5 keys.                   
+*                                                                               
+*Up (n) moves current line pointer up    Insert str before current line content 
+*   by one or more lines.                   or before position of last Find.    
+*                                                                               
+*DOwn (n) moves current line pointer     Delete erases the last Find string     
+*   down by one or more lines.              moving other content to the left.   
+*                                                                               
+*Find src searches for the string from   Overlay str clears current line and    
+*   the current line forward.  String       fills with the specified string.    
+*   is saved for use with the PF5 key.                                          
+*                                                                               
+*&MSG                                                                           
+*PF:           3=End                          7=Backward                        
+*                                             8=Forward                         
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+04 001 ASKIP_BRT .   WHITE .   Commands:                                        
+04 011 .         .   TURQU .   (entered in the command field                    
+04 041 .         .   TURQU .   above the source lines)                          
+*                                                                               
+* column 1                                                                      
+06 001 ASKIP_BRT YES WHITE .   Function key                                     
+06 014 .         .   GREEN .   text may be entered as                           
+07 004 .         .   GREEN .   commands (see last page of help).                
+*                                                                               
+09 001 ASKIP_BRT .   WHITE .   CASE {Mixed|Upper}                               
+09 020 .         .   GREEN .   toggles translation                              
+10 004 .         .   GREEN .   of changed member lines.                         
+*                                                                               
+12 001 ASKIP_BRT .   WHITE .   Up (n)                                           
+12 008 .         .   GREEN .   moves current line pointer up                    
+13 004 .         .   GREEN .   by one or more lines.                            
+*                                                                               
+15 001 ASKIP_BRT .   WHITE .   DOwn (n)                                         
+15 010 .         .   GREEN .   moves current line pointer                       
+16 004 .         .   GREEN .   down by one or more lines.                       
+*                                                                               
+18 001 ASKIP_BRT .   WHITE .   Find src                                         
+18 010 .         .   GREEN .   searches for the string from                     
+19 004 .         .   GREEN .   the current line forward.  String                
+20 004 .         .   GREEN .   is saved for use with the PF5 key.               
+*                                                                               
+* column 2                                                                      
+06 041 ASKIP_BRT .   WHITE .   CHange src tgt                                   
+06 056 .         .   GREEN .   changes the matching                             
+07 044 .         .   GREEN .   string on the current line to the                
+08 044 .         .   GREEN .   second string specified.  Both                   
+09 044 .         .   GREEN .   strings are saved for use with the               
+10 044 .         .   GREEN .   PF4 and PF5 keys.                                
+*                                                                               
+12 041 ASKIP_BRT .   WHITE .   Insert str                                       
+12 052 .         .   GREEN .   before current line content                      
+13 044 .         .   GREEN .   or before position of last Find.                 
+*                                                                               
+15 041 ASKIP_BRT .   WHITE .   Delete                                           
+15 048 .         .   GREEN .   erases the last Find string                      
+16 044 .         .   GREEN .   moving other content to the left.                
+*                                                                               
+18 041 ASKIP_BRT .   WHITE .   Overlay str                                      
+18 053 .         .   GREEN .   clears current line and                          
+19 044 .         .   GREEN .   fills with the specified string.                 
+*                                                                               

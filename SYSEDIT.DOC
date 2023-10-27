@@ -1,0 +1,372 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+/* REXX: SYSEDIT    Proc Created 03/02/2004   By Dave Clark          */         
+/*                  Last Revised 10/12/2023                          */         
+/*                                                                   */         
+/*      This procedure  provides  for  quick-n-dirty creation and/or */         
+/* editing of VSE sublibrary  members  from  the  BG partition -- in */         
+/* either line mode (on the  VSE console,  only) or full-screen mode */         
+/* (using a native 3270 terminal session).   The target situation is */         
+/* primarily one in which all that  is active is the BG partition in */         
+/* which to work.                                                    */         
+/*                                                                   */         
+/*      However,  this could certainly be  used  in small shops as a */         
+/* programmer's only editor --  as  long  as  each programmer can be */         
+/* allocated their own long-running partition for this job and their */         
+/* own sublibrary  from  which  to  work.   This  procedure could be */         
+/* executed from a PROC,  since it  requires a minimal amount of JCL */         
+/* to execute in full-screen mode (but only the EXEC to execute from */         
+/* the VSE console in line mode).  In online mode it will prompt for */         
+/* the device address from the console.                              */         
+/*                                                                   */         
+/* // SETPFIX LIMIT=8K         /* for online use, only */            */         
+/* // EXEC REXX=SYSEDIT,SIZE=256K<,PARM='{ONLINE|BATCH}'>            */         
+/*                                        ¯¯¯¯¯¯                     */         
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+                                                                                
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+/* No warranty is expressed or implied.      Written by Dave L Clark */         
+/* Neither the author nor the company is     DAPSCO Information Sys. */         
+/* responsible for any loss or damage        3110 Kettering Blvd.    */         
+/* resulting from the use of this code.      Dayton, OH  45439       */         
+/* Source is provided on an as-is basis.     Phone (937)294-5331     */         
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+/*      Note that the following block of  source lines are used as a */         
+/* HELP display on the console  when in batch mode.   Online has its */         
+/* own help screens.  Some edit commands are different for batch vs. */         
+/* online and other commands are batch-only vs. online-only.         */         
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+                                                                                
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */             
+/* Edit commands are:  (only capital letters of Cmd required)    */             
+/*                                                               */             
+/* Help          Results in this display.                        */             
+/* Save          Saves any changes and ends member edit.         */             
+/* Quit          Ends member edit without saving any changes.    */             
+/* Top           Positions to top line of member for editing.    */             
+/* Bottom        Positions to bottom line of member for editing. */             
+/* Up (nn)       Moves up 1 or nn number of lines for editing.   */             
+/* Next (nn)     Moves down 1 or nn number of lines for editing. */             
+/* Overlay (str) Erases the entire content of the current line   */             
+/*                 and, if specified, fills with entered string. */             
+/* Find str      Searches forward in the current member until    */             
+/* Locate str      specified string is found, then displays that */             
+/*                 line with the located string repeated below.  */             
+/* Insert str    Inserts the specified string before the current */             
+/*                 location pointer position.  If not shown, it  */             
+/*                 is at the beginning of the current line.      */             
+/* Replace str   Changes the previously located string to the    */             
+/*                 specified string, then redisplays the changed */             
+/*                 line and an asterisk location pointer below.  */             
+/* Delete        Erases the previously located string, then re-  */             
+/*                 displays the changed line & location pointer. */             
+/* LAdd (str)    Creates a new member line after the current one */             
+/*                 and, if specified, fills with entered string. */             
+/* LDrop         Eliminates the current line from the member.    */             
+/* COpy (n)      Add current line (plus n-1 more) to the FIFO    */             
+/*                 stack.  An '*' goes to end-of-member.         */             
+/* Paste (n)     Get one or more new lines, off of stack ('*' to */             
+/*                 end-of-stack), inserting after current line.  */             
+/* CLear         Empty the data stack.  Note that if the stack   */             
+/*                 is not empty when the editor ends, then Job   */             
+/*                 Control will process (as JCL) what remains    */             
+/*                 up to the first "/&" card encountered.        */             
+/* SUBmit        Resets member edit back to the first line and,  */             
+/*                 if VSE/POWER is active, places the current    */             
+/*                 member content into the RDR queue.            */             
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */             
+                                                                                
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
+/*                                                                   */         
+/*         MODULE, FUNCTION, and SUBROUTINE Cross-Reference          */         
+/*         ------------------------------------------------          */         
+/*                                                                   */         
+/* MAINLINE MODULES                                                  */         
+/* ----------------                                                  */         
+/* Map0_Processing                                                   */         
+/*             prompts for a library specification.                  */         
+/*                                                                   */         
+/* Map1_Processing                                                   */         
+/*             prompts for a sublibrary selection.                   */         
+/*             Optionally, this process also supports sublibrary     */         
+/*             create and delete.                                    */         
+/*                                                                   */         
+/* Map2_Processing                                                   */         
+/*             prompts for a member selection.                       */         
+/*             Optionally, this process also supports member         */         
+/*             create, delete, copy, move, and rename.               */         
+/*                                                                   */         
+/* Map3_Processing                                                   */         
+/*             prompts for member editing.                           */         
+/*             Optionally, this process also supports member         */         
+/*             submit to POWER.                                      */         
+/*                                                                   */         
+/* GENERAL ROUTINES                                                  */         
+/* ----------------                                                  */         
+/* Dump                                                              */         
+/*             invokes RXDMPVAR to dump all REXX variables for       */         
+/*             sorted (SHAKESRT) output to SYSLST.                   */         
+/*                                                                   */         
+/* IFF                                                               */         
+/*             is an in-line IF function.                            */         
+/*             Arguments:  (all are optional)                        */         
+/*                 Boolean condition                                 */         
+/*                 value to return if boolean condition is true      */         
+/*                 value to return if boolean condition is false     */         
+/*                                                                   */         
+/* MakeStem                                                          */         
+/*             is a subroutine to automatically create stem variable */         
+/*             Arguments:  (at least the first one is required)      */         
+/*                 stem name to create (must include the period)     */         
+/*                 one or more comma-separated values to assign to   */         
+/*                   sequentially numbered stem variables.           */         
+/*                                                                   */         
+/* ParseCommandString                                                */         
+/*             is a subroutine to handle quoted command operands.    */         
+/*             Arguments:  (required)                                */         
+/*                 string  (format: command oper1 oper2 oper3 ...)   */         
+/*                                                                   */         
+/* INPUT-OUTPUT ROUTINES                                             */         
+/* ---------------------                                             */         
+/* Screen_IO                                                         */         
+/*             erases the screen, writes the specified map to the    */         
+/*             screen, and performs a read-modified operation.       */         
+/*             Arguments:  (required)                                */         
+/*                 stem name of the current map.                     */         
+/*                                                                   */         
+/* Converse                                                          */         
+/*             writes supplied argument string to row 22 column 1    */         
+/*             and optionally accepts unparsed input data.           */         
+/*             Arguments:  (first one is required)                   */         
+/*                 output string to write                            */         
+/*                 length of optional input                          */         
+/*             Note that, except for AID byte and cursor position,   */         
+/*                 the optional input data is not parsed and must be */         
+/*                 retrieved from the RAW stem variable for the map. */         
+/*                                                                   */         
+/* Help                                                              */         
+/*             presents as many pages of the specified help map as   */         
+/*             requested by the user.                                */         
+/*             Arguments:  (required)                                */         
+/*                 group number for the help map(s) to display.      */         
+/*                                                                   */         
+/* VSE LIBRARY INTERFACE ROUTINES                                    */         
+/* ------------------------------                                    */         
+/* ListDir_Successful                                                */         
+/*             function returns a Boolean value as to the success or */         
+/*             failure of listing the contents of the specified      */         
+/*             library or sublibrary name.                           */         
+/*             Arguments:  (required)                                */         
+/*                 library or sublibrary name to list.               */         
+/*                 Note that this argument must be prefixed by       */         
+/*                 "L=" or "S=" to indicate a library or sublibrary. */         
+/*                                                                   */         
+/* ListMbr_Successful                                                */         
+/*             function returns a Boolean value as to the success or */         
+/*             failure of listing the contents of the specified      */         
+/*             sublibrary name.                                      */         
+/*             Arguments:  (required)                                */         
+/*                 member name selection,                            */         
+/*                 sublibrary name to access.                        */         
+/*                                                                   */         
+/* NewMember                                                         */         
+/*             prompts for the creation of a new member and returns  */         
+/*             a Boolean value on its creation success or failure.   */         
+/*             Arguments:  (required)                                */         
+/*                 member name to create,                            */         
+/*                 sublibrary name to access.                        */         
+/*                                                                   */         
+/* NewSublibrary                                                     */         
+/*             prompts for the creation of a new sublibrary and      */         
+/*             returns a Boolean value on its success or failure.    */         
+/*             Arguments:  (required)                                */         
+/*                 sublibrary name to create,                        */         
+/*                                                                   */         
+/* OperationFailed                                                   */         
+/*             invokes LIBR to perform the requested operation and   */         
+/*             returns a Boolean value on its success or failure.    */         
+/*             Arguments:  (first two are required)                  */         
+/*                 operation name,                                   */         
+/*                 object on which to perform the operation,         */         
+/*                 object in which the operation is performed.       */         
+/*                                                                   */         
+/* EDIT COMMAND ROUTINES                                             */         
+/* ---------------------                                             */         
+/* SetTopOfMember                                                    */         
+/*             sets the internal record pointer to the first record  */         
+/*             in the internal virtual member.                       */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* SetRecordPointer                                                  */         
+/*             sets the internal record pointer to the argument      */         
+/*             record number in the internal virtual member.         */         
+/*             Arguments:  (required)                                */         
+/*                 line number to position at top of screen.         */         
+/*                                                                   */         
+/* ResetLocationPointer                                              */         
+/*             sets the internal location pointer to the beginning   */         
+/*             of the current line in the virtual member.            */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* ResetSourceString                                                 */         
+/*             clears the internal source string buffer.             */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* ReadMember                                                        */         
+/*             loads the content of the current VSE Library member   */         
+/*             into an internal virtual member.                      */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* WriteMember                                                       */         
+/*             saves the content of the internal virtual member into */         
+/*             the current VSE Library member.                       */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* LineAdd                                                           */         
+/*             inserts a new line into the internal virtual member   */         
+/*             and optionally initializes it with a supplied string. */         
+/*             Arguments:  (optional)                                */         
+/*                 string to initialize new line of virtual member.  */         
+/*                                                                   */         
+/* LineDrop                                                          */         
+/*             removes a line from the internal virtual member.      */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* ProcessLineCommands                                               */         
+/*             processes line commands captured in SaveBodyData.     */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* SubmitMember                                                      */         
+/*             submits the content of the internal virtual member    */         
+/*             to VSE/POWER for subsequent processing.               */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* HELPER ROUTINES FOR SCROLLABLE MAPS                               */         
+/* -----------------------------------                               */         
+/* CursorPosition                                                    */         
+/*             function accepts a zero-offset buffer position for    */         
+/*             the cursor and returns the row and column numbers.    */         
+/*             Arguments:  (first two are required)                  */         
+/*                 buffer-offset-type cursor position                */         
+/*                 maximum columns per screen size,                  */         
+/*                 optional number of map header rows to subtract    */         
+/*                                                                   */         
+/* Map1HasSelections                                                 */         
+/*             finds and processes any detail line selections for    */         
+/*             Map1.  Returns a Boolean response if any found.       */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* Map2HasSelections                                                 */         
+/*             finds and processes any detail line selections for    */         
+/*             Map2.  Returns a Boolean response if any found.       */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* RebuildMap1Detail                                                 */         
+/*             sorts the detail lines for Map1, removing any lines   */         
+/*             flagged as deleted, and optionally searches the list  */         
+/*             for the specified sublibrary argument named.          */         
+/*             Arguments:  (optional)                                */         
+/*                 sublibrary name to position to top of detail area */         
+/*                                                                   */         
+/* RebuildMap2Detail                                                 */         
+/*             sorts the detail lines for Map2, removing any lines   */         
+/*             flagged as deleted, and optionally searches the list  */         
+/*             for the specified member argument named.              */         
+/*             Arguments:  (optional)                                */         
+/*                 member name to position to top of detail area     */         
+/*                                                                   */         
+/* SaveBodyData                                                      */         
+/*             transfers screen data from the body of Map3 into the  */         
+/*             internal buffer for the member currently under edit.  */         
+/*             Arguments:  (none)                                    */         
+/*                                                                   */         
+/* HELPER ROUTINES FOR BUILDING MAPS                                 */         
+/* ---------------------------------                                 */         
+/* BuildAttribute                                                    */         
+/*             function returns 4-byte field attribute value --      */         
+/*             for use when calling the BuildField subroutine.       */         
+/*             Arguments: (all optional -- defaults provided)        */         
+/*                 field attribute selection,                        */         
+/*                 cursor option selection,                          */         
+/*                 extended color selection,                         */         
+/*                 extended hilight selection.                       */         
+/*                                                                   */         
+/* BuildField                                                        */         
+/*             subroutine creates stem variables for a map field --  */         
+/*             called by the BuildHeader & BuildTrailer subroutines. */         
+/*             Arguments: (all required -- except for the last one)  */         
+/*                 stem name of the current map,                     */         
+/*                 maximum rows per screen size,                     */         
+/*                 maximum columns per screen size,                  */         
+/*                 row position for field attribute,                 */         
+/*                 column position for field attribute,              */         
+/*                 4-byte field attribute value,                     */         
+/*                 optional output (display) value for field.        */         
+/*                                                                   */         
+/* BuildHeader                                                       */         
+/*             subroutine creates all header fields for a map --     */         
+/*             automatically calls the BuildTrailer subroutine.      */         
+/*             Arguments: (only the stem name is required)           */         
+/*                 stem name of the current map,                     */         
+/*                 optional title for 2nd-row-center of map,         */         
+/*                 optional value for first PFkey display line,      */         
+/*                 optional value for second PFkey display line.     */         
+/*                                                                   */         
+/* BuildPFkeys                                                       */         
+/*             function returns a formatted PF-key line for a map -- */         
+/*             for use when calling the BuildHeader subroutine.      */         
+/*             Arguments: (all optional)                             */         
+/*                 accepts one or more arguments for concatenation   */         
+/*                 into a single string value with imbedded color    */         
+/*                 attributes around the PFkey number for emphasis.  */         
+/*                                                                   */         
+/* BuildTrailer                                                      */         
+/*             subroutine creates all trailer fields for a map --    */         
+/*             called by the BuildHeader subroutine.                 */         
+/*             Arguments: (only the stem name is required)           */         
+/*                 stem name of the current map,                     */         
+/*                 optional value for first PFkey display line,      */         
+/*                 optional value for second PFkey display line.     */         
+/*                                                                   */         
+/* MAP BUILDING ROUTINES  (the following have no arguments)          */         
+/* ---------------------                                             */         
+/* BuildMap0                                                         */         
+/*             builds the field definitions  for  Map0 -- which is a */         
+/*             single,  full-screen map that  is displayed only once */         
+/*             for the sole purpose of obtaining the name of the VSE */         
+/*             library to use throughout the edit session.           */         
+/*                                                                   */         
+/* BuildMap1Detail                                                   */         
+/* BuildMap1Body                                                     */         
+/* BuildMap1                                                         */         
+/*             builds the field definitions  for  Map1 -- which is a */         
+/*             scrollable map  that  displays  sublibraries,  in the */         
+/*             current   library,    for   selection   and   further */         
+/*             processing.                                           */         
+/*                                                                   */         
+/* BuildMap2Detail                                                   */         
+/* BuildMap2Body                                                     */         
+/* BuildMap2                                                         */         
+/*             builds the field definitions  for  Map2 -- which is a */         
+/*             scrollable map that displays members,  in the current */         
+/*             sublibrary, for selection and further processing.     */         
+/*                                                                   */         
+/* BuildMap3Body                                                     */         
+/* BuildMap3                                                         */         
+/*             builds the field definitions  for  Map3 -- which is a */         
+/*             scrollable map  that  displays  the  content,  of the */         
+/*             current member, for editing purposes.                 */         
+/*                                                                   */         
+/* BuildHelp                                                         */         
+/*             build the  field  definitions  for  the  help screens */         
+/*             associated with a given Map.   These help screens are */         
+/*             single, full-screen maps (without input fields) which */         
+/*             provide function  keys  for  navigation  from  one to */         
+/*             another.                                              */         
+/*                                                                   */         
+/* GetMapMember                                                      */         
+/*             a generic routine to retrieve a map definition from a */         
+/*             VSE library member,  parse it, and build the required */         
+/*             stem field definitions.  This saves on procedure size */         
+/*             and makes the maintenance of map definitions easier.  */         
+/*                                                                   */         
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         

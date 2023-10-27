@@ -119,7 +119,8 @@ RX3270IN RMODE 24
 *   RX3270_AID.LIT_PF23_KEY                                           *
 *   RX3270_AID.LIT_PF24_KEY                                           *
 *                                                                     *
-*   RX3270_ATR.LIT_UNPROT_NORM         /* field attribute chars */    *
+*   RX3270_ATR.LIT_NO_FLD              /* field attribute chars */    *
+*   RX3270_ATR.LIT_UNPROT_NORM                                        *
 *   RX3270_ATR.LIT_UNPROT_NORM_FSET                                   *
 *   RX3270_ATR.LIT_UNPROT_NORM_DET                                    *
 *   RX3270_ATR.LIT_UNPROT_NORM_DET_FSET                               *
@@ -588,6 +589,10 @@ RX3270IN HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)MAR04',            X
          MVC   VARNAME+L'STEM+L'ATR(L'LIT),LIT
          LA R4,VARNAME+L'STEM+L'ATR+L'LIT
 *
+     LA R3,L'STEM+L'ATR+L'LIT+L'ATRNOFLD
+         MVC   0(L'ATRNOFLD,R4),ATRNOFLD
+         MVI   VARDATA,X'00'
+         BAS   R5,SETVAR               CREATE THE VARIABLE
      LA R3,L'STEM+L'ATR+L'LIT+L'ATRUNPRO
          MVC   0(L'ATRUNPRO,R4),ATRUNPRO
          MVI   VARDATA,X'40'
@@ -969,6 +974,7 @@ AIDPFK24 DC    C'PF24_KEY'
 *        STANDARD FIELD ATTRIBUTE LITERALS                            *
 * ******************************************************************* *
 ATR      DC    C'ATR'
+ATRNOFLD DC    C'NO_FLD'
 ATRUNPRO DC    C'UNPROT_NORM'
 ATRUNFST DC    C'UNPROT_NORM_FSET'
 ATRUNDET DC    C'UNPROT_NORM_DET'

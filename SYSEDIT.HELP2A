@@ -1,0 +1,74 @@
+* layout of help2a -- header and footer done in main procedure                  
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                      Member Selection                       hh:mm xx 
+*                                                                               
+*To alter a member's source, enter a     The following operations are available 
+*valid member.type name (in the input    from the Member Selection screen:      
+*field provided for that purpose) and                                           
+*press ENTER.  Alternatively, you may    S   select the indicated member and    
+*use the cursor to select from the           display its contents for update.   
+*member listing shown.                       Cursor selection performs this     
+*                                            operation by default.              
+*Note that an internal exclusion list                                           
+*determines editable member types.       D   delete the indicated member        
+*                                            (a verification prompt is issued). 
+*For the purposes of creating a new                                             
+*member, enter a valid (but non-         C   copy or                            
+*existent) name and type into the        M   move the indicated member to a     
+*Member.type input field and press           different sublibrary within the    
+*ENTER.  This application then issues        same library.                      
+*a verification prompt to allow you                                             
+*the opportunity to agree or disagree    R   rename the indicated member        
+*to the definition of a new member.          within the same sublibrary.        
+*&MSG                                                                           
+*PF:           3=End                                                            
+*                                             8=Forward                         
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+* column 1                                                                      
+04 001 .         .   GREEN .   To alter a member's source, enter a              
+05 001 .         .   GREEN .   valid member.type name (in the input             
+06 001 .         .   GREEN .   field provided for that purpose) and             
+07 001 .         .   GREEN .   press ENTER.  Alternatively, you may             
+08 001 .         .   GREEN .   use the cursor to select from the                
+09 001 .         .   GREEN .   member listing shown.                            
+*                                                                               
+11 001 .         .   GREEN .   Note that an internal exclusion list             
+12 001 .         .   GREEN .   determines editable member types.                
+*                                                                               
+14 001 .         .   GREEN .   For the purposes of creating a new               
+15 001 .         .   GREEN .   member, enter a valid (but non-                  
+16 001 .         .   GREEN .   existent) name and type into the                 
+17 001 .         .   GREEN .   Member.type input field and press                
+18 001 .         .   GREEN .   ENTER.  This application then issues             
+19 001 .         .   GREEN .   a verification prompt to allow you               
+20 001 .         .   GREEN .   the opportunity to agree or disagree             
+21 001 .         .   GREEN .   to the definition of a new member.               
+*                                                                               
+* column 2                                                                      
+04 041 .         .   GREEN .   The following operations are available           
+05 041 .         .   GREEN .   from the Member Selection screen:                
+*                                                                               
+07 041 ASKIP_BRT YES WHITE .   S                                                
+07 045 .         .   GREEN .   select the indicated member and                  
+08 045 .         .   GREEN .   display its contents for update.                 
+09 045 .         .   GREEN .   Cursor selection performs this                   
+10 045 .         .   GREEN .   operation by default.                            
+*                                                                               
+12 041 ASKIP_BRT .   WHITE .   D                                                
+12 045 .         .   GREEN .   delete the indicated member                      
+13 045 .         .   GREEN .   (a verification prompt is issued).               
+*                                                                               
+15 041 ASKIP_BRT .   WHITE .   C                                                
+15 045 .         .   GREEN .   copy or                                          
+16 041 ASKIP_BRT .   WHITE .   M                                                
+16 045 .         .   GREEN .   move the indicated member to a                   
+17 045 .         .   GREEN .   different sublibrary within the                  
+18 045 .         .   GREEN .   same library.                                    
+*                                                                               
+20 041 ASKIP_BRT .   WHITE .   R                                                
+20 045 .         .   GREEN .   rename the indicated member                      
+21 045 .         .   GREEN .   within the same sublibrary.                      
+*                                                                               

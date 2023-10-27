@@ -1,0 +1,53 @@
+* layout of map0 -- header and footer done in main procedure                    
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                    Library Entry Screen                     hh:mm xx 
+*                                                                               
+*                                                                               
+*     Welcome to Dave Clark's Stand-alone Emergency System Editor.  As was just 
+*hinted, this tool is actually intended for those times when no other editor is 
+*available.   However, smaller VSE shops could certainly use this tool as their 
+*only editor (where each user would  require  their own dynamic partition and a 
+*local non-SNA 3270 device address from which to run this tool).   Please note, 
+*however, that there is no protection from two users editing the same member in 
+*the same library.                                                              
+*                                                                               
+*     This screen is only presented once  per session.   Its sole purpose is to 
+*obtain the VSE library name which will drive the remainder of the session.     
+*                                                                               
+*                                                                               
+*     VSE Library name: _______                                                 
+*                                                                               
+*                                                                               
+*                                                                               
+*                                                                               
+*&MSG                                                                           
+*PF:           3=Exit                                                           
+*                                                                               
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+05 006 .         .   GREEN .   Welcome to Dave Clark's Stand-alone              
+05 042 .         .   GREEN .   Emergency System Editor.  As was just            
+06 001 .         .   GREEN .   hinted, this tool is actually intended           
+06 040 .         .   GREEN .   for those times when no other editor is          
+07 001 .         .   GREEN .   available.   However, smaller VSE shops          
+07 041 .         .   GREEN .   could certainly use this tool as their           
+08 001 .         .   GREEN .   only editor (where each user would               
+08 037 .         .   GREEN .   require  their own dynamic partition and a       
+09 001 .         .   GREEN .   local non-SNA 3270 device address from           
+09 040 .         .   GREEN .   which to run this tool).   Please note,          
+10 001 .         .   GREEN .   however, that there is no protection from        
+10 043 .         .   GREEN .   two users editing the same member in             
+11 001 .         .   GREEN .   the same library.                                
+*                                                                               
+13 006 .         .   GREEN .   This screen is only presented once               
+13 042 .         .   GREEN .   per session.   Its sole purpose is to            
+14 001 .         .   GREEN .   obtain the VSE library name which will           
+14 040 .         .   GREEN .   drive the remainder of the session.              
+*                                                                               
+17 006 .         .   TURQU .   VSE Library name:                                
+17 024 UNPROT_NORM YES YELLOW UNDERLINE                                         
+STMT:  map0_library = fn;                                                       
+17 032 .         .   .     .                                                    
+*                                                                               

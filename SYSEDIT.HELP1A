@@ -1,0 +1,62 @@
+* layout of help1a -- header and footer done in main procedure                  
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                    Sublibrary Selection                     hh:mm xx 
+*                                                                               
+*To obtain a member listing, enter a     The following operations are available 
+*valid sublibrary name (in the input     from the Sublibrary Selection screen:  
+*field provided for that purpose) and                                           
+*press ENTER.  Alternatively, you may    S   select the indicated sublibrary    
+*use the cursor to select from the           and display its member contents.   
+*sublibrary listing shown.                   Cursor selection performs this     
+*                                            operation by default.              
+*For the purposes of creating a new                                             
+*sublibrary, enter a valid (but non-     D   delete the indicated sublibrary    
+*existent) name in the Sublibrary            (a verification prompt is issued). 
+*input field and press ENTER.  This          This also deletes any members      
+*application then issues a verifica-         currently in that sublibrary.      
+*tion prompt to allow you the                                                   
+*opportunity to agree or disagree to                                            
+*the definition of a new sublibrary.                                            
+*                                                                               
+*                                                                               
+*                                                                               
+*&MSG                                                                           
+*PF:           3=End                                                            
+*                                             8=Forward                         
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+* column 1                                                                      
+04 001 .         .   GREEN .   To obtain a member listing, enter a              
+05 001 .         .   GREEN .   valid sublibrary name (in the input              
+06 001 .         .   GREEN .   field provided for that purpose) and             
+07 001 .         .   GREEN .   press ENTER.  Alternatively, you may             
+08 001 .         .   GREEN .   use the cursor to select from the                
+09 001 .         .   GREEN .   sublibrary listing shown.                        
+*                                                                               
+11 001 .         .   GREEN .   For the purposes of creating a new               
+12 001 .         .   GREEN .   sublibrary, enter a valid (but non-              
+13 001 .         .   GREEN .   existent) name in the Sublibrary                 
+14 001 .         .   GREEN .   input field and press ENTER.  This               
+15 001 .         .   GREEN .   application then issues a verifica-              
+16 001 .         .   GREEN .   tion prompt to allow you the                     
+17 001 .         .   GREEN .   opportunity to agree or disagree to              
+18 001 .         .   GREEN .   the definition of a new sublibrary.              
+*                                                                               
+* column 2                                                                      
+04 041 .         .   GREEN .   The following operations are available           
+05 041 .         .   GREEN .   from the Sublibrary Selection screen:            
+*                                                                               
+07 041 ASKIP_BRT YES WHITE .   S                                                
+07 045 .         .   GREEN .   select the indicated sublibrary                  
+08 045 .         .   GREEN .   and display its member contents.                 
+09 045 .         .   GREEN .   Cursor selection performs this                   
+10 045 .         .   GREEN .   operation by default.                            
+*                                                                               
+12 041 ASKIP_BRT .   WHITE .   D                                                
+12 045 .         .   GREEN .   delete the indicated sublibrary                  
+13 045 .         .   GREEN .   (a verification prompt is issued).               
+14 045 .         .   GREEN .   This also deletes any members                    
+15 045 .         .   GREEN .   currently in that sublibrary.                    
+*                                                                               

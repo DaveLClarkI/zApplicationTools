@@ -1,0 +1,51 @@
+* layout of map1 -- header, footer, and detail done in main procedure           
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                    SubLibrary Selection                     hh:mm xx 
+*                                                                               
+*Sublibrary: ________   else, select by cursor from the list below.             
+*                                                                               
+*ListDir Library=&LIB                                                           
+*                                                                               
+*  SUBLIBRARY CREATION   SPACE     NO. OF      USED  DELAYED    % LIBR.         
+*             DATE       REUSAGE   MEMBERS     LB'S  LB'S       SPACE           
+*  --------------------------------------------------------------------         
+*_ BSITEMP    2003-09-30   IMMED         0        1        0       0 %          
+*_ CICS       1997-08-23   AUTO          1        2        0       0 %          
+*_ JOBS       1997-08-23   AUTO         51      314        0       0 %          
+*_ PROD       1997-08-23   AUTO       8094   139478      281      84 %          
+*_ SAVE       1997-08-23   AUTO          7       66        0       0 %          
+*_ TCPIP      1999-11-19   AUTO         11       93        0       0 %          
+*_ TEST       1997-08-23   AUTO          6      116        0       0 %          
+*_ *** End of List ***                                                          
+*_                                                                              
+*_                                                                              
+*_                                                                              
+*&MSG                                                                           
+*PF:  1=Help   3=Exit              6=Top      7=Backward              12=Refresh
+*                       5=Find     9=Bottom   8=Forward                         
+*                                                                               
+*Freeform (with placeholders):    (add 1 to column if NO_FLD attr)              
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+04 001 .         .   TURQU .   Sublibrary:                                      
+04 013 UNPROT_NORM YES YELLOW UNDERLINE                                         
+STMT:  map1_sublib = fn;                                                        
+04 022 .         .   .     .                                                    
+04 024 .         .   BLUE  .   else, select by cursor from the list below.      
+*                                                                               
+06 001 ASKIP_BRT .   WHITE .   ListDir Library=                                 
+06 018 NO_FLD    .   RED   .                                                    
+STMT:  dlbl = map0.map0_library.input;                                          
+STMT:  map1.fn.output = dlbl;                                                   
+06 025 NO_FLD    .   .     .                                                    
+*                                                                               
+STMT:  Call BuildMap1Detail;                                                    
+*                                                                               
+08 003 ASKIP_BRT .   TURQU .                                                    
+STMT:  map1.fn.output = map1_hdr.1;                                             
+09 003 ASKIP_BRT .   TURQU .                                                    
+STMT:  map1.fn.output = map1_hdr.2;                                             
+10 003 ASKIP_BRT .   WHITE .                                                    
+STMT:  map1.fn.output = map1_hdr.3;                                             
+*                                                                               

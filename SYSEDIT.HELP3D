@@ -1,0 +1,76 @@
+* layout of help3d -- header and footer are done in main procedure              
+*                                                                               
+*SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
+*CUU: &CUU                       Member Update                         hh:mm xx 
+*                                                                               
+*Program Function Keys:                                                         
+*1=Help displays these Help panels.      6=Top                                  
+*                                        9=Bottom displays the first or last    
+*2=Recall the last command entered.         page of the member listing.         
+*                                                                               
+*3=Save the updated member and go back   7=Forward                              
+*   to the member listing.               8=Backward scrolls forward or backward 
+*                                           through the pages of the member     
+*4=Change                                   listing.  (cursor-sensitive)        
+*5=Find a string from the current line                                          
+*   to the end of the member source      10=Left                                
+*   for optional replacement.  These     11=Right shift of the source lines by  
+*   keys will substitute strings from       8 columns in either direction.      
+*   the command line as find and            Provides update access to source    
+*   replace strings.  If the command        lines up to 80 characters wide.     
+*   line is blank, the last find or                                             
+*   replacement string is reused to      12=Cancel any member updates and go    
+*   repeat the find/change.                 back to the member listing.         
+*&MSG                                                                           
+*PF:           3=End                          7=Backward                        
+*                                                                               
+*Freeform (with placeholder):                                                   
+*r col atr       csr color hlt initial values                                   
+*                                                                               
+* column 1                                                                      
+04 001 ASKIP_BRT .   WHITE .   Program Function Keys:                           
+05 001 ASKIP_BRT YES WHITE .   1=Help                                           
+05 008 .         .   GREEN .   displays these Help panels.                      
+*                                                                               
+07 001 ASKIP_BRT .   WHITE .   2=Recall                                         
+07 010 .         .   GREEN .   the last command entered.                        
+*                                                                               
+09 001 ASKIP_BRT .   WHITE .   3=Save                                           
+09 008 .         .   GREEN .   the updated member and go back                   
+10 004 .         .   GREEN .   to the member listing.                           
+*                                                                               
+12 001 ASKIP_BRT .   WHITE .   4=Change                                         
+13 001 ASKIP_BRT .   WHITE .   5=Find                                           
+13 008 .         .   GREEN .   a string from the current line                   
+14 004 .         .   GREEN .   to the end of the member source                  
+15 004 .         .   GREEN .   for optional replacement.  These                 
+16 004 .         .   GREEN .   keys will substitute strings from                
+17 004 .         .   GREEN .   the command line as find and                     
+18 004 .         .   GREEN .   replace strings.  If the command                 
+19 004 .         .   GREEN .   line is blank, the last find or                  
+20 004 .         .   GREEN .   replacement string is reused to                  
+21 004 .         .   GREEN .   repeat the find/change.                          
+*                                                                               
+* column 2                                                                      
+05 041 ASKIP_BRT .   WHITE .   6=Top                                            
+06 041 ASKIP_BRT .   WHITE .   9=Bottom                                         
+06 050 .         .   GREEN .   displays the first or last                       
+07 044 .         .   GREEN .   page of the member listing.                      
+*                                                                               
+09 041 ASKIP_BRT .   WHITE .   7=Forward                                        
+10 041 ASKIP_BRT .   WHITE .   8=Backward                                       
+10 052 .         .   GREEN .   scrolls forward or backward                      
+11 044 .         .   GREEN .   through the pages of the member                  
+12 044 .         .   GREEN .   listing.  (cursor-sensitive)                     
+*                                                                               
+14 041 ASKIP_BRT .   WHITE . 10=Left                                            
+15 041 ASKIP_BRT .   WHITE . 11=Right                                           
+15 050 .         .   GREEN . shift of the source lines by                       
+16 044 .         .   GREEN . 8 columns in either direction.                     
+17 044 .         .   GREEN . Provides update access to source                   
+18 044 .         .   GREEN . lines up to 80 characters wide.                    
+*                                                                               
+20 041 ASKIP_BRT .   WHITE . 12=Cancel                                          
+20 051 .         .   GREEN . any member updates and go                          
+21 044 .         .   GREEN . back to the member listing.                        
+*                                                                               
