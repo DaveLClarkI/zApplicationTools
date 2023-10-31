@@ -64,10 +64,10 @@
 /*                 and, if specified, fills with entered string. */
 /* LDrop         Eliminates the current line from the member.    */
 /* COpy (n)      Add current line (plus n-1 more) to the FIFO    */
-/*                 stack.  An '*' goes to end-of-member.         */
-/* Paste (n)     Get one or more new lines, off of stack ('*' to */
-/*                 end-of-stack), inserting after current line.  */
-/* CLear         Empty the data stack.  Note that if the stack   */
+/*                 queue.  An '*' goes to end-of-member.         */
+/* Paste (n)     Get one or more new lines, off of queue ('*' to */
+/*                 end-of-queue), inserting after current line.  */
+/* CLear         Empty the data queue.  Note that if the queue   */
 /*                 is not empty when the editor ends, then Job   */
 /*                 Control will process (as JCL) what remains    */
 /*                 up to the first "/&" card encountered.        */
@@ -82,7 +82,7 @@ False  = (1=0);
 True   = (0=0);
 
 luno   = '000';                        /* logical unit number */
-cuu    = '';                           /* control unit address */
+cuu    = '';                           /* controller/unit address */
 rc     = 0;
 
 Arg msg;
@@ -228,7 +228,6 @@ Do While rc = 0
 
   Call ReadMember;
   If rc <> 0 Then Leave;
-
   Call SetTopOfMember;
 
 /* ----------------------------------------------------------------- */
@@ -690,7 +689,7 @@ End
 If Queued() > 0 & rc = 0 Then Do
   z = ASSGN('STDIN','SYSLOG');
   z = ASSGN('STDOUT','SYSLOG');
-  Say pgm': The Data stack is not empty.  Clear it?';
+  Say pgm': The Data queue is not empty.  Clear it?';
   Parse Upper External resp .;
   z = ASSGN('STDOUT','SYSLST');
   If Left(resp,1) == 'Y' Then DropBuf;
@@ -885,7 +884,10 @@ Map2_Processing:
     map2.hdr_time.output = Left(t,5)' 'Right(t,2);
     map2.map2_member.input = '';
     Call Screen_IO 'map2.';          /* send and receive map */
-    map2.map2_member.input = Translate(map2.map2_member.input);
+    If map2.map2_member.input > '' Then Do
+      Parse Value Translate(map2.map2_member.input,' ','.') With m t .;
+      map2.map2_member.input = Translate(m'.'t);
+    End
     map2.map2_member.output = '';
     map2.err_mesg.attrib = BuildAttribute('ASKIP_BRT',,'RED',);
     map2.err_mesg.output = '';
@@ -1585,7 +1587,8 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
     End
 
     If Length(str) = 1,      /* mix in no single line LCA cmds */
-    & (copy_begin > 0 & copy_ending = 0,
+    & (delt_begin > 0 & delt_ending = 0,
+    |  copy_begin > 0 & copy_ending = 0,
     |  move_begin > 0 & move_ending = 0,
     |  lowr_begin > 0 & lowr_ending = 0,
     |  uppr_begin > 0 & uppr_ending = 0,
@@ -1601,12 +1604,13 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
     End
 
     If Length(str) = 2,      /* mix in no other block commands */
-    & (copy_begin > 0 & Pos('|'str'|','|MM|LL|UU|<<|>>|') > 0,
-    |  move_begin > 0 & Pos('|'str'|','|CC|LL|UU|<<|>>|') > 0,
-    |  lowr_begin > 0 & Pos('|'str'|','|MM|CC|UU|<<|>>|') > 0,
-    |  uppr_begin > 0 & Pos('|'str'|','|MM|CC|LL|<<|>>|') > 0,
-    |  left_begin > 0 & Pos('|'str'|','|MM|CC|LL|UU|>>|') > 0,
-    |  rght_begin > 0 & Pos('|'str'|','|MM|CC|LL|UU|<<|') > 0),
+    & (delt_begin > 0 & Pos('|'str'|','|CC|MM|LL|UU|<<|>>|') > 0,
+    |  copy_begin > 0 & Pos('|'str'|','|DD|MM|LL|UU|<<|>>|') > 0,
+    |  move_begin > 0 & Pos('|'str'|','|DD|CC|LL|UU|<<|>>|') > 0,
+    |  lowr_begin > 0 & Pos('|'str'|','|DD|MM|CC|UU|<<|>>|') > 0,
+    |  uppr_begin > 0 & Pos('|'str'|','|DD|MM|CC|LL|<<|>>|') > 0,
+    |  left_begin > 0 & Pos('|'str'|','|DD|MM|CC|LL|UU|>>|') > 0,
+    |  rght_begin > 0 & Pos('|'str'|','|DD|MM|CC|LL|UU|<<|') > 0),
     Then Do
       If \lca_errors Then Do
         map3.map3_Bruler.output = ' Cannot mix LCA block commands',
@@ -1719,7 +1723,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
           lca.r = '';
           s = r;                  /* save current record number */
           Call LineAdd '13'x;
-          Do r = (r+1) to (r+nbr-2)
+          Do n = (s+1) to (s+nbr-1)
             Call LineAdd;         /* add blank records */
           End
           r = s - 1;              /* re-test current record */
@@ -1828,7 +1832,7 @@ ProcessLineCommands: Procedure Expose True False upd_flag map3. rec.,
   Else lca_pending = False;       /* all blocks processed */
 
   If single_pending Then Do       /* second pass for single cmds  */
-    Do r = 1 While r <= rec.0     /* that remove lines from stack */
+    Do r = 1 While r <= rec.0     /* that remove lines from queue */
       If Length(lca.r) = 0 Then Iterate;
       Parse Var lca.r str 2 nbr .;
       If Length(nbr) = 0 | nbr = '*' | nbr > Queued() Then
@@ -2255,18 +2259,18 @@ BuildMap1:
 
   mname = 'map1';
   Call BuildHeader mname'.','SubLibrary Selection',,
-                  BuildPFkeys('1=Help',,
-                              '3=Exit',,
-                              '',,
-                              '6=Top',,
-                              '7=Backward',,
-                              '',,
-                              '12=Refresh'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '5=Find',,
-                              '9=Bottom',,
-                              '8=Forward');
+                   BuildPFkeys('1=Help',,
+                               '3=Exit',,
+                               '',,
+                               '6=Top',,
+                               '7=Backward',,
+                               '',,
+                               '12=Refresh'),,
+                   BuildPFkeys('',,
+                               '',,
+                               '5=Find',,
+                               '9=Bottom',,
+                               '8=Forward');
   Call GetMapMember mname;
 Return;
 
@@ -2362,18 +2366,18 @@ BuildMap2:
 
   mname = 'map2';
   Call BuildHeader mname'.','Member Selection',,
-                  BuildPFkeys('1=Help',,
-                              '3=End',,
-                              '',,
-                              '6=Top',,
-                              '7=Backward',,
-                              '',,
-                              '12=Refresh'),,
-                  BuildPFkeys('',,
-                              '',,
-                              '5=Find',,
-                              '9=Bottom',,
-                              '8=Forward');
+                   BuildPFkeys('1=Help',,
+                               '3=End',,
+                               '',,
+                               '6=Top',,
+                               '7=Backward',,
+                               '',,
+                               '12=Refresh'),,
+                   BuildPFkeys('',,
+                               '',,
+                               '5=Find',,
+                               '9=Bottom',,
+                               '8=Forward');
   Call GetMapMember mname;
 Return;
 
@@ -2497,19 +2501,19 @@ BuildMap3:
   Call GetMapMember mname;
 
   Call BuildTrailer stem,,
-                  BuildPFkeys('1=Help',,
-                              '3=Save',,
-                              '4=Change',,
-                              '6=Top',,
-                              '7=Backward',,
-                              '10=Left',,
-                              '12=Cancel'),,
-                  BuildPFkeys('2=Recall',,
-                              '',,
-                              '5=Find',,
-                              '9=Bottom',,
-                              '8=Forward',,
-                              '11=Right');
+                    BuildPFkeys('1=Help',,
+                                '3=Save',,
+                                '4=Change',,
+                                '6=Top',,
+                                '7=Backward',,
+                                '10=Left',,
+                                '12=Cancel'),,
+                    BuildPFkeys('2=Recall',,
+                                '',,
+                                '5=Find',,
+                                '9=Bottom',,
+                                '8=Forward',,
+                                '11=Right');
 Return;
 
 BuildMap3Body:
