@@ -119,7 +119,9 @@ End
 
 mbuild. = online;                      /* reflect online status */
 maplib  = 'DAP.DLC';                   /* library for map members */
-exclude = '|DTSAFE|DUMP|LIST|OBJ|PHASE|SYSDEBUG|';
+
+compile = '|ASM|CAS|CBL|CCB|FOR|PLI|REX|RPG|';
+nonedit = '|DTSAFE|DUMP|LIST|OBJ|PHASE|SYSDEBUG|';
 
 /* ----------------------------------------------------------------- */
 /* Get library name                                                  */
@@ -272,21 +274,6 @@ Do While rc = 0
 
   Select
 
-    When Left(cmd,3) == 'SUB'  Then      /* SUBMIT */
-      Do
-        Call SetTopOfMember;
-        Call SubmitMember;
-        If rc = 0 Then Do
-          If online Then
-            map3.map3_Bruler.output = ' Member submitted.';
-          Else Do
-            Say ' Member submitted.';
-            Say ' ';
-          End
-        End
-        rc    = 0;
-      End
-
     When Left(cmd,1) == 'Q',             /* QUIT */
        | Left(cmd,3) == 'CAN'  Then      /* CANCEL */
       Do
@@ -301,6 +288,21 @@ Do While rc = 0
           Say ' ';
         End
         Call SetTopOfMember;
+      End
+
+    When Left(cmd,3) == 'SUB'  Then      /* SUBMIT */
+      Do
+        Call SetTopOfMember;
+        Call SubmitMember;
+        If rc = 0 Then Do
+          If online Then
+            map3.map3_Bruler.output = ' Member submitted.';
+          Else Do
+            Say ' Member submitted.';
+            Say ' ';
+          End
+        End
+        rc = 0;
       End
 
     When Left(cmd,1) == 'S'    Then      /* SAVE */
@@ -328,7 +330,8 @@ Do While rc = 0
         End
       End
 
-    When Left(cmd,2) == 'RE'   Then      /* RECALL */
+    When online,
+       & Left(cmd,2) == 'RE'   Then      /* RECALL */
       Do
         map3.map3_command.output = cmd_input;
       End
@@ -338,6 +341,34 @@ Do While rc = 0
       Do
         If Translate(Left(oper.1,1)) = 'M' Then mixed = True;
         If Translate(Left(oper.1,1)) = 'U' Then mixed = False;
+      End
+
+    When online,
+       & Left(cmd,4) == 'COMP' Then      /* COMPILE */
+      Do
+        Parse Var map2.map2_member.input m '.' t .;
+        If Pos('|'Left(t,3)'|',compile) = 0 Then
+          map3.map3_Bruler.output = ' Use SAVE.  Member type not compilable.';
+        Else Do
+          If upd_flag Then Call WriteMember;
+          Drop rec.;                /* clear residual data */
+          rec. = '';                /* start fresh */
+          rec.0 = 0;
+          save_type = t;
+          map2.map2_member.input = m'.COMPJOB';
+          If \ListMbr_Successful(map2.map2_member.input,lib) Then Do
+            If \NewCompile(map2.map2_member.input,lib) Then Do
+              map2.err_mesg.output = 'Unable to create compile member.';
+              Leave;
+            End
+            Call RebuildMap2Detail map2.map2_member.input;
+            If map2_ptr = map2_save_ptr Then Call BuildMap2Body;
+          End
+          Call BuildMap3;
+          Call ReadMember;
+          If rc <> 0 Then Leave;
+          Call SetTopOfMember;
+        End
       End
 
     When online,
@@ -884,10 +915,7 @@ Map2_Processing:
     map2.hdr_time.output = Left(t,5)' 'Right(t,2);
     map2.map2_member.input = '';
     Call Screen_IO 'map2.';          /* send and receive map */
-    If map2.map2_member.input > '' Then Do
-      Parse Value Translate(map2.map2_member.input,' ','.') With m t .;
-      map2.map2_member.input = Translate(m'.'t);
-    End
+    map2.map2_member.input = Translate(map2.map2_member.input);
     map2.map2_member.output = '';
     map2.err_mesg.attrib = BuildAttribute('ASKIP_BRT',,'RED',);
     map2.err_mesg.output = '';
@@ -977,6 +1005,8 @@ Map2_Processing:
             End
           End
         End
+        Parse Value Translate(map2.map2_member.input,' ','.') With m t .;
+        map2.map2_member.input = m'.'t;
         If ListMbr_Successful(map2.map2_member.input,lib) Then
           Call BuildMap3;
         Else Do
@@ -1296,14 +1326,14 @@ ListDir_Successful: Procedure Expose syslst. result False True;
   End
 Return True;
 
-ListMbr_Successful: Procedure Expose syslst. result exclude False True;
+ListMbr_Successful: Procedure Expose syslst. result nonedit False True;
   Parse Value Translate(Arg(1),' ','.') With m t .;
   Select
     When t = '' Then Do
       result = 'MEMTYP';
       Return False;
     End
-    When Pos('|'t'|',exclude) > 0 Then Do
+    When Pos('|'t'|',nonedit) > 0 Then Do
       result = 'INVTYP';
       Return False;
     End
@@ -1334,17 +1364,58 @@ NewMember:
   Call Converse 'Not found.  Press PF2 to create the "'||,
                 n1'" member.';
   If map0._aid <> RX3270_AID.LIT_PF2_KEY Then Return False;
-  opt = 'NODATA';
   Parse Upper Var n1 mem '.' typ .;
+  Drop rec.;                 /* clear residual data */
+  rec. = '';                 /* start fresh */
+  rec.0 = 1;
+  rec.1 = ' ';
+  opt = 'NODATA';
   If typ = 'PROC' Then Do
     Call Converse 'Press PF2 again if the "DATA" flag should be',
                   '"ON" for this member.';
     If map0._aid == RX3270_AID.LIT_PF2_KEY Then opt = 'DATA';
   End
-  Drop rec.;                 /* clear residual data */
-  rec. = '';                 /* start fresh */
-  rec.0 = 1;
-  rec.1 = ' ';
+  Signal NewMemberContinue;
+NewCompile:
+  Parse Arg n1,n2;
+  Parse Var n1 mem '.' typ .;
+  rec.0  = 15;
+  rec.1  = "* $$ JOB JNM="mem",CLASS=C,DISP=D,USER='"lib"'";
+  rec.2  = "* $$ LST LST=SYSLST,CLASS=Z,DISP=H";
+  rec.3  = "// JOB    "mem"   COMPILE" mem;
+  rec.4  = "// LIBDEF *,SEARCH=("lib",DAP.PROD),TEMP";
+  rec.5  = "// LIBDEF PHASE,CATALOG=DAP.PROD,TEMP";
+  rec.6  = "// OPTION CATAL,SXREF";
+  rec.7  = "   PHASE  "mem",*";
+  Select
+    When save_type = 'ASM' Then
+      Do
+  rec.8  = "// EXEC   PGM=ASMA90,SIZE=(ASMA90,64K),        ";
+  rec.9  = "               PARM='EX(LBX(EDECKXIT)),SZ(MAX-200K,ABOVE)'";
+      End
+    When save_type = 'CBL' Then
+      Do
+  rec.8  = "// EXEC   PGM=IGYCRCTL,SIZE=IGYCRCTL,          ";
+  rec.9  = "               PARM='SD("lib"."sublib"("mem"))'";
+      End
+    When save_type = 'RPGII' Then
+      Do
+  rec.8  = "// EXEC   PGM=RPGII,SIZE=256K,                 ";
+  rec.9  = "               PARM=' '                        ";
+      End
+    Otherwise
+  rec.8  = "// EXEC   PGM=compiler,SIZE=*,                 ";
+  rec.9  = "               PARM=' '                        ";
+  End
+  rec.8  = Left(rec.8,71)||"X";
+  rec.10 = "* $$ SLI MEM="mem"."save_type",S="lib;
+  rec.11 = "/* EOD";
+  rec.12 = "// EXEC   PGM=LNKEDT,SIZE=256K";
+  rec.13 = "/* EOD";
+  rec.14 = "/& EOJ";
+  rec.15 = "* $$ EOJ";
+  opt    = 'NODATA';
+NewMemberContinue:
   "EXECIO * DISKW" n2'.'n1 "( OPEN FINIS" opt "STEM rec. )";
   If rc <> 0 Then Return False;
   n = map2_dtl.0 + 1;
@@ -2256,7 +2327,6 @@ BuildMap1:
   map1_fnm.0 = 0;
   map1_hdc = 10;
   map1_cnt = 11;
-
   mname = 'map1';
   Call BuildHeader mname'.','SubLibrary Selection',,
                    BuildPFkeys('1=Help',,
@@ -2290,7 +2360,6 @@ BuildMap1Body:
   s = 1;
   stem = 'map1.';
   map1_save_ptr = map1_ptr;
-
   Do i = map1_ptr to map1_dtl.0
     If s = 1 & i = 0 Then
       Call BuildField stem,map0._rows,map0._cols,map1_hdc+s,3,,
@@ -2363,7 +2432,6 @@ BuildMap2:
   map2_fnm.0 = 0;
   map2_hdc = 10;
   map2_cnt = 11;
-
   mname = 'map2';
   Call BuildHeader mname'.','Member Selection',,
                    BuildPFkeys('1=Help',,
@@ -2397,7 +2465,6 @@ BuildMap2Body:
   s = 1;
   stem = 'map2.';
   map2_save_ptr = map2_ptr;
-
   Do i = map2_ptr to map2_dtl.0
     If s = 1 & i = 0 Then
       Call BuildField stem,map0._rows,map0._cols,map2_hdc+s,3,,
@@ -2462,7 +2529,7 @@ BuildMap2Detail: Procedure Expose syslst. map2_hdr. map2_dtl. map2_ptr;
     &  str <> '---------------',
     Then Do
       Parse Var syslst.i . t . 44 m 45 .;
-      If m = 'R' & Pos('|'t'|',exclude) = 0 Then Do
+      If m = 'R' & Pos('|'t'|',nonedit) = 0 Then Do
         n = map2_dtl.0 + 1;
         Parse Var syslst.i n1 n2 . 19 str;
         map2_dtl.n = Left(n2,8) Left(n1,8) str;
@@ -2479,7 +2546,6 @@ BuildMap3:
   map3_hdc = 3;
   map3_cnt = 18;
   map3_ptr = 1;
-
   stem = 'map3.';
   Interpret stem"_lun   = D2C(luno)";
   Interpret stem"_wcc   = RX3270_WCC.LIT_FREEKB_FRSET";
@@ -2499,7 +2565,6 @@ BuildMap3:
 
   mname = 'map3';
   Call GetMapMember mname;
-
   Call BuildTrailer stem,,
                     BuildPFkeys('1=Help',,
                                 '3=Save',,
@@ -2540,7 +2605,6 @@ BuildMap3Body:
   s = 1;
   stem = 'map3.';
   map3_save_ptr = map3_ptr;
-
   Do i = map3_ptr to rec.0
     If s = 1 & i = 0 Then Do
       map3_fnm.s = 'x';

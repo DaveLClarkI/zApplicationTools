@@ -1,24 +1,24 @@
-* layout of help3c -- header and footer done in main procedure                  
+* layout of help3c -- common header and footer done in main procedure           
 *                                                                               
 *SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
 *CUU: &CUU                       Member Update                         hh:mm xx 
 *                                                                               
 *Commands: (continued)                                                          
 *                                                                               
-*LAdd (str) inserts the string as a      CLear empties the stack.  Note that    
+*LAdd (str) inserts the string as a      CLear empties the queue.  Note that    
 *   new line after the current line.        Job Control processes (as JCL) what 
-*                                           remains in the stack on exit.       
+*                                           remains in the queue on exit.       
 *LDrop removes the current line from                                            
-*   the member.                          SUBmit places the current content into 
-*                                           the POWER RDR queue (if POWER is    
-*COpy (n) places the current line (plus     active, of course).                 
-*   n-1 more) onto the FIFO stack.  An                                          
-*   '*' goes to end of member.                                                  
+*   the member.                          COMPile opens up a compile job member  
+*                                           based on the current member (saving 
+*COpy (n) places the current line (plus     the current member, if needed).  An 
+*   n-1 more) onto the FIFO queue.  An      internal inclusion list determines  
+*   '*' goes to end of member.              compilable member types.            
 *                                                                               
-*Paste (n) inserts one or more lines                                            
-*   off the stack ('*' to end of stack)                                         
-*   after the current line.  Once the                                           
-*   stack is empty, you must copy again                                         
+*Paste (n) inserts one or more lines     SUBmit places the current content into 
+*   off the queue ('*' to end of queue)     the POWER RDR queue (if POWER is    
+*   after the current line.  Once the       active, of course).                 
+*   queue is empty, you must copy again                                         
 *   in order to paste again.                                                    
 *                                                                               
 *&MSG                                                                           
@@ -41,24 +41,31 @@
 *                                                                               
 12 001 ASKIP_BRT .   WHITE .   COpy (n)                                         
 12 010 .         .   GREEN .   places the current line (plus                    
-13 004 .         .   GREEN .   n-1 more) onto the FIFO stack.  An               
+13 004 .         .   GREEN .   n-1 more) onto the FIFO queue.  An               
 14 004 .         .   GREEN .   '*' goes to end of member.                       
 *                                                                               
 16 001 ASKIP_BRT .   WHITE .   Paste (n)                                        
 16 011 .         .   GREEN .   inserts one or more lines                        
-17 004 .         .   GREEN .   off the stack ('*' to end of stack)              
+17 004 .         .   GREEN .   off the queue ('*' to end of queue)              
 18 004 .         .   GREEN .   after the current line.  Once the                
-19 004 .         .   GREEN .   stack is empty, you must copy again              
+19 004 .         .   GREEN .   queue is empty, you must copy again              
 20 004 .         .   GREEN .   in order to paste again.                         
 *                                                                               
 * column 2                                                                      
 06 041 ASKIP_BRT .   WHITE .   CLear                                            
-06 047 .         .   GREEN .   empties the stack.  Note that                    
+06 047 .         .   GREEN .   empties the queue.  Note that                    
 07 044 .         .   GREEN .   Job Control processes (as JCL) what              
-08 044 .         .   GREEN .   remains in the stack on exit.                    
+08 044 .         .   GREEN .   remains in the queue on exit.                    
 *                                                                               
-10 041 ASKIP_BRT .   WHITE .   SUBmit                                           
-10 048 .         .   GREEN .   places the current content into                  
-11 044 .         .   GREEN .   the POWER RDR queue (if POWER is                 
-12 044 .         .   GREEN .   active, of course).                              
+10 041 ASKIP_BRT .   WHITE .   COMPile                                          
+10 049 .         .   GREEN .   opens up a compile job member                    
+11 044 .         .   GREEN .   based on the current member (saving              
+12 044 .         .   GREEN .   the current member, if needed).  An              
+13 044 .         .   GREEN .   internal inclusion list determines               
+14 044 .         .   GREEN .   compilable member types.                         
+*                                                                               
+16 041 ASKIP_BRT .   WHITE .   SUBmit                                           
+16 048 .         .   GREEN .   places the current content into                  
+17 044 .         .   GREEN .   the POWER RDR queue (if POWER is                 
+18 044 .         .   GREEN .   active, of course).                              
 *                                                                               
