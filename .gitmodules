@@ -1,7 +1,6 @@
 [submodule "zAssemblerMacros"]
 	path = zAssemblerMacros
 	url = https://github.com/DaveLClarkI/zAssemblerMacros.git
-
 [submodule "zRexxUtilities"]
 	path = zRexxUtilities
 	url = https://github.com/DaveLClarkI/zRexxUtilities.git
