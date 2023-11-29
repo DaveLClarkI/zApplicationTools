@@ -816,66 +816,8 @@ FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
 * =================================================================== *
 DYNASTOR DSECT
 * ------------------------------------------------------------------- *
-DYNASAVE DS    18D                     STANDARD OR F4SA REG. SVAEAREA
-AWORK4   DS    3A                      SAVE ADDRESSES
-SAVE_R0  DS    A                       SAVE REGISTER
-SAVE_R5  DS    A                       SAVE REGISTER
-SAVE_RE  DS    A                       SAVE REGISTER
-SAVE_RF  DS    A                       SAVE REGISTER
-EPVECTOR DS    A                       REXX ENTRY-POINT VECTOR ADDRESS
-EVALBLKA DS    A                       REXX EVALUATION BLOCK ADDRESS
-*
-DYNATBL  DS    9XL(L'FILETBLE)         BEGINNING OF FILE TABLE
-DYNATBLE DS    XL8                     END OF FILE TABLE
-*
-PWORK16  DS    0PL16                   DOUBLE PACKED WORK FIELD
-PWORK8   DS    PL8                     SINGLE PACKED WORK FIELD
-         DS    XL8                     RESERVED
-EWORK    DS    CL34                    EDITED WORK FIELD
-CWORK    DS    CL34                    CHARACTER WORK FIELD
-*
-SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
-SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SAYPARM1 DS    CL8                     'WRITE   '
-SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
-SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
-*
-SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
-SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
-SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SHVPARM1 DS    CL8                     'ARXEXCOM'
-SHVPARM2 DS    XL4
-SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
-*
-DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     BASE STEM NAME
-REQUEST  DS    CL8                     ACCESS REQUEST
-RECNAMEL DS    F                       STEM NAME LENGTH
-RECNAME  DS    CL10                    RECORD NAME STEM
-RQARG2   DS    CL8                     REQUEST ARGUMENT 2
-RQARG3   DS    CL8                     REQUEST ARGUMENT 3
-*
-MACRO    DS    CL8                     LAST FAILED MACRO (IF ANY)
-OPTFLAG  DS    XL1                     OPTION FLAGS
-ACBERRF  EQU   B'00001000'             GET ACB ERROR INFO
-RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
-CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
-SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
-CINUM    DS    XL3                     CATALOG CI NUMBER
-         DS    0F
-VARDATA  DS    CL256                   VARIABLE VALUE
-VARNAME  DS    CL256                   VARIABLE NAME
-SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
-PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
-*
-         COPY  DTEMANA
-*
-         DS    0D                      ALIGN TRANSLATE TABLE
-TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
-         DS    0D                      ALIGN RECORD KEY
-KEYBUF   DS    CL255                   STORAGE FOR RECORD KEY AREA
-         DS    0D                      ALIGN RECORD AREA
-RECBUF   DS    CL65535                 STORAGE FOR RECORD I/O AREA
+DYNASAVE DS    18D                     STANDARD OR F4SA REG. SAVEAREA
+         COPY  RXVSAMIO
 *
 DYNALENG EQU   *-DYNASTOR
 * =================================================================== *
@@ -910,9 +852,9 @@ R6       EQU   6                       TEMPORARY DSECT BASE REGISTER
 R7       EQU   7                       FILETBL ENTRY DSECT BASE REG
 R8       EQU   8                       ACB/RPL DSECT BASE REGISTER
 R9       EQU   9                       REXX SHARED VARIABLES CTL BLOCK
-R10      EQU   10                      RXVSAMIO CSECT BASE REG 3
-R11      EQU   11                      RXVSAMIO CSECT BASE REG 2
-R12      EQU   12                      RXVSAMIO CSECT BASE REG 1
+R10      EQU   10                      TEMP BASE REG FOR IBM MACROS
+R11      EQU   11                      RXVSAMIO CSECT BASE REG
+R12      EQU   12
 R13      EQU   13                      REGISTER SAVEAREA
 R14      EQU   14                      RETURN REG
 R15      EQU   15                      ENTRY REG
@@ -932,7 +874,7 @@ R15      EQU   15                      ENTRY REG
          EJECT
 * =================================================================== *
 RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
-               BASE=(R12,R11,R10),SVAREA=SAVEAREA
+               BASE=R11,SVAREA=SAVEAREA   STORAGE ALREADY ALLOCATED
 * ------------------------------------------------------------------- *
          SAM31                         SWITCH TO 31-BIT ADDRESSING
 *                                       BECAUSE OF DEBUGGER: TRAPPER
@@ -1001,6 +943,7 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          MVC   DYNASAVE(128),SAVEAREA  COPY INTERNAL SAVEAREA THERE
          XR    R15,R15                 CLEAR RETURN CODE REGISTER
          XC    OPTFLAG,OPTFLAG         CLEAR OPTIONS FLAG
+*        SF    DEBUG_F                 TURN ON DEBUG
 *
          LR    R5,R0                   REXX ENVIRONMENT BLOCK
          USING ENVBLOCK,R5             TEMPORARY ADDRESSABILITY
@@ -1048,27 +991,6 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
          ST    R2,SHVUSER              COPY SHVNAML LENGTH IN SHVUSER
          ST    R4,SHVBUFL              COPY SHVVALL LENGTH IN SHVBUFL
 *
-* OUTPUT TO SYSLST -- ARXSAY
-*
-         LA    R1,SAYPARM1             GET ADDRESS OF PARM 1
-         LA    R2,SAYPARM2             GET ADDRESS OF PARM 2
-         LA    R3,SAYPARM3             GET ADDRESS OF PARM 3
-         STM   R1,R3,SAYPARMB          PUT IN PARM BLOCK
-         OI    SAYPLAST,X'80'          SET END OF PARM BLOCK
-*
-         MVC   SAYPARM1,=CL8'WRITE'    SET PARM 1
-         LA    R1,VARDATA              GET ADDRESS FOR PARM 2
-         LHI   R2,L'VARDATA            GET LENGTH FOR PARM 3
-         STM   R1,R2,SAYPARM2          PUT IN PARMS 2 AND 3
-
-*        MVC   VARDATA+0(18),=C'RXVSAMIO Load at: '
-*        ST    R12,AWORK4              STORE BASE ADDRESS
-*        UNPK  EWORK(9),AWORK4(5)      UNPACK BASE ADDRESS
-*        TR    EWORK(8),TRTBL           AND TRANSLATE TO PRINTABLE      00015800
-*        MVC   VARDATA+18(8),EWORK     THEN PUT IN MSG AREA
-*        LHI   R2,26                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
-*
 * POINT TO ARGUMENT(S)
 *
          L     R6,EFPLARG              REXX PARSED ARGUMENT TABLE
@@ -1101,20 +1023,20 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
           WHEN DDNAME,(NH,CLC),SPACES  WORKING ON 1ST ARGUMENT?
            ST  R2,DDNLENG               SAVE DDNAME LENGTH
            LA  R5,DDNAME                SET DEST ADDR
-           EX  R3,MVPARM                MOVE ARG DATA
+           EXRL R3,MVPARM               MOVE ARG DATA
            TR  DDNAME,TRTBL             TRANSLATE TO UPPER-CASE
            IF  DDNLENG,(HT,CLC),=F'7',OR,                              X
                DDNAME,(NH,CLC),SPACES   DDNAME INVALID?
             LHI R5,4                     SET RETURN CODE
-            B  R15ZERO                   GO RETURN ERROR
+            J  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
           WHEN REQUEST,(NH,CLC),SPACES WORKING ON 2ND ARGUMENT?
            LA  R5,REQUEST               SET DEST ADDR
-           EX  R3,MVPARM                MOVE ARG DATA
+           EXRL R3,MVPARM               MOVE ARG DATA
            TR  REQUEST,TRTBL            TRANSLATE TO UPPER-CASE
            IF  REQUEST,(NH,CLC),SPACES  REQUEST MISSING?
             LHI R5,1                     SET RETURN CODE
-            B  R15ZERO                   GO RETURN ERROR
+            J  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
            IF  REQUEST,NE,C'A'          IF  NOT ATTRS
            AND REQUEST,NE,C'O'          AND NOT OPEN
@@ -1126,7 +1048,7 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
           WHEN RECNAME,(NH,CLC),SPACES WORKING ON 3RD ARGUMENT?
            ST  R2,RECNAMEL              SAVE DDNAME LENGTH
            LA  R5,RECNAME               SET DEST ADDR
-           EX  R3,MVPARM                MOVE ARG DATA
+           EXRL R3,MVPARM               MOVE ARG DATA
            IF  RECNAME,(HT,CLC),SPACES  IF RECORD NAME SUPPLIED
             TR RECNAME,TRTBL             TRANSLATE TO UPPER-CASE
            ELSE                         ELSE
@@ -1135,27 +1057,27 @@ RXVSAMIO HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)DEC21',            X
            ENDIF                        ENDIF
            IF  RECNAMEL,(HT,CLC),=F'10' RECNAME INVALID?
             LHI R5,4                     SET RETURN CODE
-            B  R15ZERO                   GO RETURN ERROR
+            J  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
           WHEN RQARG2,(NH,CLC),SPACES  WORKING ON 4TH ARGUMENT?
            LA  R5,RQARG2                SET DEST ADDR
-           EX  R3,MVPARM                MOVE ARG DATA
+           EXRL R3,MVPARM               MOVE ARG DATA
            TR  RQARG2,TRTBL             TRANSLATE TO UPPER-CASE
            IF  RQARG2,(NH,CLC),SPACES   REQU ARG2 MISSING?
             LHI R5,2                     SET RETURN CODE
-            B  R15ZERO                   GO RETURN ERROR
+            J  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
           WHEN RQARG3,(NH,CLC),SPACES  WORKING ON 5TH ARGUMENT?
            LA  R5,RQARG3                SET DEST ADDR
-           EX  R3,MVPARM                MOVE ARG DATA
+           EXRL R3,MVPARM               MOVE ARG DATA
            TR  RQARG3,TRTBL             TRANSLATE TO UPPER-CASE
            IF  RQARG3,(NH,CLC),SPACES   REQU ARG3 MISSING?
             LHI R5,3                     SET RETURN CODE
-            B  R15ZERO                   GO RETURN ERROR
+            J  R15ZERO                   GO RETURN ERROR
            ENDIF                        ENDIF
           WHEN OTHER                   TOO MANY ARGUMENTS
            LHI R5,4                     SET RETURN CODE
-           B   R15ZERO                  GO RETURN ERROR
+           J   R15ZERO                  GO RETURN ERROR
 MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           ENDSL
 
@@ -1170,7 +1092,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
 *
          IF    DDNAME,(NH,CLC),SPACES  DIDN'T GET ANY ARGUMENTS?
           LHI  R5,4                     SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
 
          SELECT                        CHECK REQUEST ARGUMENTS
@@ -1179,11 +1101,11 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           MVC  REQUEST,=CL8'ATTRS'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'O'         OPEN
@@ -1198,7 +1120,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            IF  RQARG2,NE,C'A'            APPEND
            AND RQARG2(2),(NE,CLC),=C'RE' RESET
             LHI R5,2                      SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF
           ENDIF
           IF   RQARG3,(NH,CLC),SPACES   NO 3RD REQ ARG?
@@ -1208,7 +1130,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           AND  RQARG3(2),(NE,CLC),=C'RA' RANDOM
           AND  RQARG3,NE,C'D'           DYNAMIC
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'F',OR,REQUEST,EQ,C'B'
@@ -1223,7 +1145,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           IF   RQARG2,NE,C'K'           KEY
           AND  RQARG2,NE,C'R'           RBA
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG2,EQ,C'K'           KEY
            IF  RQARG3,(NH,CLC),SPACES    NO 3RD REQ ARG?
@@ -1232,12 +1154,12 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            IF  RQARG3,NE,C'G'            GTEQ
            AND RQARG3,NE,C'E'            EQUAL
             LHI R5,3                      SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF
           ELSE
            IF  RQARG3,(HT,CLC),SPACES    3RD ARG NOT ALLOWED
             LHI R5,3                      SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF
           ENDIF
 
@@ -1252,7 +1174,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           AND  RQARG2,NE,C'R'           RBA
           AND  RQARG2,NE,C'K'           KEY
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG2,EQ,C'K'           KEY
            IF  RQARG3,(NH,CLC),SPACES    NO 3RD REQ ARG?
@@ -1261,12 +1183,12 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            IF  RQARG3,NE,C'E'            EQUAL
            AND RQARG3,NE,C'G'            GTEQ
             LHI R5,3                      SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF
           ELSE
            IF  RQARG3,(HT,CLC),SPACES    3RD ARG NOT ALLOWED
             LHI R5,3                      SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF
           ENDIF
 
@@ -1274,75 +1196,168 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           MVC  REQUEST,=CL8'PARSE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B  R15ZERO                    GO RETURN ERROR
+           J  R15ZERO                    GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'W'         WRITE
           MVC  REQUEST,=CL8'WRITE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'U'         UPDATE
           MVC  REQUEST,=CL8'UPDATE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'D'         DELETE
           MVC  REQUEST,=CL8'DELETE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  REQUEST,EQ,C'C'         CLOSE
           MVC  REQUEST,=CL8'CLOSE'
           IF   RQARG2,(HT,CLC),SPACES   2ND ARG NOT ALLOWED
            LHI R5,2                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
           IF   RQARG3,(HT,CLC),SPACES   3RD ARG NOT ALLOWED
            LHI R5,3                      SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF
 
          WHEN  OTHER                   ANYTHING ELSE
           LHI  R5,1                     SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDSL
+*
+* OUTPUT TO SYSLST -- ARXSAY
+*
+         LA    R1,SAYPARM1             GET ADDRESS OF PARM 1
+         LA    R2,SAYPARM2             GET ADDRESS OF PARM 2
+         LA    R3,SAYPARM3             GET ADDRESS OF PARM 3
+         STM   R1,R3,SAYPARMB          PUT IN PARM BLOCK
+         OI    SAYPLAST,X'80'          SET END OF PARM BLOCK
+*
+         MVC   SAYPARM1,=CL8'WRITE'    SET PARM 1
+         LA    R1,VARDATA              GET ADDRESS FOR PARM 2
+         LHI   R2,L'VARDATA            GET LENGTH FOR PARM 3
+         STM   R1,R2,SAYPARM2          PUT IN PARMS 2 AND 3
+*
+* FOR PERFORMANCE REASONS, KEEP THIS ROUTINE IN MEMORY
+*
+         IF    ENTRY_P,(EQ,CLC),=F'0'  IF FIRST TIME CALL
+          CDLOAD RXVSAMIO               MAKE THIS RTN STAY IN MEMORY
+          IF   R15,(NZ,LTR),R15         IF CDLOAD ERROR
+           LHI R5,10                     INDICATE LOAD FAILURE
+           J   RETERR                    GO RETURN ERROR
+          ENDIF                         ENDIF
+          ST   R1,ENTRY_P               SAVE RXVSAMIO ENTRY POINT       00033400
+*
+          IF   DEBUG_F,(ON,TF),$NOOP    IF DEBUG IS ON
+*
+          MVC  VARDATA+0(26),=C'RXVSAMIO Load at: xxxxxxxx'
+          ST   R11,AWORK4               STORE BASE ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK BASE ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE     00015800
+          MVC  VARDATA+18(8),EWORK      THEN PUT IN MSG AREA
+          LHI  R2,26                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+*
+          MVC  VARDATA+0(31),=C'RXVSAMBK Load at: xxxxxxxx xxxx'
+          MVC  AWORK4,=V(RXVSAMBK)      STORE BASE ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK BASE ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+18(8),EWORK      THEN PUT IN MSG AREA
+          L    R2,=V(RXVSAMBK)          GET LOAD POINT OF EXIT RTN
+          SR   R2,R11                   SUBTRACT BASE LOAD POINT
+          ST   R2,AWORK4                STORE OFFSET ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK OFFSET ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+27(4),EWORK+4    THEN ADD TO MSG AREA
+          LHI  R2,31                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+*
+          MVC  VARDATA+0(31),=C'RXVSAMBR Load at: xxxxxxxx xxxx'
+          MVC  AWORK4,=V(RXVSAMBR)      STORE BASE ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK BASE ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+18(8),EWORK      THEN PUT IN MSG AREA
+          L    R2,=V(RXVSAMBR)          GET LOAD POINT OF EXIT RTN
+          SR   R2,R11                   SUBTRACT BASE LOAD POINT
+          ST   R2,AWORK4                STORE OFFSET ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK OFFSET ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+27(4),EWORK+4    THEN ADD TO MSG AREA
+          LHI  R2,31                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+*
+          MVC  VARDATA+0(31),=C'RXVSAMXA Load at: xxxxxxxx xxxx'
+          MVC  AWORK4,=V(RXVSAMXA)      STORE BASE ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK BASE ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+18(8),EWORK      THEN PUT IN MSG AREA
+          L    R2,=V(RXVSAMXA)          GET LOAD POINT OF EXIT RTN
+          SR   R2,R11                   SUBTRACT BASE LOAD POINT
+          ST   R2,AWORK4                STORE OFFSET ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK OFFSET ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+27(4),EWORK+4    THEN ADD TO MSG AREA
+          LHI  R2,31                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+*
+          MVC  VARDATA+0(31),=C'RXVSAMXR Load at: xxxxxxxx xxxx'
+          MVC  AWORK4,=V(RXVSAMXR)      STORE BASE ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK BASE ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+18(8),EWORK      THEN PUT IN MSG AREA
+          L    R2,=V(RXVSAMXR)          GET LOAD POINT OF EXIT RTN
+          SR   R2,R11                   SUBTRACT BASE LOAD POINT
+          ST   R2,AWORK4                STORE OFFSET ADDRESS
+          UNPK EWORK(9),AWORK4(5)       UNPACK OFFSET ADDRESS
+          TR   EWORK(8),TRTBL            AND TRANSLATE TO PRINTABLE
+          MVC  VARDATA+27(4),EWORK+4    THEN ADD TO MSG AREA
+          LHI  R2,31                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+*
+          ENDIF                         END OF DEBUG TEST
+         ENDIF                         ENDIF                            00033600
 *
 * BEGIN PROCESSING
 *
-*        MVI   VARDATA+0,C' '
-*        MVC   VARDATA+1(62),VARDATA+0
-*
-*        MVC   VARDATA+0(18),=C'RXVSAMIO Request: '
-*        MVC   VARDATA+18(7),DDNAME
-*        MVC   VARDATA+26(8),REQUEST
-*        MVC   VARDATA+35(10),RECNAME
-*        MVC   VARDATA+46(8),RQARG2
-*        MVC   VARDATA+55(8),RQARG3
-*        LHI   R2,63                   SET LENGTH OF OUTPUT
-*        BAS   R5,SAYIT                GO SAY IT
+         IF    DEBUG_F,(ON,TF),$NOOP   IF DEBUG IS ON
+          MVI  VARDATA+0,C' '
+          MVC  VARDATA+1(62),VARDATA+0
+          MVC  VARDATA+0(18),=C'RXVSAMIO Request: '
+          MVC  VARDATA+18(7),DDNAME
+          MVC  VARDATA+26(8),REQUEST
+          MVC  VARDATA+35(10),RECNAME
+          MVC  VARDATA+46(8),RQARG2
+          MVC  VARDATA+55(8),RQARG3
+          LHI  R2,63                    SET LENGTH OF OUTPUT
+          JAS  R5,SAYIT                 GO SAY IT
+         ENDIF                         ENDIF                            00033600
 *
          IF    REQUEST,NE,C'A'         ATTRS
          AND   REQUEST,NE,C'C'         CLOSE
@@ -1351,28 +1366,28 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           LHI  R2,L'RECKEY              SET LENGTH OF ELEMENT NAME
           LA   R3,=C'0'                 POINT TO STEM ELEMENT VALUE
           LHI  R4,1                     SET LENGTH OF ELEMENT VALUE
-          BAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
+          JAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
           IF   SHVVALL,(NH,CLC),=F'0'   IF VALUE LENGTH NOT > ZERO
            MVC MACRO,=CL8'GETVAR'        LAST FAILED MACRO
            LHI R5,-6                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 *                            make sure the record field array exists
           LA   R1,RECFLD                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECFLD              SET LENGTH OF ELEMENT NAME
           LA   R3,=C'0'                 POINT TO STEM ELEMENT VALUE
           LHI  R4,1                     SET LENGTH OF ELEMENT VALUE
-          BAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
+          JAS  R5,GET_ELEM2             RETRIEVE THE RECNAME ELEMENT
           IF   SHVVALL,(NH,CLC),=F'0'   IF VALUE LENGTH NOT > ZERO
            MVC MACRO,=CL8'GETVAR'        LAST FAILED MACRO
            LHI R5,-7                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
          ENDIF                         ENDIF
 *
          LA    R7,DYNATBL              POINT TO THE FILE TABLE
          USING FILETBL,R7              ESTABLISH ADDRESSABILITY
-         BAS   R8,FILEINIT             FIND ENTRY ON FILE TABLE
+         JAS   R8,FILEINIT             FIND ENTRY ON FILE TABLE
 *
          LA    R1,FILETBLE             GET ADDR. OF FILE TABLE ENTRY
          LA    R2,AWORK4               GET ADDR. OF MOST OF DYNASTOR
@@ -1382,19 +1397,19 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,VSAMRC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMRC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          LA    R1,=C'0'                SET VSAM ERR CODE TO ZERO
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,VSAMEC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMEC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          LA    R1,=C'0'                SET VSAM FUNC CODE TO ZERO
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,VSAMFC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMFC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          MVI   DTEREQU,C'C'            REQUEST CURRENT DATE
          LA    R1,DTEPLIST             GET ADDRESS OF PARM BLOCK
@@ -1405,7 +1420,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           XR   R15,R15                  CLEAR WORK REGISTER
           IC   R15,DTERETN              INSERT RETURN CODE CHARACTER
           LHI  R5,8                     SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
 * EXECUTE REQUEST
@@ -1416,47 +1431,53 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           L    R8,FILEACB               GET FILE ACB ADDRESS
           USING IKQACB,R8               TEMPORARY ADDRESSABILITY
           IF   ACBOFLGS,(ON,TM),ACBOPEN IF THE ACB IS OPEN
-           BAS R6,CLOSEACB               CLOSE IT
+           JAS R6,CLOSEACB               CLOSE IT
           ENDIF                         ENDIF
           DROP R8                       REMOVE ADDRESSABILITY
 
           MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(IN,SEQ,NRS)
           PUSH ACONTROL
           ACONTROL FLAG(NOPAGE0)
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           MODCB MF=(E,PARMLIST)          MODIFY ACB
+          DROP R10
           POP  ACONTROL
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'MODCB/A'       INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           L    R8,FILEACB               GET FILE ACB ADDRESS
-          BAS  R6,OPENACB               OPEN THE ACB
+          JAS  R6,OPENACB               OPEN THE ACB
 
           LA   R1,SUBRPLST              POINT TO PARAMETER LIST
           L    R15,=V(RXVSAMXA)         GET SUBR. ENTRY POINT
           BASR R14,R15                  RETRIEVE VOLUME LIST
           IF   R15,(NZ,LTR),R15         IF FAILED
-           IF  OPTFLAG,(ON,TM),RPLERRF   IF RPL ERROR OCCURRED...
+           IF  RPLERRF,(ON,TF),$NOOP     IF RPL ERROR OCCURRED...
             L  R8,FILECATR                GET CATALOG RPL ADDRESS
-            BAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
+            JAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
             LHI R5,16                     SET RETURN CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
            ELSE                          ELSE OTHER ERROR OCCURRED...
             LR R5,R15                     SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF                         ENDIF
           ENDIF                         ENDIF
 
           L    R8,FILEACB               GET FILE ACB ADDRESS
-          BAS  R6,CLOSEACB              CLOSE THE ACB
+          JAS  R6,CLOSEACB              CLOSE THE ACB
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,EQ,C'O'         "OPEN"
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
+
           IF   RQARG2,EQ,C'I'           IF INPUT
            IF  RQARG3,EQ,C'S'            SEQUENCE
             MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(IN,SEQ)
@@ -1493,6 +1514,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
             ENDIF                         ENDIF
            ENDIF                         ENDIF
           ENDIF                         ENDIF
+
           PUSH ACONTROL
           ACONTROL FLAG(NOPAGE0)
           MODCB MF=(E,PARMLIST),AM=VSAM
@@ -1500,14 +1522,16 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'MODCB/A'       INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
+          DROP R10
+
           L    R8,FILEACB               GET ACB ADDRESS
-          BAS  R6,OPENACB               OPEN THE ACB
+          JAS  R6,OPENACB               OPEN THE ACB
 
           IF   SAMD,(ON,TF),$NOOP       IF SAM DATASET
            XGR R2,R2                     CLEAR 64-BIT REGISTER
@@ -1520,10 +1544,10 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            ICM R2,B'1111',AMDBLREC       GET MSAM LRECL VALUE
            DROP R1                       REMOVE ADDRESSABILITY
            LA  R1,CWORK                  POINT TO "RESULT" AREA
-           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           JAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,RECLEN                 POINT BACK TO VAR NAME
            LHI R4,L'RECLEN               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
@@ -1533,10 +1557,10 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  BUILD KEY BUFFER
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
-          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          JAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
 
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
@@ -1558,19 +1582,19 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            AND RRDS,(NO,TF),$NOOP        AND NOT RELATIVE-RECORD
             LA R1,KEYLEN                  POINT TO STEM ELEMENT NAME
             LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
-            BAS R5,GET_STEM2              GET GENERIC KEY LENGTH
+            JAS R5,GET_STEM2              GET GENERIC KEY LENGTH
             IF SHVVALL,(NH,CLC),=F'0'     IF NO DEF KEY LEN SUPPLIED
              L R2,KMAX                     USE MAX KEY LEN
             ELSE                          ELSE
              LA R1,VARDATA                 POINT TO ZONED KEY LENGTH
              L R2,SHVVALL                  GET LENGTH OF VAR DATA
-             BAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
+             JAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
             ENDIF                         ENDIF
             IF R2,(LT,C),=F'1',OR,        IF VALUE < 1                 +
                R2,(HT,C),KMAX             OR VALUE > MAX KEY LEN
              MVC MACRO,=CL8'POINT_X'       LAST FAILED OPERATION
              LHI R5,-8                     SET RETURN CODE
-             B R15ZERO                     GO RETURN ERROR
+             J R15ZERO                     GO RETURN ERROR
             ENDIF                         ENDIF
             IF R2,(LT,C),KMAX             IF REQ KEY LEN < MAX KEY LEN
              STH R2,RPLKEYL                SET KEY LENGTH FOR POSITION
@@ -1613,7 +1637,7 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
            L   R2,KMAX                   SET LENGTH OF KEY BUFFER
            SHI R2,1                      DECREMENT BEFORE EXECUTE
            LA  R3,HIVAL                  CHECK FOR HIGH VALUES
-           IF  R2,(EQ,EX),CHECK_IT       IF HIGH-VALUES
+           IF  R2,(EQ,EXRL),CHECK_IT     IF HIGH-VALUES
             OI RPLOPT2,RPLLRD             SET LAST RECORD PROCESSING
            ENDIF                         ENDIF
           ELSE                          FWDPOS
@@ -1623,13 +1647,16 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
 
           DROP R8                       REMOVE ADDRESSABILITY
 
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           POINT RPL=(R8)                POINT TO A RECORD
+          DROP R10
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'POINT'         INDICATE OPERATION PERFORMED
-           OI  OPTFLAG,RPLERRF           SIGNAL ERROR IN RPL
-           BAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
+           SF  RPLERRF                   SIGNAL ERROR IN RPL
+           JAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
 CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           ENDIF                         ENDIF
 
@@ -1641,11 +1668,11 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
            BASR R14,R15                  BUILD KEY BUFFER
            IF  R15,(NZ,LTR),R15          IF FAILED
             LR R5,R15                     SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF                         ENDIF
           ENDIF                         ENDIF
 
-          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          JAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
 
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
@@ -1654,19 +1681,19 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           AND  RRDS,(NO,TF),$NOOP       AND NOT RELATIVE-RECORD
            LA  R1,KEYLEN                 POINT TO STEM ELEMENT NAME
            LHI R2,L'KEYLEN               SET LENGTH OF ELEMENT NAME
-           BAS R5,GET_STEM2              GET GENERIC KEY LENGTH
+           JAS R5,GET_STEM2              GET GENERIC KEY LENGTH
            IF  SHVVALL,(NH,CLC),=F'0'    IF NO DEF KEY LEN SUPPLIED
             L  R2,KMAX                    USE MAX KEY LEN
            ELSE                          ELSE
             LA R1,VARDATA                 POINT TO ZONED KEY LENGTH
             L  R2,SHVVALL                 GET LENGTH OF VAR DATA
-            BAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
+            JAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
            ENDIF                         ENDIF
            IF  R2,(LT,C),=F'1',OR,       IF VALUE < 1                  +
                R2,(HT,C),KMAX            OR VALUE > MAX KEY LEN
             MVC MACRO,=CL8'READ_X'        LAST FAILED OPERATION
             LHI R5,-8                     SET RETURN CODE
-            B  R15ZERO                    GO RETURN ERROR
+            J  R15ZERO                    GO RETURN ERROR
            ENDIF                         ENDIF
            IF  R2,(LT,C),KMAX            IF REQ KEY LEN < MAX KEY LEN
             STH R2,RPLKEYL                SET KEY LENGTH TO READ
@@ -1730,43 +1757,46 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
 
           DROP R8                       REMOVE ADDRESSABILITY
 
-          BAS  R6,GETREC                READ THE FILE
+          JAS  R6,GETREC                READ THE FILE
 
           PUSH ACONTROL
           ACONTROL FLAG(NOPAGE0)
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           SHOWCB RPL=(8),AREA=(S,SHOWAREA),LENGTH=L'SHOWAREA,          +
                FIELDS=(RECLEN,RBA)
+          DROP R10
           POP  ACONTROL
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'SHOWCB/R'      INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LGF  R2,SHOWAREA+0            GET REC LEN INTO 64-BIT REG
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECLEN                POINT BACK TO VAR NAME
           LHI  R4,L'RECLEN              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+4            GET LAST RBA INTO 64-BIT REG
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECRBA                POINT BACK TO VAR NAME
           LHI  R4,L'RECRBA              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
           IF   RRDS,(ON,TF),$NOOP       IF RELATIVE-RECORD DATASET
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            LLGF R2,KEYBUF                GET LAST RRN INTO 64-BIT REG
-           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           JAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,RECRRN                 POINT BACK TO VAR NAME
            LHI R4,L'RECRRN               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM2              CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM2              CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
           LA   R1,SUBRPLST              POINT TO PARAMETER LIST
@@ -1774,49 +1804,52 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  EXTRACT RECORD FIELDS
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,EQ,C'P'         "PARSE"
-          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          JAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
           L    R8,FILERPL               GET RPL ADDRESS
 
           PUSH ACONTROL
           ACONTROL FLAG(NOPAGE0)
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           SHOWCB RPL=(8),AREA=(S,SHOWAREA),LENGTH=L'SHOWAREA,          +
                FIELDS=(RECLEN,RBA)
+          DROP R10
           POP  ACONTROL
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'SHOWCB/R'      INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LGF  R2,SHOWAREA+0            GET REC LEN INTO 64-BIT REG
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECLEN                POINT BACK TO VAR NAME
           LHI  R4,L'RECLEN              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+4            GET LAST RBA INTO 64-BIT REG
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECRBA                POINT BACK TO VAR NAME
           LHI  R4,L'RECRBA              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM2             CREATE THE STEM ELEMENT
 
           IF   RRDS,(ON,TF),$NOOP       IF RELATIVE-RECORD DATASET
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            LLGF R2,KEYBUF                GET LAST RRN INTO 64-BIT REG
-           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           JAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,RECRRN                 POINT BACK TO VAR NAME
            LHI R4,L'RECRRN               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM2              CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM2              CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
           LA   R1,SUBRPLST              POINT TO PARAMETER LIST
@@ -1824,7 +1857,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  EXTRACT RECORD FIELDS
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
@@ -1834,7 +1867,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  BUILD KEY BUFFER
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
           LA   R1,SUBRPLST              POINT TO PARAMETER LIST
@@ -1842,29 +1875,29 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  BUILD REC BUFFER
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
-          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          JAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
 
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
 
           LA   R1,RECLEN                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECLEN              SET LENGTH OF ELEMENT NAME
-          BAS  R5,GET_STEM2             GET RECORD LENGTH
+          JAS  R5,GET_STEM2             GET RECORD LENGTH
           IF   SHVVALL,(NH,CLC),=F'0'   IF NO DEF REC LEN SUPPLIED
            L   R2,RMAX                   USE MAX REC LEN
           ELSE                          ELSE
            LA  R1,VARDATA                POINT TO ZONED RECORD LENGTH
            L   R2,SHVVALL                GET LENGTH OF VAR DATA
-           BAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
+           JAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
           ENDIF                         ENDIF
           IF   R2,(LT,C),KMAX,OR,       IF VALUE < MAX KEY LEN         +
                R2,(HT,C),RMAX           OR VALUE > MAX REC LEN
            MVC MACRO,=CL8'WRITE_X'       LAST FAILED MACRO
            LHI R5,-9                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
           ST   R2,RPLRLEN               SET RECORD LENGTH TO WRITE
           L    R2,KMAX                  GET MAX KEY LEN
@@ -1882,7 +1915,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           ENDIF                         ENDIF
           DROP R8                       REMOVE ADDRESSABILITY
 
-          BAS  R6,PUTREC                WRITE TO THE FILE
+          JAS  R6,PUTREC                WRITE TO THE FILE
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,(EQ,CLC),=CL8'UPDATE'
@@ -1891,29 +1924,29 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           BASR R14,R15                  BUILD REC BUFFER
           IF   R15,(NZ,LTR),R15         IF FAILED
            LR  R5,R15                    SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
-          BAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
+          JAS  R5,GET_MAXV              GET KEY AND REC MAX LENGTHS
 
           L    R8,FILERPL               GET RPL ADDRESS
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
 
           LA   R1,RECLEN                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECLEN              SET LENGTH OF ELEMENT NAME
-          BAS  R5,GET_STEM2             GET RECORD LENGTH
+          JAS  R5,GET_STEM2             GET RECORD LENGTH
           IF   SHVVALL,(NH,CLC),=F'0'   IF NO DEF REC LEN SUPPLIED
            L   R2,RMAX                   USE MAX REC LEN
           ELSE                          ELSE
            LA  R1,VARDATA                POINT TO ZONED RECORD LENGTH
            L   R2,SHVVALL                GET LENGTH OF VAR DATA
-           BAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
+           JAS R5,ZONE2REG               CONVERT TO BINARY IN REG2
           ENDIF                         ENDIF
           IF   R2,(LT,C),KMAX,OR,       IF VALUE < MAX KEY LEN         +
                R2,(HT,C),RMAX           OR VALUE > MAX REC LEN
            MVC MACRO,=CL8'UPDATE_X'      LAST FAILED MACRO
            LHI R5,-9                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
           ST   R2,RPLRLEN               SET RECORD LENGTH TO UPDATE
           L    R2,KMAX                  GET MAX KEY LEN
@@ -1926,7 +1959,7 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           NI   RPLOPT2,X'FF'-RPLNUP     NOT NUP PROCESSING
           DROP R8                       REMOVE ADDRESSABILITY
 
-          BAS  R6,PUTREC                UPDATE THE FILE
+          JAS  R6,PUTREC                UPDATE THE FILE
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,EQ,C'D'         "DELETE"
@@ -1939,24 +1972,27 @@ CHECK_IT CLC   0(0,R1),0(R3)           (SEE "EX" INSTRUCTION ABOVE)
           NI   RPLOPT2,X'FF'-RPLNUP     NOT NUP PROCESSING
           DROP R8                       REMOVE ADDRESSABILITY
 
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           ERASE RPL=(R8)                DELETE A RECORD
+          DROP R10
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'ERASE'         INDICATE OPERATION PERFORMED
-           OI  OPTFLAG,RPLERRF           SIGNAL ERROR IN RPL
-           BAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
+           SF  RPLERRF                   SIGNAL ERROR IN RPL
+           JAS R5,VSAMERRC               PASS BACK RTN AND ERR CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
 * ------------------------------------------------------------------- *
          WHEN  REQUEST,EQ,C'C'         "CLOSE"
           L    R8,FILEACB               GET ACB ADDRESS
-          BAS  R6,CLOSEACB              CLOSE THE ACB
+          JAS  R6,CLOSEACB              CLOSE THE ACB
 
 * ------------------------------------------------------------------- *
          WHEN  OTHER
           LHI  R5,1                     SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
 
 * ------------------------------------------------------------------- *
          ENDSL
@@ -1974,17 +2010,17 @@ RETERR   DS    0H
          USING EVALBLOCK,R8            TEMPORARY ADDRESSABILITY
          LA    R1,EVALBLOCK_EVDATA     POINT TO "RESULT" AREA
          LGF   R2,SAVE_RF              COPY R15 TO R2
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          ST    R2,EVALBLOCK_EVLEN      LENGTH OF CONVERTED RESULT
          DROP  R8                      REMOVE ADDRESSABILITY
 *
          LA    R1,VARDATA              POINT TO VARIABLE DATA AREA
          LGF   R2,SAVE_R5              COPY R5 TO R2 AS 64 BITS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
          MVC   VARNAME+0(3),=C'RC '    MOVE IN THE VARIABLE NAME
          LHI   R4,2                    SET LENGTH OF VARIABLE NAME
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          IF    DDNAME,(HT,CLC),SPACES  STEM NAME AVAILABLE?
 *
@@ -1992,28 +2028,28 @@ RETERR   DS    0H
           L    R2,DDNLENG               SET LENGTH OF VAR DATA
           LA   R3,DDN                   POINT BACK TO VAR NAME
           LHI  R4,L'DDN                 SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 *
           LA   R1,REQUEST               POINT BACK TO VAR DATA
           LA   R2,REQUEST+L'REQUEST-1   POINT TO LAST BYTE OF DATA
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LA   R3,LASTFN                POINT BACK TO VAR NAME
           LHI  R4,L'LASTFN              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 *
           LA   R1,MACRO                 POINT BACK TO VAR DATA
           LA   R2,MACRO+L'MACRO-1       POINT TO LAST BYTE OF DATA
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LA   R3,LASTFM                POINT BACK TO VAR NAME
           LHI  R4,L'LASTFM              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 *
           LA   R1,RECNAME               POINT BACK TO VAR DATA
           LA   R2,RECNAME+L'RECNAME-1   POINT TO LAST BYTE OF DATA
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LA   R3,LASTRF                POINT BACK TO VAR NAME
           LHI  R4,L'LASTRF              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 *
          ENDIF
 * ------------------------------------------------------------------- *
@@ -2029,13 +2065,16 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
 * ------------------------------------------------------------------- *
          ST    R6,AWORK4+8             SAVE RETURN REGISTER
 *
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
          OPEN  (R8)                    OPEN THE ACB
+         DROP  R10
          IF    R15,(NZ,LTR),R15        IF ERROR
           MVC  MACRO,=CL8'OPEN'         INDICATE OPERATION PERFORMED
-          OI   OPTFLAG,ACBERRF          SIGNAL ERROR IN ACB
-          BAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
+          SF   ACBERRF                  SIGNAL ERROR IN ACB
+          JAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
           LHI  R5,16                    SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          L     R6,FILEACB              GET FILE ACB ADDRESS
@@ -2044,10 +2083,10 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
          LA    R1,152(R5)              POINT TO DATASET NAME
          DROP  R6                      REMOVE ADDRESSABILITY
          LA    R2,44-1(,R1)            POINT TO LAST BYTE OF DSN
-         BAS   R5,SET_LENG             SET LENGTH IN R2
+         JAS   R5,SET_LENG             SET LENGTH IN R2
          LA    R3,DSN                  POINT BACK TO VAR NAME
          LHI   R4,L'DSN                SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          SELECT                        IDENTIFY FILE TYPE
          WHEN  FILEAIX,(ON,TF),$NOOP
@@ -2084,22 +2123,28 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
          LHI   R2,4                    SET LENGTH OF VAR DATA
          LA    R3,TYP                  POINT BACK TO VAR NAME
          LHI   R4,L'TYP                SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          PUSH  ACONTROL
          ACONTROL FLAG(NOPAGE0)
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
          SHOWCB ACB=(R8),AM=VSAM,OBJECT=DATA,                          +
                AREA=(S,SHOWAREA),LENGTH=L'SHOWAREA,                    +
                FIELDS=(LRECL,KEYLEN,RKP)
+         DROP  R10
          POP   ACONTROL
          IF    R15,(NZ,LTR),R15        IF FAILED
           MVC  MACRO,=CL8'SHOWCB/A'     INDICATE OPERATION PERFORMED
           ST   R0,SAVE_R0               SAVE REGISTER 0
-          OI   OPTFLAG,CTLBLKF          SIGNAL ERROR IN CTLBLK
-          BAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
+          SF   CTLBLKF                  SIGNAL ERROR IN CTLBLK
+          JAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
           LHI  R5,16                    SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
+*
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
 *
          IF    FILERPL,(EQ,CLC),=F'0'  IF NO RPL, YET
           IF   ESDS,(NZ,TF),$NOOP       IF NOT ESDS DATASET
@@ -2118,34 +2163,36 @@ OPENACB  DS    0H            OPEN ACB POINTED TO BY R2
           IF  R15,(NZ,LTR),R15          IF FAILED
            MVC MACRO,=CL8'GENCB/R'       INDICATE OPERATION PERFORMED
            ST R0,SAVE_R0                 SAVE REGISTER 0
-           OI OPTFLAG,CTLBLKF            SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B  RETERR                     GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
-          ST  R1,FILERPL                SAVE RPL ADDRESS
+          ST   R1,FILERPL               SAVE RPL ADDRESS
          ENDIF                         ENDIF
+*
+         DROP  R10
 *
          LA    R1,CWORK               POINT TO "RESULT" AREA
          LGF   R2,SHOWAREA+0           GET LRECL VALUE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,RECMAX               POINT BACK TO VAR NAME
          LHI   R4,L'RECMAX             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          LA    R1,CWORK               POINT TO "RESULT" AREA
          LGF   R2,SHOWAREA+4           GET KEYLEN VALUE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,KEYMAX               POINT BACK TO VAR NAME
          LHI   R4,L'KEYMAX             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          LA    R1,CWORK               POINT TO "RESULT" AREA
          LGF   R2,SHOWAREA+8           GET RKP VALUE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,KEYPOS               POINT BACK TO VAR NAME
          LHI   R4,L'KEYPOS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R6,AWORK4+8             RESTORE RETURN REGISTER
          BR    R6                      RETURN TO CALLER
@@ -2156,12 +2203,15 @@ GETREC   DS    0H            READ A RECORD BASED UPON RPL=(R8)
 * ------------------------------------------------------------------- *
          ST    R6,AWORK4+8             SAVE RETURN REGISTER
 *
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
          GET   RPL=(R8)                READ A RECORD
+         DROP  R10
          IF    R15,(NZ,LTR),R15        IF FAILED
           ST   R15,SAVE_RF              SAVE REGISTER 15
           MVC  MACRO,=CL8'GET'          INDICATE OPERATION PERFORMED
-          OI   OPTFLAG,RPLERRF          SIGNAL ERROR IN RPL
-          BAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
+          SF   RPLERRF                  SIGNAL ERROR IN RPL
+          JAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
           L    R5,SAVE_RF               COPY R15 TO R5
           IF   R5,(EQ,CHI),RPLLOGER     IF LOGICAL ERROR (RC=8)
@@ -2171,7 +2221,7 @@ GETREC   DS    0H            READ A RECORD BASED UPON RPL=(R8)
            LHI R5,16                     SET GENERAL VSAM ERROR
           ENDIF                         ENDIF
           DROP R8                       REMOVE ADDRESSABILITY
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
@@ -2179,18 +2229,18 @@ GETREC   DS    0H            READ A RECORD BASED UPON RPL=(R8)
          DROP  R8                      REMOVE ADDRESSABILITY
          IF    R2,(NZ,LTR),R2          IF NON-ZERO FEEDBACK CODE
           LA   R1,CWORK                 POINT TO "RESULT" AREA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,VSAMEC                POINT BACK TO VAR NAME
           LHI  R4,L'VSAMEC              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
           LLC  R2,RPLFTNCD              GET RPL FUNCTION CODE
           DROP R8                       REMOVE ADDRESSABILITY
           LA   R1,CWORK                 POINT TO "RESULT" AREA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,VSAMFC                POINT BACK TO VAR NAME
           LHI  R4,L'VSAMFC              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 *
          L     R6,AWORK4+8             RESTORE RETURN REGISTER
@@ -2202,13 +2252,16 @@ PUTREC   DS    0H            WRITE A RECORD BASED UPON RPL=(R8)
 * ------------------------------------------------------------------- *
          ST    R6,AWORK4+8             SAVE RETURN REGISTER
 *
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
          PUT   RPL=(R8)                WRITE A RECORD
+         DROP  R10
          IF    R15,(NZ,LTR),R15        IF FAILED
           MVC  MACRO,=CL8'PUT'          INDICATE OPERATION PERFORMED
-          OI   OPTFLAG,RPLERRF          SIGNAL ERROR IN RPL
-          BAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
+          SF   RPLERRF                  SIGNAL ERROR IN RPL
+          JAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
           LHI  R5,16                    SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          L     R6,AWORK4+8             RESTORE RETURN REGISTER
@@ -2220,13 +2273,16 @@ CLOSEACB DS    0H            CLOSE ACB POINTED TO BY R2
 * ------------------------------------------------------------------- *
          ST    R6,AWORK4+8             SAVE RETURN REGISTER
 *
+         BASR  R10,0                   TEMPORARY ADDRESSABILITY
+         USING *,R10
          CLOSE (R8)                    CLOSE THE ACB
+         DROP  R10
          IF    R15,(NZ,LTR),R15        IF FAILED
           MVC  MACRO,=CL8'CLOSE'        INDICATE OPERATION PERFORMED
-          OI   OPTFLAG,ACBERRF          SIGNAL ERROR IN ACB
-          BAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
+          SF   ACBERRF                  SIGNAL ERROR IN ACB
+          JAS  R5,VSAMERRC              PASS BACK RTN AND ERR CODES
           LHI  R5,16                    SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          L     R6,AWORK4+8             RESTORE RETURN REGISTER
@@ -2251,8 +2307,11 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
          ENDIF
          IF    FILEDD,EQ,X'FF'         IF FILE TABLE IS FULL
           LHI  R5,-2                    SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
+
+         BASR  R10,0                    TEMPORARY ADDRESSABILITY
+         USING *,R10
 
          IF    FILEDD,(NE,CLC),DDNAME  IF NOT FOUND...
           MVC  FILEDD,DDNAME            INITIALIZE NEW FILE ENTRY
@@ -2268,9 +2327,9 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           SHOWCAT DDNAME=(R2),AREA=(R3)
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'SHOWCAT'       INDICATE OPERATION PERFORMED
-           BAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
+           JAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
           SELECT
           WHEN SHOWAREA+8,EQ,C'C'       FOR CLUSTER RECORD
@@ -2281,7 +2340,7 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
            SF  FILEPATH                  INDICATE DEFINE PATH
           WHEN OTHER                    OTHERWISE
            LHI R5,-3                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDSL
           MVC  FILECAT,SHOWAREA+4       SAVE CATALOG ACB ADDRESS
 
@@ -2312,19 +2371,19 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           SHOWCAT CI=(R2),ACB=(R3),AREA=(R4)
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'SHOWCAT2'      INDICATE OPERATION PERFORMED
-           BAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
+           JAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           IF   SHOWAREA+8,NE,C'D'       IF NOT A DATA COMP. RECORD
            LHI R5,-4                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
           MVC  FILETYPE,SHOWAREA+9      SAVE FILE TYPE ATTRIBUTE
           IF   SAMN,(ON,TF),$NOOP       IF MSAM-NOCIFORMAT
            LHI R5,-5                     SET RETURN CODE
-           B   R15ZERO                   GO RETURN ERROR
+           J   R15ZERO                   GO RETURN ERROR
           ENDIF                         ENDIF
 
           L    R8,FILECAT               GET ADDRESS OF CATALOG ACB
@@ -2336,10 +2395,10 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'GENCB/R'       INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
           ST   R1,FILECATR              SAVE CATALOG RPL ADDRESS
 
@@ -2383,16 +2442,18 @@ FILEINIT DS    0H            FIND THE FILE ENTRY OR INITIALIZE ONE
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'GENCB/A'       INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           ST   R1,FILEACB               SAVE ACB ADDRESS
           XC   FILERPL,FILERPL          CLEAR RPL ADDRESS
 
          ENDIF                         ENDIF
+*
+         DROP  R10
 *
          L     R8,AWORK4+8             RESTORE RETURN REGISTER
          BR    R8                      RETURN TO CALLER
@@ -2405,39 +2466,39 @@ GET_MAXV DS    0H    RETRIEVE KEY AND RECORD MAXIMUM LENGTH VARIABLES
 *
          LA    R1,KEYMAX               POINT TO STEM ELEMENT NAME
          LHI   R2,L'KEYMAX             SET LENGTH OF ELEMENT NAME
-         BAS   R5,GET_STEM             GET MAX KEY LENGTH
+         JAS   R5,GET_STEM             GET MAX KEY LENGTH
          IF    SHVVALL,(NH,CLC),=F'0'  MAX KEY LENGTH IS REQUIRED
           MVC  MACRO,=CL8'GET_MAXV'     LAST FAILED MACRO
           LHI  R5,-8                    SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
          LA    R1,VARDATA              POINT TO ZONED MAX KEY LEN
          L     R2,SHVVALL              GET LENGTH OF VAR DATA
-         BAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
+         JAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
          IF    R2,(LT,C),=F'1',OR,     IF VALUE < ZERO                 +
                R2,(HT,C),=F'255'       OR VALUE > MAX KEY LEN
           MVC  MACRO,=CL8'GET_MAXV'     LAST FAILED MACRO
           LHI  R5,-8                    SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
          ST    R2,KMAX                 SAVE AS FULLWORD VALUE
 
          LA    R1,RECMAX               POINT TO STEM ELEMENT NAME
          LHI   R2,L'RECMAX             SET LENGTH OF ELEMENT NAME
-         BAS   R5,GET_STEM             GET MAX RECORD LENGTH
+         JAS   R5,GET_STEM             GET MAX RECORD LENGTH
          IF    SHVVALL,(NH,CLC),=F'0'  MAX RECORD LENGTH IS REQUIRED
           MVC  MACRO,=CL8'GET_MAXV'     LAST FAILED MACRO
           LHI  R5,-9                    SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
          LA    R1,VARDATA              POINT TO ZONED MAX REC LEN
          L     R2,SHVVALL              GET LENGTH OF VAR DATA
-         BAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
+         JAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
          IF    R2,(LT,C),KMAX,OR,      IF VALUE < MAX KEY LEN          +
                R2,(HT,C),=F'65535'     OR VALUE > MAX REC LEN
           MVC  MACRO,=CL8'GET_MAXV'     LAST FAILED MACRO
           LHI  R5,-9                    SET RETURN CODE
-          B    R15ZERO                  GO RETURN ERROR
+          J    R15ZERO                  GO RETURN ERROR
          ENDIF                         ENDIF
          ST    R2,RMAX                 SAVE AS FULLWORD VALUE
 *
@@ -2452,7 +2513,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
          LR    R3,R1                   SAVE R1 IN R3
          XR    R1,R1                   CLEAR R1 FOR EDIT AND MARK
          CVDG  R2,PWORK16              CONVERT REG2 TO PACKED-DECIMAL
-         IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
+         IF    SET_KLZ,(ON,TF),$NOOP   KEEP LEADING ZEROES?
           MVC  EWORK,=X'40212020202020202020202020202020202020206040'
           LA   R1,EWORK+2              POINT TO SIGNIFICANCE BYTE
          ELSE
@@ -2464,7 +2525,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
           SHI  R1,1                     DECR. R1 SO THAT WE CAN
           MVI  0(R1),C'-'               FLOAT A LEFT MINUS SIGN
          ENDIF
-         IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
+         IF    SET_KLZ,(ON,TF),$NOOP   KEEP LEADING ZEROES?
           IF   0(R1),EQ,C'-'
            LA  R1,EWORK                  POINT TO SIGN BYTE
            LHI R2,20                     SET LENGTH OF DATA
@@ -2476,7 +2537,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
           SR   R2,R1                    CALC NO. OF CHARS TO MOVE
          ENDIF
          SHI   R2,1                    DECR. LEN FOR ZERO REF.
-         EX    R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
+         EXRL  R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
          AHI   R2,1                    INCR. LEN FOR NORMAL REF.
          LR    R1,R3                   RESTORE R1 FROM R3
 *
@@ -2489,7 +2550,7 @@ MOVE_RESULT MVC 0(0,R3),0(R1)          SEE EXECUTE INSTRUCTION ABOVE
 ZONE2REG DS    0H    CONVERT ZONED-DECIMAL AT REG1 (L'REG2) INTO REG2
 * ------------------------------------------------------------------- *
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,PACK_RESULT          PACK 0(?,R1) FOR LENGTH OF R2
+         EXRL  R2,PACK_RESULT          PACK 0(?,R1) FOR LENGTH OF R2
          CVB   R2,PWORK8               CONVERT PACKED-DECIMAL INTO REG2
 * ------------------------------------------------------------------- *
          BR    R5
@@ -2524,7 +2585,7 @@ GET_ELEM DS    0H            RETRIEVE A STEM ELEMENT
          AHI   R5,1                    INCR. VAR NAME ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
          MVI   0(R5),C'.'              ADD A PERIOD
@@ -2533,14 +2594,14 @@ GET_ELEM DS    0H            RETRIEVE A STEM ELEMENT
          LR    R1,R3                   TRANSFER ELEM VALUE ADDRESS
          LR    R2,R4                   TRANSFER ELEM VALUE LENGTH
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT VALUE
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT VALUE
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
 *
          LR    R4,R5                   COPY ADDRESS OF END OF NAME
          LA    R3,VARNAME              POINT TO START OF VAR NAME
          SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
-         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+         JAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2560,14 +2621,14 @@ GET_STEM DS    0H            RETRIEVE A STEM VARIABLE
          AHI   R5,1                    INCR. VAR NAME ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
 *
          LR    R4,R5                   COPY ADDRESS OF END OF NAME
          LA    R3,VARNAME              POINT TO START OF VAR NAME
          SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
-         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+         JAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2579,7 +2640,7 @@ SET_STEM DS    0H            CREATE A STEM ELEMENT
          ST    R5,AWORK4               SAVE RETURN ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
+         EXRL  R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
 *
@@ -2595,10 +2656,10 @@ SET_STEM DS    0H            CREATE A STEM ELEMENT
          AHI   R4,1                    INCR. VAR NAME LENGTH
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
+         EXRL  R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          AR    R4,R2                   INCR. VAR NAME LENGTH
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2619,7 +2680,7 @@ GET_ELEM2 DS   0H            RETRIEVE A RECNAME ELEMENT
          AHI   R5,1                    INCR. VAR NAME ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
          MVI   0(R5),C'.'              ADD A PERIOD
@@ -2628,14 +2689,14 @@ GET_ELEM2 DS   0H            RETRIEVE A RECNAME ELEMENT
          LR    R1,R3                   TRANSFER ELEM VALUE ADDRESS
          LR    R2,R4                   TRANSFER ELEM VALUE LENGTH
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT VALUE
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT VALUE
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
 *
          LR    R4,R5                   COPY ADDRESS OF END OF NAME
          LA    R3,VARNAME              POINT TO START OF VAR NAME
          SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
-         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+         JAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2653,14 +2714,14 @@ GET_STEM2 DS   0H            RETRIEVE A RECNAME VARIABLE
          AHI   R5,1                    INCR. VAR NAME ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
+         EXRL  R2,ELEMNAME_MVC         MOVE IN ELEMENT NAME
          AHI   R2,1                    INCREMENT BACK
          AR    R5,R2                   ADD TO VAR NAME ADDRESS
 *
          LR    R4,R5                   COPY ADDRESS OF END OF NAME
          LA    R3,VARNAME              POINT TO START OF VAR NAME
          SR    R4,R3                   COMPUTE LENGTH OF STEM VAR NAME
-         BAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
+         JAS   R5,GETVAR               RETRIEVE THE VARIABLE VALUE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2672,7 +2733,7 @@ SET_STEM2 DS   0H            CREATE A RECNAME ELEMENT
          ST    R5,AWORK4               SAVE RETURN ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
+         EXRL  R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
 *
@@ -2688,10 +2749,10 @@ SET_STEM2 DS   0H            CREATE A RECNAME ELEMENT
          AHI   R4,1                    INCR. VAR NAME LENGTH
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
+         EXRL  R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          AR    R4,R2                   INCR. VAR NAME LENGTH
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -2704,14 +2765,14 @@ VSAMERRC DS    0H    PASS BACK VSAM RTN AND ERR CODES
 *
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LGR   R2,R15                  GET VSAM RTN CODE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,VSAMRC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMRC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          MVC   CWORK(8),SPACES         CLEAR WORK AREA
          LA    R1,CWORK                POINT TO "RESULT" AREA
-         IF    OPTFLAG,(ON,TM),RPLERRF IF RPL ERROR OCCURRED...
+         IF    RPLERRF,(ON,TF),$NOOP   IF RPL ERROR OCCURRED...
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
           LLC  R2,RPLFDBKC              GET RPL FEEDBACK CODE
           DROP R8                       REMOVE ADDRESSABILITY
@@ -2720,20 +2781,20 @@ VSAMERRC DS    0H    PASS BACK VSAM RTN AND ERR CODES
           LLC  R2,ACBERFLG              GET ACB ERROR FLAG
           DROP R8                       REMOVE ADDRESSABILITY
          ENDIF                         ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,VSAMEC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMEC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
-         IF    OPTFLAG,(ON,TM),RPLERRF IF RPL ERROR OCCURRED...
+         IF    RPLERRF,(ON,TF),$NOOP   IF RPL ERROR OCCURRED...
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
           LLC  R2,RPLFTNCD              GET RPL FUNCTION CODE
           DROP R8                       REMOVE ADDRESSABILITY
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,VSAMFC                POINT BACK TO VAR NAME
           LHI  R4,L'VSAMFC              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
@@ -2747,32 +2808,32 @@ SHOWRESN DS    0H    PASS BACK SHOWCAT AND XXXXCB RTN AND RSN CODES
 *
          LA    R1,CWORK                POINT TO "RESULT" AREA
          IF    R15,(LT,C),=F'12',OR,                                   X
-               OPTFLAG,(ON,TM),CTLBLKF
+               CTLBLKF,(ON,TF),$NOOP
           LGR  R2,R15
          ELSE
           LGH  R2,SHOWAREA+2           GET SHOWCAT RTN CODE
          ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,VSAMRC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMRC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          MVC   CWORK(8),SPACES         CLEAR WORK AREA
          LA    R1,CWORK                POINT TO "RESULT" AREA
-         IF    OPTFLAG,(ON,TM),CTLBLKF
+         IF    CTLBLKF,(ON,TF),$NOOP
           LGF  R2,SAVE_R0              RESTORE REGISTER 0
          ELSE
           LGH  R2,SHOWAREA+4           GET SHOWCAT RTN CODE
          ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          IF    SHOWAREA+6,NE,X'00',AND, MODULE CODE PRESENT?           X
-               OPTFLAG,(Z,TM),CTLBLKF    AND NOT CTLBLK ERROR?
+               CTLBLKF,(Z,TF),$NOOP      AND NOT CTLBLK ERROR?
           MVC  CWORK+4(2),SHOWAREA+6    ADD THE MODULE CODE             00015800
           LHI  R2,6                      SET LENGTH OF VAR DATA
          ENDIF                         ENDIF
          LA    R3,VSAMEC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMEC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
          BR    R5
@@ -2785,10 +2846,12 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
          ST    R4,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
          ST    R5,AWORK4+4             SAVE RETURN ADDRESS
 *
-*        MVC   VARDATA+0(18),=C'RXVSAMIO Get var: '
-*        MVC   VARDATA+18(40),VARNAME
-*        LA    R2,18(,R4)              ADD HEADER LEN TO VAR NAME LEN
-*        BAS   R5,SAYIT                GO SAY IT
+         IF    DEBUG_F,(ON,TF),$NOOP   IF DEBUG IS ON
+          MVC  VARDATA+0(18),=C'RXVSAMIO Get var: '
+          MVC  VARDATA+18(40),VARNAME
+          LA   R2,18(,R4)               ADD HEADER LEN TO VAR NAME LEN
+          JAS  R5,SAYIT                 GO SAY IT
+         ENDIF                         ENDIF                            00033600
 *
          L     R0,SAVEENVB             PASS ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
@@ -2804,7 +2867,7 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
           IF   R15,(Z,LTR),R15          IF ZERO RETURN CODE
            IC  R15,SHVRET                SAVE ARXEXCOM CC
           ENDIF                         ENDIF
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
@@ -2826,7 +2889,7 @@ SAYIT    DS    0H    USE REXX "SAY" TO DISPLAY MESSAGE
          IF    R15,(NZ,LTR),R15        IF NON-ZERO RETURN CODE
           MVC  MACRO,=CL8'ARXSAY'       LAST FAILED MACRO
           LHI  R5,8                     SET RESULT CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 *
          BR    R5
@@ -2854,19 +2917,21 @@ SETVAR   DS    0H            SET REXX VARIABLE VALUE
            IF  R15,(Z,LTR),R15           IF ZERO RETURN CODE
             IC R15,SHVRET                 SAVE ARXEXCOM CC
            ENDIF                         ENDIF
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
          ENDIF                         ENDIF
 *
          BR    R5
 * =================================================================== *
          EJECT
+DATA     LOCTR
 * =================================================================== *
 STORAGE  DS    0D
 * ------------------------------------------------------------------- *
 SAVEAREA DS    18D                     STANDARD OR F4SA REG. SVAEAREA
 SALEN    DC    A(DYNALENG)
 BUFLEN   DC    A(L'RECBUF)
+ENTRY_P  DC    A(0)
 SPACES   DC    CL10' '
 ENDMARK  DC    XL8'FFFFFFFFFFFFFFFF'
 KMAX     DS    F                       MAXIMUM KEY LENGTH

@@ -59,65 +59,7 @@ FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
 DATAAREA DSECT                         PASSED DATA AREA
          USING *,R10                   PERMANENT ADDRESSABILITY
 * ------------------------------------------------------------------- *
-AWORK4   DS    3A                      SAVE ADDRESSES
-SAVE_R0  DS    A                       SAVE REGISTER
-SAVE_R5  DS    A                       SAVE REGISTER
-SAVE_RE  DS    A                       SAVE REGISTER
-SAVE_RF  DS    A                       SAVE REGISTER
-EPVECTOR DS    A                       REXX ENTRY-POINT VECTOR ADDRESS
-EVALBLKA DS    A                       REXX EVALUATION BLOCK ADDRESS
-*
-DYNATBL  DS    9XL(L'FILETBLE)         BEGINNING OF FILE TABLE
-DYNATBLE DS    XL8                     END OF FILE TABLE
-*
-PWORK16  DS    0PL16                   DOUBLE PACKED WORK FIELD
-PWORK8   DS    PL8                     SINGLE PACKED WORK FIELD
-         DS    XL8                     RESERVED
-EWORK    DS    CL34                    EDITED WORK FIELD
-CWORK    DS    CL34                    CHARACTER WORK FIELD
-*
-SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
-SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SAYPARM1 DS    CL8                     'WRITE   '
-SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
-SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
-*
-SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
-SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
-SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SHVPARM1 DS    CL8                     'ARXEXCOM'
-SHVPARM2 DS    XL4
-SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
-*
-DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     BASE STEM NAME
-REQUEST  DS    CL8                     ACCESS REQUEST
-RECNAMEL DS    F                       STEM NAME LENGTH
-RECNAME  DS    CL10                    RECORD NAME STEM
-RQARG2   DS    CL8                     REQUEST ARGUMENT 2
-RQARG3   DS    CL8                     REQUEST ARGUMENT 3
-*
-MACRO    DS    CL8                     LAST FAILED MACRO (IF ANY)
-OPTFLAG  DS    XL1                     OPTION FLAGS
-ACBERRF  EQU   B'00001000'             GET ACB ERROR INFO
-RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
-CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
-SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
-CINUM    DS    XL3                     CATALOG CI NUMBER
-         DS    0F
-VARDATA  DS    CL256                   VARIABLE VALUE
-VARNAME  DS    CL256                   VARIABLE NAME
-SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
-PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
-*
-         COPY  DTEMANA
-*
-         DS    0D                      ALIGN TRANSLATE TABLE
-TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
-         DS    0D                      ALIGN RECORD KEY
-KEYBUF   DS    CL255                   STORAGE FOR RECORD KEY AREA
-         DS    0D                      ALIGN RECORD AREA
-RECBUF   DS    CL65535                 STORAGE FOR RECORD I/O AREA
+         COPY  RXVSAMIO
 * =================================================================== *
          EJECT
 * =================================================================== *
@@ -162,7 +104,7 @@ R15      EQU   15                      ENTRY POINT REG
          EJECT
 * =================================================================== *
 RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
-               BASE=(R12,R11),SVAREA=SAVEAREA
+               BASE=R11,SVAREA=SAVEAREA   STORAGE ALREADY ALLOCATED
 * ------------------------------------------------------------------- *
          LM    R9,R10,0(R1)            LOAD CALLER'S PARMS              00013500
          LA    R8,SHVCTLB              STORAGE FOR
@@ -172,11 +114,11 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,L'RECKEY             SET LENGTH OF ELEMENT NAME
          LA    R3,=C'0'                POINT TO STEM ELEMENT VALUE
          LHI   R4,1                    SET LENGTH OF ELEMENT VALUE
-         BAS   R5,GET_ELEM             RETRIEVE THE STEM ELEMENT
+         JAS   R5,GET_ELEM             RETRIEVE THE STEM ELEMENT
 
          LA    R1,VARDATA              POINT TO ZONED ELEMENT COUNT
          L     R2,SHVVALL              GET LENGTH OF VAR DATA
-         BAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
+         JAS   R5,ZONE2REG             CONVERT TO BINARY IN REG2
          STH   R2,EMAX                  AND SAVE AS HALFWORD VALUE
          XR    R7,R7                   INTIALIZE ELEMENT COUNTER
          XC    KMAX,KMAX               STARTING WITH ZERO KEY LENGTH
@@ -186,33 +128,33 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LGFR R2,R7                    GET CURRENT ELEMENT NUMBER
           XR   R4,R4                    ZERO DECIMAL PLACES
-          BAS  R5,REG2ZONE_REXX         CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE_REXX         CONVERT THAT TO ZONED-DECIMAL
           LA   R3,CWORK                 POINT BACK TO ELEMENT NUMBER
           LR   R4,R2                    SET LENGTH OF ELEMENT NUMBER
           LA   R1,RECKEY                POINT TO STEM ELEMENT NAME
           LHI  R2,L'RECKEY              SET LENGTH OF ELEMENT NAME
-          BAS  R5,GET_ELEM              RETRIEVE THE STEM ELEMENT
+          JAS  R5,GET_ELEM              RETRIEVE THE STEM ELEMENT
           IF   SHVVALL,(NH,CLC),=F'0',OR,  IF VAL LENGTH NOT > ZERO    +
                SHVVALL,(NL,CLC),=F'65'     OR NOT < 65
            MVC MACRO,=CL8'GETDEF'        LAST FAILED MACRO
            LR  R5,R7                     RETURN ELEMENT NUMBER
            LHI R15,-6                    SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
-          BAS  R5,PARSE_KEYDEF          PARSE THE KEY DEFINITION
+          JAS  R5,PARSE_KEYDEF          PARSE THE KEY DEFINITION
 
           MVI  VARDATA,X'40'            INITIALIZE VAR DATA AREA
           MVC  VARDATA+1(L'VARDATA-1),VARDATA
 
           LA   R1,KEY_NAME              POINT BACK TO FIELD NAME
           LA   R2,KEY_NAME+L'KEY_NAME-1 POINT TO LAST BYTE OF NAME
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LR   R3,R1                    MOVE NAME ADDRESS TO R3
           LR   R4,R2                    MOVE NAME LENGTH TO R4
           LA   R1,RECKEY                POINT BACK TO ELEM NAME
           LHI  R2,L'RECKEY              SET LENGTH OF ELEM NAME
-          BAS  R5,GET_ELEM              RETRIEVE STEM ELEMENT ENTRY
+          JAS  R5,GET_ELEM              RETRIEVE STEM ELEMENT ENTRY
           IF   SHVVALL,(NH,CLC),=F'0'   IF VAL LENGTH NOT > ZERO
            MVC SHVVALL,=F'5'             SET DEFAULT LENGTH
            MVC VARDATA(5),=C'*NULL'      SET DEFAULT VALUE
@@ -223,20 +165,20 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
            LR  R5,R7                     RETURN ELEMENT NUMBER
            LHI R15,-6                    SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF
 
           IF   VARDATA(5),(EQ,CLC),=C'*NULL'  IF LOW-VALUE REQUEST
           AND  SHVVALL,(EQ,CLC),=F'5'
            LA  R1,LOVAL                  SET TO LOW VALUES
            L   R2,KEY_LENG               GET LENGTH OF KEY DATA
-           B   MOVE2KEY                  SKIP OTHER CONVERSIONS
+           J   MOVE2KEY                  SKIP OTHER CONVERSIONS
           ENDIF                         ENDIF
           IF   VARDATA(5),(EQ,CLC),=C'*HIGH'  IF HIGH-VALUE REQUEST
           AND  SHVVALL,(EQ,CLC),=F'5'
            LA  R1,HIVAL                  SET TO HIGH VALUES
            L   R2,KEY_LENG               GET LENGTH OF KEY DATA
-           B   MOVE2KEY                  SKIP OTHER CONVERSIONS
+           J   MOVE2KEY                  SKIP OTHER CONVERSIONS
           ENDIF                         ENDIF
 
           IF   KEY_TYPE,NE,C'C'         IF NOT CHAR TYPE
@@ -247,7 +189,7 @@ RXVSAMBK HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
             MVC MACRO,=CL8'CONVERT'       LAST FAILED MACRO
             LR R5,R7                      RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
 CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
            ENDIF                         ENDIF
           ENDIF                         ENDIF
@@ -259,7 +201,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
            LA  R1,VARDATA                POINT TO VAR DATA SOURCE
            L   R2,KEY_LENG               GET LENGTH OF KEY DATA
@@ -269,7 +211,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC SHOWAREA+1(255),SHOWAREA
             LA R3,SHOWAREA               POINT TO WORK AREA
             SHI R2,1                     DECREMENT BEFORE EXECUTE
-            EX R2,KEY_MOVE               PUT KEY DATA IN WORK AREA
+            EXRL R2,KEY_MOVE             PUT KEY DATA IN WORK AREA
             LA R1,SHOWAREA               POINT TO VAR DATA SOURCE
             L  R2,KEY_LENG               GET LENGTH OF KEY DATA
            ENDIF
@@ -280,9 +222,9 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
-           BAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
+           JAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
            IF  VARDATA,EQ,C'-'           IF ORIGINALLY NEGATIVE
             OI PWORK16+L'PWORK16-1,X'0D'  APPLY NEGATIVE OVERPUNCH
            ENDIF
@@ -296,13 +238,13 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
-           BAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
+           JAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
            L   R0,KEY_LENG               SET LENGTH OF VAR DATA
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            CVBG R2,PWORK16               CONVERT PACKED INTO REG2
-           BAS R5,REG2ZONE_VSAM          BACK TO ZONED WITH DECIMAL
+           JAS R5,REG2ZONE_VSAM          BACK TO ZONED WITH DECIMAL
            LA  R1,CWORK                  POINT TO CONVERTED SOURCE
            L   R2,KEY_LENG               SET LENGTH OF KEY DATA
            LAY R3,-1(R2,R1)              POINT TO LAST BYTE OF DATA
@@ -314,16 +256,16 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
-           BAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
+           JAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
            IF  VARDATA,EQ,C'-'           IF ORIGINALLY NEGATIVE
             OI PWORK16+L'PWORK16-1,X'0D'  APPLY NEGATIVE OVERPUNCH
            ENDIF
            L   R0,KEY_LENG               SET LENGTH OF VAR DATA
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            CVBG R2,PWORK16               CONVERT PACKED INTO REG2
-           BAS R5,REG2ZONE_VSAM          BACK TO ZONED WITH DECIMAL
+           JAS R5,REG2ZONE_VSAM          BACK TO ZONED WITH DECIMAL
            LA  R1,CWORK                  POINT TO CONVERTED SOURCE
            L   R2,KEY_LENG               SET LENGTH OF KEY DATA
 
@@ -334,9 +276,9 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
-           BAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
+           JAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
            IF  VARDATA,EQ,C'-'           IF ORIGINALLY NEGATIVE
             OI PWORK16+L'PWORK16-1,X'0D'  APPLY NEGATIVE OVERPUNCH
            ENDIF
@@ -360,9 +302,9 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
-           BAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
+           JAS R5,PPACKVAR               PARSE AND PACK ZONED NUMBER
            CVBG R2,PWORK16               CONVERT PACKED INTO REG2
            IF  KEY_LENG,(EQ,CLC),=F'4'   IF FULL-WORD
             STCM R2,B'1111',CWORK         STORE FULL-WORD UNSIGNED
@@ -382,7 +324,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
             MVC MACRO,=CL8'CONVERT'       LAST FAILED OPERATION
             LR  R5,R7                     RETURN ELEMENT NUMBER
             LHI R15,-6                    SET RETURN CODE
-            B   RETERR                    GO RETURN ERROR
+            J   RETERR                    GO RETURN ERROR
            ENDIF
            XC  SHOWAREA(128),SHOWAREA    WORK AREA FOR CONVERSION
            LA  R1,VARDATA                POINT TO VAR DATA SOURCE
@@ -405,7 +347,7 @@ CHECK_IT TRT   VARDATA(0),VALIDATE     (SEE "EX" INSTRUCTION ABOVE)
            MVC MACRO,=CL8'PARSE'         LAST FAILED OPERATION
            LR  R5,R7                     RETURN ELEMENT NUMBER
            LHI R15,-6                    SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
 KEY_MOVE MVC   0(0,R3),0(R1)           SEE EXECUTE INSTRUCTION BELOW
           ENDSL
 
@@ -413,7 +355,7 @@ MOVE2KEY  DS   0H            MOVE R1 DATA(R2) INTO KEY BUFFER AT R3
           L    R5,KEY_OFFS              INDEX TO KEY FIELD POSITION
           LA   R3,KEYBUF(R5)            POINT TO KEY DATA POSITION
           SHI  R2,1                     DECREMENT BEFORE EXECUTE
-          EX   R2,KEY_MOVE              PUT KEY DATA IN KEY BUFFER
+          EXRL R2,KEY_MOVE              PUT KEY DATA IN KEY BUFFER
           AHI  R2,1                     INCREMENT AFTER EXECUTE
           LH   R4,KMAX                  GET CURRENT KEY LENGTH
           AR   R4,R2                    ADD DATA LENGTH TO KEY MAX
@@ -433,12 +375,12 @@ RETERR   DS    0H
          LA    R1,VARDATA              POINT TO VARIABLE DATA AREA
          LGF   R2,SAVE_R5              COPY R5 TO R2 AS 64 BITS
          XR    R4,R4                   ZERO DECIMAL PLACES
-         BAS   R5,REG2ZONE_REXX        CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE_REXX        CONVERT THAT TO ZONED-DECIMAL
          ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
          MVC   VARNAME+0(4),=C'SRC '   MOVE IN THE VARIABLE NAME
          LHI   R4,3                    SET LENGTH OF VARIABLE NAME
          ST    R4,SHVNAML              PUT IN SHV CONTROL BLOCK
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          L     R15,SAVE_RF             RETURN R15 AS RETURN CODE
 * ------------------------------------------------------------------- *
@@ -460,7 +402,7 @@ GET_ELEM DS    0H            RETRIEVE A STEM ELEMENT ENTRY
          AHI   R6,1                    INCR. VAR NAME LENGTH
 *
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,STEMNAME_MVC         MOVE IN ELEMENT NAME
+         EXRL  R2,STEMNAME_MVC         MOVE IN ELEMENT NAME
          AHI   R2,1                    INCREMENT AFTER EXECUTE
          AR    R5,R2                   INCR. VAR NAME ADDR.
          AR    R6,R2                   INCR. VAR NAME LENGTH
@@ -471,12 +413,12 @@ GET_ELEM DS    0H            RETRIEVE A STEM ELEMENT ENTRY
          LR    R1,R3                   TRANSFER NAME ADDRESS
          LR    R2,R4                   TRANSFER NAME LENGTH
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
+         EXRL  R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT AFTER EXECUTE
          AR    R6,R2                   INCR. VAR NAME LENGTH
 *
          ST    R6,SHVNAML              PUT IN SHV CONTROL BLOCK
-         BAS   R5,GETVAR               RETRIEVE STEM ELEMENT ENTRY
+         JAS   R5,GETVAR               RETRIEVE STEM ELEMENT ENTRY
 * ------------------------------------------------------------------- *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -501,7 +443,7 @@ PPACKVAR DS    0H            PACK ZONED DECIMAL STRING WITH ALIGNMENT
           LA   R1,1(,R3)                POINT TO CHAR AFTER DECIMAL
           LR   R2,R4                    COPY REMAINING LENGTH VALUE
           SHI  R2,1                     DECREMENT BEFORE EXECUTE
-          EX   R2,ADJUST_IT             REMOVE DECIMAL POINT
+          EXRL R2,ADJUST_IT             REMOVE DECIMAL POINT
           IF   R2,(EQ,C),KEY_DECM       IF ENOUGH DECIMALS FOUND
            XR  R4,R4                     NO ALIGNMENT NEEDED
           ELSE                          ELSE
@@ -525,7 +467,7 @@ PPACKVAR DS    0H            PACK ZONED DECIMAL STRING WITH ALIGNMENT
           SHI  R2,1                      AND REDUCE LENGTH
          ENDIF
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,PACK_IT              PACK VAR DATA INTO WORK FLD
+         EXRL  R2,PACK_IT              PACK VAR DATA INTO WORK FLD
          WHILE R4,(NZ,LTR),R4          LOOP ON ALIGNMENT NEEDED
           MP   PWORK16,=P'10'           ADD 1 DECIMAL PLACE
           SHI  R4,1                     DECR. DECIMALS NEEDED
@@ -550,7 +492,7 @@ PARSE_KEYDEF DS 0H           PARSE KEY DEFINITION IN UP TO 5 PIECES
          LA    R3,VARDATA              POINT TO BEG. OF FIELD DEF.
          L     R4,SHVVALL              SET TOTAL LENGTH OF FIELD DEF.
          LAY   R2,-1(,R4)              DECREMENT BEFORE EXECUTE
-         EX    R2,UCASE                TRANSLATE TO UPPER-CASE
+         EXRL  R2,UCASE                TRANSLATE TO UPPER-CASE
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
          XR    R2,R2                   INITIALIZE LENGTH COUNTER
@@ -566,11 +508,11 @@ PARSE_KEYDEF DS 0H           PARSE KEY DEFINITION IN UP TO 5 PIECES
           MVC  MACRO,=CL8'PARSE1_X'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
 UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
          ENDIF
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,PARSE_MVC            SAVE FIELD NAME FROM DEFINITION
+         EXRL  R2,PARSE_MVC            SAVE FIELD NAME FROM DEFINITION
 *
          WHILE R4,(NZ,LTR),R4,AND,     FIND THE BEG. OF NEXT PIECE     +
                0(R3),EQ,X'40'
@@ -581,7 +523,7 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE2_N'     LAST FAILED MACRO
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
@@ -598,10 +540,10 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE2_X'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,PARSE_MVC            SAVE FIELD TYPE FROM DEFINITION
+         EXRL  R2,PARSE_MVC            SAVE FIELD TYPE FROM DEFINITION
 *
          WHILE R4,(NZ,LTR),R4,AND,     FIND THE BEG. OF NEXT PIECE     +
                0(R3),EQ,X'40'
@@ -612,7 +554,7 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE3_N'     LAST FAILED MACRO
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
@@ -628,22 +570,22 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE3_X'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
-         BAS   R5,ZONE2REG             CONVERT FLD OFFSET INTO REG2
+         JAS   R5,ZONE2REG             CONVERT FLD OFFSET INTO REG2
          IF    R2,(LT,C),=F'0',OR,     IF FIELD OFFSET < ZERO          +
                R2,(HT,C),=F'254'       OR HIGHER THAN KEY MAX...
           MVC  MACRO,=CL8'PARSE3_Y'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          IF    R2,(NE,C),=F'0'         IF FIELD OFFSET NOT ZERO
          AND   R7,(EQ,C),=F'1'         AND FIRST KEY DEFINITION...
           MVC  MACRO,=CL8'PARSE3_Z'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          ST    R2,KEY_OFFS             SAVE FLD OFFSET FROM DEFINITION
 *
@@ -656,7 +598,7 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE4_N'     LAST FAILED MACRO
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
@@ -673,15 +615,15 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE4_X'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
-         BAS   R5,ZONE2REG             CONVERT FLD LENGTH INTO REG2
+         JAS   R5,ZONE2REG             CONVERT FLD LENGTH INTO REG2
          IF    R2,(LT,C),=F'1',OR,     IF FIELD LENGTH < ONE           +
                R2,(HT,C),=F'255'       OR HIGHER THAN KEY MAX...
           MVC  MACRO,=CL8'PARSE4_Y'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          ST    R2,KEY_LENG             SAVE FLD LENGTH FROM DEFINITION
 *
@@ -693,19 +635,19 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
          IF    R4,(Z,LTR),R4           IF END OF FIELD DEFINITION
           IF   KEY_TYPE,EQ,C'C',OR,     IF CHAR OR HEX                 +
                KEY_TYPE,EQ,C'H'         DECIMALS NOT ALLOWED
-           B   PARSE_EXIT                IGNORE NO DECIMALS
+           J   PARSE_EXIT                IGNORE NO DECIMALS
           ENDIF                         ENDIF
           MVC  MACRO,=CL8'PARSE5_N'     LAST FAILED MACRO
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          IF    KEY_TYPE,EQ,C'C',OR,    IF CHAR OR HEX                  +
                KEY_TYPE,EQ,C'H'        DECIMALS NOT ALLOWED
           MVC  MACRO,=CL8'PARSE5_E'     LAST FAILED MACRO
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
 *
          LR    R1,R3                   SAVE START OF NEXT PIECE
@@ -721,16 +663,16 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE5_X'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
-         BAS   R5,ZONE2REG             CONVERT FLD DECIMALS INTO REG2
+         JAS   R5,ZONE2REG             CONVERT FLD DECIMALS INTO REG2
          IF    R2,(NZ,LTR),R2          IF FLD DECIMALS NON-ZERO
           IF   KEY_TYPE,NE,C'P'         ONLY PACKED AND ZONED
           AND  KEY_TYPE,NE,C'Z'         CAN HAVE NON-ZERO DECIMALS
            MVC MACRO,=CL8'PARSE5_Z'      LAST FAILED MACRO
            LR  R5,R7                     RETURN ELEMENT NUMBER
            LHI R15,-6                    SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF
          ENDIF
          IF    R2,(LT,C),=F'0',OR,     IF FIELD DECIMALS < ZERO        +
@@ -738,7 +680,7 @@ UCASE    TR    VARDATA(0),TRTBL        (SEE "EX" STATEMENT ABOVE)
           MVC  MACRO,=CL8'PARSE5_Y'     LAST FAILED OPERATION
           LR   R5,R7                    RETURN ELEMENT NUMBER
           LHI  R15,-6                   SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF
          ST    R2,KEY_DECM             SAVE FLD DECIMAL FROM DEFINITION
 * ------------------------------------------------------------------- *
@@ -769,7 +711,7 @@ REG2ZONE_REXX DS 0H          CONVERT 64-BIT REG2 INTO A LEFT-SIGNED,
           SR   R1,R4                    SUBTRACT NO. OF DECIMAL PLACES
           MVI  0(R1),X'4B'              PLACE DECIMAL POINT MASK
          ENDIF                         ENDIF
-         IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
+         IF    SET_KLZ,(ON,TF),$NOOP   KEEP LEADING ZEROES?
           MVI  EWORK,X'F0'              CHANGE FILL BYTE
           IF   R4,(NZ,LTR),R4           IF NOT ZERO DECIMAL PLACES
            LA  R1,EWORK+L'MASK1-3        POINT TO LAST DIGIT OF MASK
@@ -787,7 +729,7 @@ REG2ZONE_REXX DS 0H          CONVERT 64-BIT REG2 INTO A LEFT-SIGNED,
          ENDIF
          SR    R2,R1                   CALC NO. OF CHARS TO MOVE
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
+         EXRL  R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
          AHI   R2,1                    INCREMENT AFTER EXECUTE
          LR    R1,R3                   RESTORE R1 FROM R3
 * ------------------------------------------------------------------- *
@@ -819,7 +761,7 @@ REG2ZONE_VSAM DS 0H     CONVERT 64-BIT REG2 TO A RIGHT-OVERPUNCH SIGN
          ENDIF                         ENDIF
          SR    R2,R1                   CALC NO. OF CHARS TO MOVE
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
+         EXRL  R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
          AHI   R2,1                    INCREMENT AFTER EXECUTE
          LR    R1,R3                   RESTORE R1 FROM R3
 * ------------------------------------------------------------------- *
@@ -830,7 +772,7 @@ REG2ZONE_VSAM DS 0H     CONVERT 64-BIT REG2 TO A RIGHT-OVERPUNCH SIGN
 ZONE2REG DS    0H    CONVERT ZONED-DECIMAL AT REG1 (L'REG2) INTO REG2
 * ------------------------------------------------------------------- *
          SHI   R2,1                    DECREMENT BEFORE EXECUTE
-         EX    R2,PACK_RESULT          PACK 0(?,R1) FOR LENGTH OF R2
+         EXRL  R2,PACK_RESULT          PACK 0(?,R1) FOR LENGTH OF R2
          CVB   R2,PWORK8               CONVERT PACKED-DECIMAL INTO REG2
 * ------------------------------------------------------------------- *
          BR    R5
@@ -873,7 +815,7 @@ GETVAR   DS    0H            GET REXX VARIABLE VALUE
            LR  R5,R15                    COPY TO R5
           ENDIF                         ENDIF
           LHI  R15,8                    SET RESULT CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 * ------------------------------------------------------------------- *
          BR    R5
@@ -901,21 +843,22 @@ SETVAR   DS    0H            SET REXX VARIABLE VALUE
             LR R5,R15                     COPY TO R5
            ENDIF                         ENDIF
            LHI R15,8                     SET RESULT CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
          ENDIF                         ENDIF
 * ------------------------------------------------------------------- *
          BR    R5
 * =================================================================== *
          EJECT
+DATA     LOCTR
 * =================================================================== *
 STORAGE  DS    0D
 * ------------------------------------------------------------------- *
 SAVEAREA DS    18D                     STANDARD OR F4SA REG. SVAEAREA
-HEXTABLE EQU   *-192                                                    00020100
-         DC    X'00FAFBFCFDFEFF000000000000000000'                      00020200
-         DC    X'00000000000000000000000000000000'                      00020300
-         DC    X'00000000000000000000000000000000'                      00020400
+HEXTABLE DC    256AL1(*-HEXTABLE)                                       00020100
+         ORG   HEXTABLE+C'A'
+         DC    X'FAFBFCFDFEFF'                                          00020200
+         ORG   HEXTABLE+C'0'
          DC    X'F0F1F2F3F4F5F6F7F8F9C1C2C3C4C5C6'                      00020500
 VALIDATE DC    256XL1'01'                                               00020100
          ORG   VALIDATE+C'.'

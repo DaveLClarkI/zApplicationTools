@@ -59,68 +59,7 @@ FILEICI  DS    XL3                     CATALOG INDEX COMP. CI NUMBER
 DATAAREA DSECT                         PASSED DATA AREA
          USING *,R10                   PERMANENT ADDRESSABILITY
 * ------------------------------------------------------------------- *
-AWORK4   DS    3A                      SAVE ADDRESSES
-SAVE_R0  DS    A                       SAVE REGISTER
-SAVE_R5  DS    A                       SAVE REGISTER
-SAVE_RE  DS    A                       SAVE REGISTER
-SAVE_RF  DS    A                       SAVE REGISTER
-EPVECTOR DS    A                       REXX ENTRY-POINT VECTOR ADDRESS
-EVALBLKA DS    A                       REXX EVALUATION BLOCK ADDRESS
-*
-DYNATBL  DS    9XL(L'FILETBLE)         BEGINNING OF FILE TABLE
-DYNATBLE DS    XL8                     END OF FILE TABLE
-*
-PWORK16  DS    0PL16                   DOUBLE PACKED WORK FIELD
-PWORK8   DS    PL8                     SINGLE PACKED WORK FIELD
-         DS    XL8                     RESERVED
-EWORK    DS    CL34                    EDITED WORK FIELD
-CWORK    DS    CL34                    CHARACTER WORK FIELD
-*
-SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
-SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SAYPARM1 DS    CL8                     'WRITE   '
-SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
-SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
-*
-SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
-SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
-SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
-SHVPARM1 DS    CL8                     'ARXEXCOM'
-SHVPARM2 DS    XL4
-SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
-*
-DDNLENG  DS    F                       STEM NAME LENGTH
-DDNAME   DS    CL8                     BASE STEM NAME
-REQUEST  DS    CL8                     ACCESS REQUEST
-RECNAMEL DS    F                       STEM NAME LENGTH
-RECNAME  DS    CL10                    RECORD NAME STEM
-RQARG2   DS    CL8                     REQUEST ARGUMENT 2
-RQARG3   DS    CL8                     REQUEST ARGUMENT 3
-*
-MACRO    DS    CL8                     LAST FAILED MACRO (IF ANY)
-OPTFLAG  DS    XL1                     OPTION FLAGS
-ACBERRF  EQU   B'00001000'             GET ACB ERROR INFO
-RPLERRF  EQU   B'00000100'             GET RPL ERROR INFO
-CTLBLKF  EQU   B'00000010'             GET CTLBLK ERROR INFO
-SET_KLZ  EQU   B'00000001'             KEEP LEADING ZEROES
-CINUM    DS    XL3                     CATALOG CI NUMBER
-         DS    0F
-VARDATA  DS    CL256                   VARIABLE VALUE
-VARNAME  DS    CL256                   VARIABLE NAME
-SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
-PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
-*
-         COPY  DTEMANA
-*
-         DS    0D                      ALIGN TRANSLATE TABLE
-TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
-         DS    0D                      ALIGN RECORD KEY
-KEYAREA  DS    CL255                   STORAGE FOR RECORD KEY AREA
-         ORG   KEYAREA
-KEYBUF   DS    CL44                    STORAGE FOR RECORD KEY AREA
-         ORG
-         DS    0D                      ALIGN RECORD AREA
-RECBUF   DS    CL504                   STORAGE FOR RECORD I/O AREA
+         COPY  RXVSAMIO
 * =================================================================== *
          EJECT
 * =================================================================== *
@@ -169,7 +108,7 @@ R15      EQU   15                      ENTRY POINT REG
          EJECT
 * =================================================================== *
 RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
-               BASE=(R12,R11),SVAREA=SAVEAREA
+               BASE=R11,SVAREA=SAVEAREA   STORAGE ALREADY ALLOCATED
 * ------------------------------------------------------------------- *
          LM    R9,R10,0(R1)            LOAD CALLER'S PARMS              00013500
 *
@@ -178,10 +117,10 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LA    R1,ACBDDNM              POINT TO CATALOG LABEL
          DROP  R8                      REMOVE ADDRESSABILITY
          LA    R2,7-1(,R1)             POINT TO LAST BYTE OF CATLBL
-         BAS   R5,SET_LENG             SET LENGTH IN R2
+         JAS   R5,SET_LENG             SET LENGTH IN R2
          LA    R3,CATLBL               POINT BACK TO VAR NAME
          LHI   R4,L'CATLBL             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R8,FILECAT              GET CATALOG ACB ADDRESS
          USING IKQACB,R8               TEMPORARY ADDRESSABILITY
@@ -189,10 +128,10 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LA    R1,152(R1)              POINT TO CATALOG NAME
          DROP  R8                      REMOVE ADDRESSABILITY
          LA    R2,44-1(,R1)            POINT TO LAST BYTE OF CATDSN
-         BAS   R5,SET_LENG             SET LENGTH IN R2
+         JAS   R5,SET_LENG             SET LENGTH IN R2
          LA    R3,CATDSN               POINT BACK TO VAR NAME
          LHI   R4,L'CATDSN             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R8,FILEACB              GET FILE ACB ADDRESS
          USING IKQACB,R8               TEMPORARY ADDRESSABILITY
@@ -201,10 +140,10 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          DROP  R8                      REMOVE ADDRESSABILITY
          MVC   KEYBUF,0(R1)            SET KEY BUFFER TO DSN
          L     R8,FILECATR             GET CATALOG RPL ADDRESS
-         BAS   R6,GETREC               GET THE CATALOG RECORD
+         JAS   R6,GETREC               GET THE CATALOG RECORD
          XC    KEYBUF,KEYBUF           SET KEY BUFFER TO LOW VALUES
          MVC   KEYBUF+1(3),RECBUF+44   POINT TO BASE CI
-         BAS   R6,GETREC               GET THE BASE RECORD
+         JAS   R6,GETREC               GET THE BASE RECORD
 
          MVC   PWORK8(3),RECBUF+101    GET CREATION DATE
          MVC   CWORK(7),=X'F0202020212060' SET EDIT MASK
@@ -220,14 +159,14 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           XR   R15,R15                  CLEAR WORK REGISTER
           IC   R15,DTERETN              INSERT RETURN CODE CHARACTER
           LHI  R5,8                     SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
          MVC   CWORK(8),DTEGREG+2      GET GREGORIAN DATE
          LA    R1,CWORK                GET ADDRESS OF VAR DATA
          LHI   R2,8                    SET LENGTH OF VAR DATA
          LA    R3,DSCREA               POINT BACK TO VAR NAME
          LHI   R4,L'DSCREA             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    RECBUF+104(3),(HT,CP),=PL3'0'  IF NOT ZERO
           MVC  PWORK8(3),RECBUF+104     GET EXPIRATION DATE
@@ -245,14 +184,14 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           XR   R15,R15                  CLEAR WORK REGISTER
           IC   R15,DTERETN              INSERT RETURN CODE CHARACTER
           LHI  R5,8                     SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
          MVC   CWORK(8),DTEGREG+2      GET GREGORIAN DATE
          LA    R1,CWORK                GET ADDRESS OF VAR DATA
          LHI   R2,8                    SET LENGTH OF VAR DATA
          LA    R3,DSEXPD               POINT BACK TO VAR NAME
          LHI   R4,L'DSEXPD             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    FILEAIX,(ON,TF),$NOOP    FOR AN AIX...
           IF   RECBUF+107,(ON,TM),B'10000000'
@@ -263,7 +202,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_UPGR                POINT BACK TO VAR NAME
           LHI  R4,L'A_UPGR              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 
          IF    FILEPATH,(ON,TF),$NOOP    FOR A PATH...
@@ -275,20 +214,20 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_UPDT                POINT BACK TO VAR NAME
           LHI  R4,L'A_UPDT              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 
          XC    KEYBUF,KEYBUF           SET KEY BUFFER TO LOW VALUES
          MVC   KEYBUF+1(3),FILEDCI     POINT TO DATA COMP. CI
          L     R8,FILECATR             GET CATALOG RPL ADDRESS
-         BAS   R6,GETREC               GET THE CATALOG RECORD
+         JAS   R6,GETREC               GET THE CATALOG RECORD
          IF    RECBUF+1(3),(EQ,CLC),FILEDCI   IF RECORD WAS FOUND
           LA   R1,RECBUF+49             POINT BACK TO COMP. NAME
           LA   R2,RECBUF+49+44-1        POINT TO LAST BYTE OF NAME
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LA   R3,DATANM                POINT BACK TO VAR NAME
           LHI  R4,L'DATANM              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           IF   RECBUF+107,(ON,TM),B'10000000'
            LA  R1,=C'0'                  INDICATE SPEED
@@ -298,7 +237,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_RCVR                POINT BACK TO VAR NAME
           LHI  R4,L'A_RCVR              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           IF   RECBUF+107,(ON,TM),B'00100000'
            LA  R1,=C'1'                  INDICATE REUSE
@@ -308,7 +247,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_REUS                POINT BACK TO VAR NAME
           LHI  R4,L'A_REUS              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           IF   RECBUF+107,(ON,TM),B'00010000'
            LA  R1,=C'1'                  INDICATE ERASE
@@ -318,7 +257,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_ERAS                POINT BACK TO VAR NAME
           LHI  R4,L'A_ERAS              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           MVC  CWORK(3),SPACES          WORK AREA FOR SHROPTNs
           ICM  R0,b'1000',RECBUF+108    NEED b'XXXX....' PART OF BYTE
@@ -332,23 +271,23 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,3                     SET LENGTH OF VAR DATA
           LA   R3,DSSHRO                POINT BACK TO VAR NAME
           LHI  R4,L'DSSHRO              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           XGR  R2,R2                    CLEAR 64-BIT REGISTER
           ICM  R2,B'0111',RECBUF+114    GET PRIMARY ALLOCATION VALUE
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,DATPAL                POINT BACK TO VAR NAME
           LHI  R4,L'DATPAL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           XGR  R2,R2                    CLEAR 64-BIT REGISTER
           ICM  R2,B'0111',RECBUF+117    GET SECONDARY ALLOCATION VALUE
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,DATSAL                POINT BACK TO VAR NAME
           LHI  R4,L'DATSAL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           IF   RECBUF+120,(ON,TM),B'11000000'
            LA  R1,=C'CYL'                CYLINDER ALLOCATION
@@ -362,7 +301,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,3                     SET LENGTH OF TYPE ALLOC
           LA   R3,DATTAL                POINT BACK TO VAR NAME
           LHI  R4,L'DATTAL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           XGR  R2,R2                    CLEAR 64-BIT REGISTER
           IF   SAMD,(NO,TF),$NOOP       IF NOT SAM DATASET
@@ -378,10 +317,10 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            DROP R1                       REMOVE ADDRESSABILITY
           ENDIF                         ENDIF
           LA   R1,CWORK                 POINT TO "RESULT" AREA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,RECAVG                POINT BACK TO VAR NAME
           LHI  R4,L'RECAVG              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           IF   SAMD,(ON,TF),$NOOP       IF SAM DATASET
            MVC CWORK(2),SPACES           INITIALIZE "RESULT" AREA
@@ -403,18 +342,18 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            LHI R2,2                      SET VARIABLE LENGTH
            LA  R3,RECFMT                 POINT BACK TO VAR NAME
            LHI R4,L'RECFMT               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
           MVC  CINUM,FILEDCI            GET DATA COMP. CI
-          BAS  R14,GET_VOLS             EXTRACT VOLUME LIST
+          JAS  R14,GET_VOLS             EXTRACT VOLUME LIST
           MVC  RECBUF(L'VARDATA),VARDATA MOVE VOL.LIST TO REC. BUF
           LA   R1,RECBUF                POINT BACK TO VOL.LIST
           LA   R2,RECBUF+L'VARDATA-1    POINT TO LAST BYTE OF LIST
-          BAS  R5,SET_LENG              SET LENGTH IN R2
+          JAS  R5,SET_LENG              SET LENGTH IN R2
           LA   R3,DATVOL                POINT BACK TO VAR NAME
           LHI  R4,L'DATVOL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF
 
          L     R8,FILEACB              GET ACB ADDRESS
@@ -431,17 +370,17 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           MVI  4(R1),C'0'               CAN'T SPECIFY FOR SAMD
          ELSE                          ELSE
           LLGC R2,AMDPCTCA              GET FREE CI PCT PER CA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           MVC  CWORK+4(3),CWORK         JUSTIFY DATA TO THE RIGHT
           MVC  CWORK(3),SPACES          CLEAR LEFT SIDE OF VALUE
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGC R2,AMDPCTCI              GET FREE BYTE PCT PER CI
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
          ENDIF                         ENDIF
          LHI   R2,7                    SET LENGTH OF VAR DATA
          LA    R3,DATFSP               POINT BACK TO VAR NAME
          LHI   R4,L'DATFSP             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDATTR3,(ON,TM),B'00010000'
           LA   R1,=C'1'                 INDICATE COMPRESSED
@@ -451,7 +390,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_COMP               POINT BACK TO VAR NAME
          LHI   R4,L'A_COMP             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDDATTR,(ON,TM),B'01000000'
           LA   R1,=C'1'                 INDICATE WRITECHECK
@@ -461,7 +400,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_WCHK               POINT BACK TO VAR NAME
          LHI   R4,L'A_WCHK             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDDATTR,(ON,TM),B'00100000'
           LA   R1,=C'1'                 INDICATE IMBED
@@ -471,7 +410,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_IMBD               POINT BACK TO VAR NAME
          LHI   R4,L'A_IMBD             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDDATTR,(ON,TM),B'00010000'
           LA   R1,=C'1'                 INDICATE REPLICATE
@@ -481,7 +420,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_REPL               POINT BACK TO VAR NAME
          LHI   R4,L'A_REPL             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDDATTR,(ON,TM),B'00001000'
           LA   R1,=C'1'                 INDICATE ORDERED
@@ -491,7 +430,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_ORDR               POINT BACK TO VAR NAME
          LHI   R4,L'A_ORDR             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    AMDDATTR,(ON,TM),B'00000001'
           LA   R1,=C'1'                 INDICATE SPANNED
@@ -501,7 +440,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,1                    SET LENGTH OF VAR DATA
          LA    R3,A_SPAN               POINT BACK TO VAR NAME
          LHI   R4,L'A_SPAN             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    FILEAIX,(ON,TF),$NOOP    FOR AN AIX...
           IF   AMDATTR3,(ON,TM),B'10000000'
@@ -512,7 +451,7 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           LHI  R2,1                     SET LENGTH OF VAR DATA
           LA   R3,A_UKEY                POINT BACK TO VAR NAME
           LHI  R4,L'A_UKEY              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
          ENDIF                         ENDIF
 
          DROP  R8                      REMOVE ADDRESSABILITY
@@ -527,46 +466,46 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          IF    R15,(NZ,LTR),R15        IF FAILED
           MVC  MACRO,=CL8'SHOWCB/A'     INDICATE OPERATION PERFORMED
           ST   R0,SAVE_R0               SAVE REGISTER 0
-          OI   OPTFLAG,CTLBLKF          SIGNAL ERROR IN CTLBLK
-          BAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
+          SF   CTLBLKF                  SIGNAL ERROR IN CTLBLK
+          JAS  R5,SHOWRESN              PASS BACK RTN AND RSN CODES
           LHI  R5,16                    SET RETURN CODE
-          B    RETERR                   GO RETURN ERROR
+          J    RETERR                   GO RETURN ERROR
          ENDIF                         ENDIF
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+0           GET CI SIZE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATCSZ               POINT BACK TO VAR NAME
          LHI   R4,L'DATCSZ             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+4           GET HI USED RBA
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATHUS               POINT BACK TO VAR NAME
          LHI   R4,L'DATHUS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+8           GET HI ALLOCATED RBA
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATHAL               POINT BACK TO VAR NAME
          LHI   R4,L'DATHAL             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+12          GET NUMBER OF EXCPs
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATEXC               POINT BACK TO VAR NAME
          LHI   R4,L'DATEXC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+16          GET NUMBER OF DATA EXTENTS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATEXT               POINT BACK TO VAR NAME
          LHI   R4,L'DATEXT             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          MVI   CWORK,X'40'             SET WORK AREA TO SPACES
          MVC   CWORK+1(L'CWORK-1),CWORK
@@ -583,86 +522,86 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
          LHI   R2,15                   SET LENGTH OF VAR DATA
          LA    R3,DSTSTP               POINT BACK TO VAR NAME
          LHI   R4,L'DSTSTP             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+28          GET NUMBER OF CI SPLITS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATCIS               POINT BACK TO VAR NAME
          LHI   R4,L'DATCIS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+32          GET NUMBER OF CA SPLITS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,DATCAS               POINT BACK TO VAR NAME
          LHI   R4,L'DATCAS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+36          GET NO. OF RECORDS IN FILE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,S_RECS               POINT BACK TO VAR NAME
          LHI   R4,L'S_RECS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+40          GET NO. OF DELETED RECORDS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,S_DELS               POINT BACK TO VAR NAME
          LHI   R4,L'S_DELS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+44          GET NO. OF INSERTED RECORDS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,S_ADDS               POINT BACK TO VAR NAME
          LHI   R4,L'S_ADDS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+48          GET NO. OF UPDATED RECORDS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,S_UPDS               POINT BACK TO VAR NAME
          LHI   R4,L'S_UPDS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          LA    R1,CWORK                POINT TO "RESULT" AREA
          LLGF  R2,SHOWAREA+52          GET NO. OF RETRIEVED RECORDS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R3,S_GETS               POINT BACK TO VAR NAME
          LHI   R4,L'S_GETS             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 
          IF    FILEICI,(HT,CLC),=XL3'00'  IF INDEX PRESENT
 
           XC   KEYBUF,KEYBUF            SET KEY BUFFER TO LOW VALUES
           MVC  KEYBUF+1(3),FILEICI      POINT TO INDEX COMP. CI
           L    R8,FILECATR              GET CATALOG RPL ADDRESS
-          BAS  R6,GETREC                GET THE CATALOG RECORD
+          JAS  R6,GETREC                GET THE CATALOG RECORD
           IF   RECBUF+1(3),(EQ,CLC),FILEICI  IF RECORD WAS FOUND
            LA  R1,RECBUF+49              POINT BACK TO COMP. NAME
            LA  R2,RECBUF+49+44-1         POINT TO LAST BYTE OF NAME
-           BAS R5,SET_LENG               SET LENGTH IN R2
+           JAS R5,SET_LENG               SET LENGTH IN R2
            LA  R3,INDXNM                 POINT BACK TO VAR NAME
            LHI R4,L'INDXNM               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
 
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            XGR R2,R2                     CLEAR 64-BIT REGISTER
            ICM R2,B'0111',RECBUF+114     GET PRIMARY ALLOCATION VALUE
-           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           JAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,IDXPAL                 POINT BACK TO VAR NAME
            LHI R4,L'IDXPAL               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
 
            LA  R1,CWORK                  POINT TO "RESULT" AREA
            XGR R2,R2                     CLEAR 64-BIT REGISTER
            ICM R2,B'0111',RECBUF+117     GET SECONDARY ALLOCATN VALUE
-           BAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
+           JAS R5,REG2ZONE               CONVERT THAT TO ZONED-DECIMAL
            LA  R3,IDXSAL                 POINT BACK TO VAR NAME
            LHI R4,L'IDXSAL               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
 
            IF  RECBUF+120,(ON,TM),B'11000000'
             LA R1,=C'CYL'                 CYLINDER ALLOCATION
@@ -676,17 +615,17 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
            LHI R2,3                      SET LENGTH OF TYPE ALLOC
            LA  R3,IDXTAL                 POINT BACK TO VAR NAME
            LHI R4,L'IDXTAL               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
 
            MVC CINUM,FILEICI             GET INDEX COMP. CI
-           BAS R14,GET_VOLS              EXTRACT VOLUME LIST
+           JAS R14,GET_VOLS              EXTRACT VOLUME LIST
            MVC RECBUF(L'VARDATA),VARDATA MOVE VOL.LIST TO REC. BUF
            LA  R1,RECBUF                 POINT BACK TO VOL.LIST
            LA  R2,RECBUF+L'VARDATA-1     POINT TO LAST BYTE OF LIST
-           BAS R5,SET_LENG               SET LENGTH IN R2
+           JAS R5,SET_LENG               SET LENGTH IN R2
            LA  R3,IDXVOL                 POINT BACK TO VAR NAME
            LHI R4,L'IDXVOL               SET LENGTH OF VAR NAME
-           BAS R5,SET_STEM               CREATE THE STEM ELEMENT
+           JAS R5,SET_STEM               CREATE THE STEM ELEMENT
           ENDIF                         ENDIF
 
           L    R8,FILEACB               GET ACB ADDRESS
@@ -698,24 +637,24 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LGH  R2,AMDNIL                GET NUMBER OF INDEX LEVELS
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXLVL                POINT BACK TO VAR NAME
           LHI  R4,L'IDXLVL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,AMDSSRBA              GET SEQUENCE SET INDEX RBA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXSSR                POINT BACK TO VAR NAME
           LHI  R4,L'IDXSSR              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,AMDHLRBA              GET HIGH-LEVEL INDEX RBA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXHLR                POINT BACK TO VAR NAME
           LHI  R4,L'IDXHLR              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           DROP R8                       REMOVE ADDRESSABILITY
           L    R8,FILEACB               GET FILE ACB ADDRESS
@@ -728,46 +667,46 @@ RXVSAMXA HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)FEB22',            X
           IF   R15,(NZ,LTR),R15         IF FAILED
            MVC MACRO,=CL8'SHOWCB/A'      INDICATE OPERATION PERFORMED
            ST  R0,SAVE_R0                SAVE REGISTER 0
-           OI  OPTFLAG,CTLBLKF           SIGNAL ERROR IN CTLBLK
-           BAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
+           SF  CTLBLKF                   SIGNAL ERROR IN CTLBLK
+           JAS R5,SHOWRESN               PASS BACK RTN AND RSN CODES
            LHI R5,16                     SET RETURN CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+0            GET CI SIZE
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXCSZ                POINT BACK TO VAR NAME
           LHI  R4,L'IDXCSZ              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+4            GET HI USED RBA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXHUS                POINT BACK TO VAR NAME
           LHI  R4,L'IDXHUS              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+8            GET HI ALLOCATED RBA
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXHAL                POINT BACK TO VAR NAME
           LHI  R4,L'IDXHAL              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+12           GET NUMBER OF EXCPs
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXEXC                POINT BACK TO VAR NAME
           LHI  R4,L'IDXEXC              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
           LA   R1,CWORK                 POINT TO "RESULT" AREA
           LLGF R2,SHOWAREA+16           GET NUMBER OF DATA EXTENTS
-          BAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
+          JAS  R5,REG2ZONE              CONVERT THAT TO ZONED-DECIMAL
           LA   R3,IDXEXT                POINT BACK TO VAR NAME
           LHI  R4,L'IDXEXT              SET LENGTH OF VAR NAME
-          BAS  R5,SET_STEM              CREATE THE STEM ELEMENT
+          JAS  R5,SET_STEM              CREATE THE STEM ELEMENT
 
          ENDIF                         ENDIF
 *
@@ -782,14 +721,14 @@ RETERR   DS    0H
 *
          LA    R1,VARDATA              POINT TO VARIABLE DATA AREA
          LGF   R2,SAVE_R5              COPY R5 TO R2 AS 64 BITS
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          LA    R8,SHVCTLB              STORAGE FOR
          USING SHVBLOCK,R8              SHARED VARIABLES CONTROL BLOCK
          ST    R2,SHVVALL              PUT IN SHV CONTROL BLOCK
          DROP  R8
          MVC   VARNAME+0(3),=C'RC '    SET VARIABLE NAME
          LHI   R4,2                    SET LENGTH OF VARIABLE NAME
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          L     R15,SAVE_RF             RETURN R15 AS RETURN CODE
 * ------------------------------------------------------------------- *
@@ -802,8 +741,8 @@ GETREC   DS    0H            READ A RECORD BASED UPON RPL=(R8)
          GET   RPL=(R8)                READ A RECORD
          IF    R15,(NZ,LTR),R15        IF FAILED
           MVC  MACRO,=CL8'GET'          INDICATE OPERATION PERFORMED
-          OI   OPTFLAG,RPLERRF          SIGNAL ERROR IN RPL
-          B    RETURN                   GO RETURN ERROR
+          SF   RPLERRF                  SIGNAL ERROR IN RPL
+          J    RETURN                   GO RETURN ERROR
          ENDIF                         ENDIF
 * ------------------------------------------------------------------- *
          BR    R6                      RETURN TO CALLER
@@ -817,17 +756,17 @@ GET_VOLS DS    0H            GET VOLUME LIST FOR REQUESTED COMPONENT
 *
          XC    KEYBUF,KEYBUF           SET KEY BUFFER TO LOW VALUES
          MVC   KEYBUF+1(3),CINUM       POINT TO COMP. RECORD CI
-         BAS   R6,GETREC               GET THE CATALOG RECORD
+         JAS   R6,GETREC               GET THE CATALOG RECORD
          IF    RECBUF+1(3),(NE,CLC),CINUM   IF RECORD NOT FOUND
           MVC  MACRO,=CL8'GETREC'       INDICATE OPERATION PERFORMED
           LHI  R15,14                   SIGNAL NOT FOUND
-          B    RETURN                   RETURN ERROR TO CALLER
+          J    RETURN                   RETURN ERROR TO CALLER
          ENDIF                         ENDIF
 *
          LA    R2,RECSAVE              SET ADDRESS OF  "TO"  FIELD
          LHI   R3,L'RECSAVE            SET LENGTH  OF  "TO"  FIELD
          LA    R4,RECBUF               SET ADDRESS OF "FROM" FIELD
-         LHI   R5,L'RECBUF             SET LENGTH  OF "FROM" FIELD
+         LHI   R5,L'RECSAVE            SET LENGTH  OF "FROM" FIELD
 *        ICM   R5,B'1000',LOVALUE      PAD "TO" FIELD WITH LOVALUE
          MVCL  R2,R4                   SAVE THE CATALOG RECORD
          MVI   VARDATA,X'40'           CLEAR AREA FOR VOLUME LIST
@@ -853,11 +792,11 @@ GET_VOLS DS    0H            GET VOLUME LIST FOR REQUESTED COMPONENT
           WHEN 3(R3),EQ,X'83'           IF THIS IS AN EXTREC ENTRY
            IF  RECBUF+1(3),(NE,CLC),0(R3) AND EXTREC NOT IN BUFFER
             MVC KEYBUF+1(3),0(R3)         POINT TO EXTREC CI
-            BAS R6,GETREC                 GET THE EXTREC RECORD
+            JAS R6,GETREC                 GET THE EXTREC RECORD
             IF RECBUF+1(3),(NE,CLC),0(R3) IF RECORD NOT FOUND
              MVC MACRO,=CL8'GETREC'        INDICATE OPERATION PERFORMED
              LHI R15,14                    SIGNAL NOT FOUND
-             B RETURN                      RETURN ERROR TO CALLER
+             J RETURN                      RETURN ERROR TO CALLER
             ENDIF                         ENDIF
            ENDIF                         ENDIF
            XR  R5,R5                     CLEAR WORK REGISTER
@@ -898,7 +837,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
          LR    R3,R1                   SAVE R1 IN R3
          XR    R1,R1                   CLEAR R1 FOR EDIT AND MARK
          CVDG  R2,PWORK16              CONVERT REG2 TO PACKED-DECIMAL
-         IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
+         IF    SET_KLZ,(ON,TF),$NOOP   KEEP LEADING ZEROES?
           MVC  EWORK,=X'F0212020202020202020202020202020202020206040'
           LA   R1,EWORK+2              POINT TO SIGNIFICANCE BYTE
          ELSE
@@ -910,7 +849,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
           SHI  R1,1                     DECR. R1 SO THAT WE CAN
           MVI  0(R1),C'-'               FLOAT A LEFT MINUS SIGN
          ENDIF
-         IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
+         IF    SET_KLZ,(ON,TF),$NOOP   KEEP LEADING ZEROES?
           IF   0(R1),EQ,C'-'
            LA  R1,EWORK                  POINT TO SIGN BYTE
            LHI R2,20                     SET LENGTH OF DATA
@@ -922,7 +861,7 @@ REG2ZONE DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG1
           SR   R2,R1                    CALC NO. OF CHARS TO MOVE
          ENDIF
          SHI   R2,1                    DECR. LEN FOR ZERO REF.
-         EX    R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
+         EXRL  R2,MOVE_RESULT          MOVE VALUE TO RESULT AREA
          AHI   R2,1                    INCR. LEN FOR NORMAL REF.
          LR    R1,R3                   RESTORE R1 FROM R3
 *
@@ -953,7 +892,7 @@ SET_STEM DS    0H    CREATE A STEM ELEMENT
          ST    R5,AWORK4               SAVE RETURN ADDRESS
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
+         EXRL  R2,STEMDATA_MVC         MOVE DATA TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          LA    R8,SHVCTLB              STORAGE FOR
          USING SHVBLOCK,R8              SHARED VARIABLES CONTROL BLOCK
@@ -972,10 +911,10 @@ SET_STEM DS    0H    CREATE A STEM ELEMENT
          AHI   R4,1                    INCR. VAR NAME LENGTH
 *
          SHI   R2,1                    DECREMENT FOR EXECUTE
-         EX    R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
+         EXRL  R2,STEMNAME_MVC         MOVE NAME TO CONTROL BLOCK
          AHI   R2,1                    INCREMENT BACK
          AR    R4,R2                   INCR. VAR NAME LENGTH
-         BAS   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 *
          L     R5,AWORK4               RESTORE RETURN ADDRESS
          BR    R5                      RETURN TO CALLER
@@ -1008,7 +947,7 @@ SETVAR   DS    0H    SET REXX VARIABLE VALUE
            IF  R15,(Z,LTR),R15           IF ZERO RETURN CODE
             IC R15,SHVRET                 SAVE ARXEXCOM CC
            ENDIF                         ENDIF
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
          ENDIF                         ENDIF
 *
@@ -1023,15 +962,15 @@ VSAMERRC DS    0H    PASS BACK VSAM RTN AND RSN CODES
 *
          LA    R1,CWORK               POINT TO "RESULT" AREA
          LGR   R2,R15                  GET VSAM RTN CODE
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          XR    R15,R15                 CLEAR FOR NO RETURN CODE
          LA    R3,VSAMRC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMRC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          MVC   CWORK,SPACES           CLEAR WORK AREA
          LA    R1,CWORK               POINT TO "RESULT" AREA
-         IF    OPTFLAG,(ON,TM),RPLERRF IF RPL ERROR OCCURRED...
+         IF    RPLERRF,(ON,TF),$NOOP   IF RPL ERROR OCCURRED...
           USING IKQRPL,R8               TEMPORARY ADDRESSABILITY
           LLGC R2,RPLFDBKC              GET RPL FEEDBACK CODE
           DROP R8                       REMOVE ADDRESSABILITY
@@ -1040,11 +979,11 @@ VSAMERRC DS    0H    PASS BACK VSAM RTN AND RSN CODES
           LLGC R2,ACBERFLG              GET ACB ERROR FLAG
           DROP R8                       REMOVE ADDRESSABILITY
          ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          XR    R15,R15                 CLEAR FOR NO RETURN CODE
          LA    R3,VSAMEC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMEC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
          BR    R5
@@ -1057,39 +996,40 @@ SHOWRESN DS    0H    PASS BACK SHOWCAT RTN AND RSN CODES
 *
          LA    R1,CWORK               POINT TO "RESULT" AREA
          IF    R15,(LT,C),=F'12',OR,                                   X
-               OPTFLAG,(ON,TM),CTLBLKF
+               CTLBLKF,(ON,TF),$NOOP
           LGR  R2,R15
          ELSE
           LGH  R2,SHOWAREA+2           GET SHOWCAT RTN CODE
          ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          XR    R15,R15                 CLEAR FOR NO RETURN CODE
          LA    R3,VSAMRC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMRC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          MVC   CWORK,SPACES           CLEAR WORK AREA
          LA    R1,CWORK               POINT TO "RESULT" AREA
-         IF    OPTFLAG,(ON,TM),CTLBLKF
+         IF    CTLBLKF,(ON,TF),$NOOP
           LGF  R2,SAVE_R0              RESTORE REGISTER 0
          ELSE
           LGH  R2,SHOWAREA+4           GET SHOWCAT RTN CODE
          ENDIF
-         BAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
+         JAS   R5,REG2ZONE             CONVERT THAT TO ZONED-DECIMAL
          XR    R15,R15                 CLEAR FOR NO RETURN CODE
          IF    SHOWAREA+6,NE,X'00',AND, MODULE CODE PRESENT?           X
-               OPTFLAG,(Z,TM),CTLBLKF
+               CTLBLKF,(Z,TF),$NOOP
           MVC  CWORK+4(2),SHOWAREA+6   PLUS THE MODULE CODE             00015800
           LHI  R2,6                     SET LENGTH OF VAR DATA
          ENDIF                         ENDIF
          LA    R3,VSAMEC               POINT BACK TO VAR NAME
          LHI   R4,L'VSAMEC             SET LENGTH OF VAR NAME
-         BAS   R5,SET_STEM             CREATE THE STEM ELEMENT
+         JAS   R5,SET_STEM             CREATE THE STEM ELEMENT
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
          BR    R5
 * =================================================================== *
          EJECT
+DATA     LOCTR
 * =================================================================== *
 STORAGE  DS    0D
 * ------------------------------------------------------------------- *

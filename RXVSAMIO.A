@@ -1,0 +1,60 @@
+AWORK4   DS    3A                      SAVE ADDRESSES
+SAVE_R0  DS    A                       SAVE REGISTER
+SAVE_R5  DS    A                       SAVE REGISTER
+SAVE_RE  DS    A                       SAVE REGISTER
+SAVE_RF  DS    A                       SAVE REGISTER
+EPVECTOR DS    A                       REXX ENTRY-POINT VECTOR ADDRESS
+EVALBLKA DS    A                       REXX EVALUATION BLOCK ADDRESS
+*
+DYNATBL  DS    9XL(L'FILETBLE)         BEGINNING OF FILE TABLE
+DYNATBLE DS    XL8                     END OF FILE TABLE
+*
+PWORK16  DS    0PL16                   DOUBLE PACKED WORK FIELD
+PWORK8   DS    PL8                     SINGLE PACKED WORK FIELD
+         DS    XL8                     RESERVED
+EWORK    DS    CL34                    EDITED WORK FIELD
+CWORK    DS    CL34                    CHARACTER WORK FIELD
+*
+SAYPARMB DS    3F                      ARXSAY PARAMETER BLOCK
+SAYPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
+SAYPARM1 DS    CL8                     'WRITE   '
+SAYPARM2 DS    XL4                     ADDRESS OF SAY OUTPUT
+SAYPARM3 DS    XL4                     LENGTH OF SAY OUTPUT
+*
+SAVEENVB DS    F                       ENVIRONMENT BLOCK ADDRESS
+SHVPARMB DS    4F                      ARXEXCOM PARAMETER BLOCK
+SHVPLAST EQU   *-4                       POINT TO LAST PARM FOR FLAG
+SHVPARM1 DS    CL8                     'ARXEXCOM'
+SHVPARM2 DS    XL4
+SHVCTLB  DS    XL32                    STORAGE FOR SHV CONTROL BLOCK
+*
+DDNLENG  DS    F                       STEM NAME LENGTH
+DDNAME   DS    CL8                     BASE STEM NAME
+REQUEST  DS    CL8                     ACCESS REQUEST
+RECNAMEL DS    F                       STEM NAME LENGTH
+RECNAME  DS    CL10                    RECORD NAME STEM
+RQARG2   DS    CL8                     REQUEST ARGUMENT 2
+RQARG3   DS    CL8                     REQUEST ARGUMENT 3
+*
+MACRO    DS    CL8                     LAST FAILED MACRO (IF ANY)
+OPTFLAG  DS    XL1                     OPTION FLAGS
+ACBERRF  DF    B'10000000',OPTFLAG     GET ACB ERROR INFO
+RPLERRF  DF    B'01000000',OPTFLAG     GET RPL ERROR INFO
+CTLBLKF  DF    B'00100000',OPTFLAG     GET CTLBLK ERROR INFO
+DEBUG_F  DF    B'00000010',OPTFLAG     DEBUG FLAG
+SET_KLZ  DF    B'00000001',OPTFLAG     KEEP LEADING ZEROES
+CINUM    DS    XL3                     CATALOG CI NUMBER
+         DS    0F
+VARDATA  DS    CL256                   VARIABLE VALUE
+VARNAME  DS    CL256                   VARIABLE NAME
+SHOWAREA DS    XL512                   SHOWCAT/SHOWCB RESULT AREA
+PARMLIST DS    XL256                   GENCB/MODCB PARMLIST AREA
+*
+         COPY  DTEMANA
+*
+         DS    0D                      ALIGN TRANSLATE TABLE
+TRTBL    DS    CL256                   TEMPORARY TRANSLATE TABLE
+         DS    0D                      ALIGN RECORD KEY
+KEYBUF   DS    CL255                   STORAGE FOR RECORD KEY AREA
+         DS    0D                      ALIGN RECORD AREA
+RECBUF   DS    CL65535                 STORAGE FOR RECORD I/O AREA
