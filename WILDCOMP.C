@@ -16,9 +16,12 @@
              88  WILDCOMP-ONE-CHAR-QMARK            VALUE '?'.
            05  WILDCOMP-ALL            PIC  X.
              88  WILDCOMP-ALL-CHAR-ASTER            VALUE '*'.
+           05  WILDCOMP-BLANK          PIC  X.
+             88  WILDCOMP-BLANK-CHAR-SIGN           VALUE '¬'.
+           05  WILDCOMP-RESERVED       PIC  X.
       * comparison length for both strings
          03  WILDCOMP-LEN              PIC S9(4)    BINARY.
-      * known string (which can contain wild characters)
+      * known string (or "filter" with wild characters)
          03  WILDCOMP-STR1             PIC  X(40).
       * unknown string to compare against
          03  WILDCOMP-STR2             PIC  X(40).

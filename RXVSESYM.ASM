@@ -18,7 +18,9 @@ SYM      TITLE 'RXVSESYM - REXX SUB TO GET/SET VSE SYMBOLIC PARMS'
 *                                                                     *
 *                           IMPLEMENTATION                            *
 *                                                                     *
-*      This program is to be compiled as a standard batch phase.      *
+*      This program is to be compiled as a standard batch phase.   It *
+* will not,  however, then be available for just any program to call. *
+* Only a REXX procedure will be able to call it.                      *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -76,7 +78,7 @@ SYM      TITLE 'RXVSESYM - REXX SUB TO GET/SET VSE SYMBOLIC PARMS'
          EJECT
 * =================================================================== *
 DYNASTOR DSECT
-* =================================================================== *
+* ------------------------------------------------------------------- *
 SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA
 PWORK8   DS    PL8                     PACKED DOUBLE-WORD
 EWORK8   DS    CL8                     EDITED DOUBLE-WORD
@@ -119,7 +121,7 @@ DYNALENG EQU   *-DYNASTOR
          EJECT
 * =================================================================== *
 *        REGISTER USAGES
-* =================================================================== *
+* ------------------------------------------------------------------- *
 R0       EQU   0                       ON ENTRY, REXX ENV BLOCK
 R1       EQU   1                       ON ENTRY, REXX EFPL REG
 R2       EQU   2
@@ -140,7 +142,7 @@ R15      EQU   15                      ENTRY REG
          EJECT
 * =================================================================== *
 *        MACROS                                                       *
-* =================================================================== *
+* ------------------------------------------------------------------- *
          PRINT OFF
          COPY  HEADER                  SUBROUTINE PROLOG
          COPY  TRAILER                 SUBROUTINE EPILOG
@@ -152,7 +154,7 @@ R15      EQU   15                      ENTRY REG
 * =================================================================== *
 RXVSESYM HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY04',            X
                BASE=R12,SVAREA=SALEN
-* =================================================================== *
+* ------------------------------------------------------------------- *
          USING DYNASTOR,R13
 *
          LR    R5,R0                   REXX ENVIRONMENT BLOCK
@@ -160,7 +162,7 @@ RXVSESYM HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY04',            X
          IF    ENVBLOCK_ID,(NE,CLC),=C'ENVBLOCK'
           WTO  'RXVSESYM: REQUIRES THE REXX ENVIRONMENT BLOCK'
           LA   R15,12                  SET ABNORMAL RETURN CODE
-          B    RETR15                  GO RETURN ERROR
+          J    RETR15                  GO RETURN ERROR
          ENDIF
          L     R9,ENVBLOCK_IRXEXTE     REXX EXTERNAL ENTRY-POINT VECTOR
          USING ARXEXTE,R9
@@ -226,28 +228,28 @@ RXVSESYM HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY04',            X
           IF   OPT,NE,OPTGET            IF NOT GET
           AND  OPT,NE,OPTSET            AND NOT SET
            LA  R5,4                      SET RESULT CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
          ELSE                          ELSE
           IF   R2,(H,C),=F'7',OR,R2,(L,C),=F'1'  NAME TOO SHORT/LONG?
            LA  R5,4                      SET RESULT CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
 MVPARM     MVC SYMPARM(0),0(R4)   (SEE "EXECUTE" INSTRUCTION BELOW)
           ENDIF                         ENDIF
           MVI  SYMPARM,C' '             BLANK PAD PARM AND VALUE AREAS
           MVC  SYMPARM+1(L'SYMPARM-1+L'SYMVALU),SYMPARM
           STH  R2,SYMBOLL               SAVE VAR NAME LENGTH
           BCTR R2,0                     DECR. FOR ZERO OFFSET
-          EX   R2,MVPARM                MOVE SYMBOL NAME
+          EXRL R2,MVPARM                MOVE SYMBOL NAME
           TR   SYMPARM,TRTBL            TRANSLATE TO UPPER-CASE
 *
           IF   OPT,EQ,OPTSET            IF SET
            LH  R3,SYMBOLL                GET LENGTH OF VAR NAME
-           BAL R2,GETVAR                 RETRIEVE THE VARIABLE VALUE
+           JAS R2,GETVAR                 RETRIEVE THE VARIABLE VALUE
            IF  R5,(NZ,LTR),R5,OR,        IF VARIABLE NOT FOUND         X
                SHVVALL,(HT,CLC),=F'50'   OR VALUE LENGTH > 50
             LA R5,4                       SET RESULT CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
 MVDATA      MVC 10(0,R8),SYMVALU  (SEE "EXECUTE" INSTRUCTION BELOW)
            ENDIF                         ENDIF
            L   R2,SHVVALL                GET LENGTH OF DATA
@@ -255,7 +257,7 @@ MVDATA      MVC 10(0,R8),SYMVALU  (SEE "EXECUTE" INSTRUCTION BELOW)
            XC  2(1,R8),2(R8)             SET INDICATOR BYTE IN BUFFER
            MVC 3(L'SYMPARM,R8),SYMPARM   SET PARM NAME IN BUFFER
            BCTR R2,0                     DECREMENT FOR EXECUTE
-           EX  R2,MVDATA                 SET PARM DATA IN BUFFER
+           EXRL R2,MVDATA                SET PARM DATA IN BUFFER
            AH  R8,=H'11'                 ADD LENGTH OF HEADER + 1
            AR  R8,R2                     ADD LENGTH OF PARM DATA - 1
            MVC 0(2,R8),=X'FFFF'          FLAG THE END OF THE BUFFER
@@ -273,12 +275,12 @@ MVDATA      MVC 10(0,R8),SYMVALU  (SEE "EXECUTE" INSTRUCTION BELOW)
            LM  R14,R1,SYMREGS            RESTORE REGS 14, 15, 0, AND 1
            IF  R15,(NZERO,LTR),R15       IF ERROR
             LA R5,4                       SET RESULT CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
            ENDIF                         ENDIF
            LH  R2,SYMLENG                SET LENGTH OF DATA VALUE
            ST  R2,SHVVALL                 AND PUT IN CONTROL BLOCK
            LH  R3,SYMBOLL                COMPUTE LENGTH OF VAR NAME
-           BAL R5,SETVAR                 CREATE THE VARIABLE
+           JAS R5,SETVAR                 CREATE THE VARIABLE
           ENDIF                         ENDIF
 *
          ENDIF                         ENDIF
@@ -298,10 +300,10 @@ MVDATA      MVC 10(0,R8),SYMVALU  (SEE "EXECUTE" INSTRUCTION BELOW)
           LA   R0,SYMBUFR               GET ADDRESS OF DATA AREA
           ST   R0,16(R1)                PUT IN PARM AREA
           XR   R0,R0                    CLEAR PARM REG
-          BALR R14,R15                  INVOKE SYSTEM ROUTINE
+          BASR R14,R15                  INVOKE SYSTEM ROUTINE
           IF   R15,(NZERO,LTR),R15      IF ERROR
            LA  R5,8                      SET RESULT CODE
-           B   RETERR                    GO RETURN ERROR
+           J   RETERR                    GO RETURN ERROR
           ENDIF                         ENDIF
          ENDIF                         ENDIF
 *
@@ -313,18 +315,18 @@ RETURN   XR    R5,R5                   CLEAR REG5 FOR ZERO "RC"
 RETERR   NI    OPTFLAG,X'FF'-SET_KLZ   REG2ZON3 NO LEADING ZEROES
          LR    R2,R15                  COPY R15 TO R2
          LA    R3,EVALBLOCK_EVDATA     POINT TO "RESULT" AREA
-         BAL   R15,REG2ZON3            CONVERT THAT TO ZONED-DECIMAL
+         JAS   R15,REG2ZON3            CONVERT THAT TO ZONED-DECIMAL
          ST    R2,EVALBLOCK_EVLEN      LENGTH OF CONVERTED RESULT
 *
          LR    R2,R5                   COPY R5 TO R2
          LA    R3,SYMVALU              POINT TO VARIABLE DATA AREA
-         BAL   R15,REG2ZON3            CONVERT THAT TO ZONED-DECIMAL
+         JAS   R15,REG2ZON3            CONVERT THAT TO ZONED-DECIMAL
          LA    R1,SYMVALU              POINT BACK TO VAR DATA AREA
          STM   R1,R2,SHVVALA           PUT IN SHV CONTROL BLOCK
 *
          LA    R3,2                    SET LENGTH OF VARIABLE NAME
          MVC   SYMPARM+0(3),=C'RC '    SET VARIABLE NAME
-         BAL   R5,SETVAR               CREATE THE VARIABLE
+         JAS   R5,SETVAR               CREATE THE VARIABLE
 * ------------------------------------------------------------------- *
          XR    R15,R15                 CLEAR REG15 FOR RETURN CODE
 RETR15   TRAILER RETCODE=R15,SVAREA=SALEN
@@ -332,7 +334,7 @@ RETR15   TRAILER RETCODE=R15,SVAREA=SALEN
          EJECT
 * =================================================================== *
 REG2ZON3 DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG3
-*
+* ------------------------------------------------------------------- *
          CVD   R2,PWORK8               CONVERT REG2 TO PACKED-DECIMAL
          IF    OPTFLAG,(ON,TM),SET_KLZ KEEP LEADING ZEROES?
           MVC  EWORK8(7),=X'40212020202060'  LOAD EDIT PATTERN
@@ -353,7 +355,7 @@ REG2ZON3 DS    0H    CONVERT REG2 TO LEFT-SIGN, ZONED-DECIMAL AT REG3
           SR   R2,R1                   CALC NO. OF CHARS TO MOVE
          ENDIF
          BCTR  R2,0                    DECR. LEN FOR ZERO REF.
-         EX    R2,MVRSLT               MOVE VALUE TO RESULT AREA
+         EXRL  R2,MVRSLT               MOVE VALUE TO RESULT AREA
          LA    R2,1(,R2)               INCR. LEN FOR NORMAL REF.
 *
          BR    R15
@@ -362,9 +364,9 @@ MVRSLT   MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
          EJECT
 * =================================================================== *
 ZON2REG3 DS    0H    CONVERT ZONED-DECIMAL AT REG2 (L'REG3) INTO REG3
-*
+* ------------------------------------------------------------------- *
          BCTR  R3,0                    DECR. FOR ZERO OFFSET
-         EX    R3,PKINPT               PACK 0(?,R2) FOR LENGTH OF R3
+         EXRL  R3,PKINPT               PACK 0(?,R2) FOR LENGTH OF R3
          CVB   R3,PWORK8               CONVERT PACKED-DECIMAL INTO REG3
 *
          BR    R15
@@ -373,6 +375,7 @@ PKINPT   PACK  PWORK8,0(0,R2)          (SEE "EX" INSTRUCTION ABOVE)
          EJECT
 * =================================================================== *
 GETVAR   DS    0H    GET REXX VARIABLE VALUE
+* ------------------------------------------------------------------- *
          XR    R5,R5                   ZERO RETURN CODE REGISTER
          MVI   SHVCODE,SHVFETCH        SET REQUEST CODE TO 'F'
          ST    R3,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
@@ -380,7 +383,7 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
          L     R0,SAVEENVB             GET ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
-         BALR  R14,R15                 CALL ARXEXCOM
+         BASR  R14,R15                 CALL ARXEXCOM
          IF    R15,(NZ,LTR),R15,OR,    IF NON-ZERO RETURN CODE         X
                SHVRET,NE,SHVCLEAN      OR NON-ZERO CONDITION CODE
           LA   R5,8                     SET RESULT CODE
@@ -394,24 +397,25 @@ GETVAR   DS    0H    GET REXX VARIABLE VALUE
          EJECT
 * =================================================================== *
 SETVAR   DS    0H    SET REXX VARIABLE VALUE
+* ------------------------------------------------------------------- *
          MVI   SHVCODE,SHVSTORE        SET REQUEST CODE TO 'S'
          ST    R3,SHVNAML              PUT LENGTH OF VAR NAME IN SHVCB
 *
          L     R0,SAVEENVB             GET ENVIRONMENT BLOCK ADDRESS
          LA    R1,SHVPARMB             POINT TO PARAMETER BLOCK
          L     R15,ARXEXCOM            POINT TO PGM TO CALL
-         BALR  R14,R15                 CALL ARXEXCOM
+         BASR  R14,R15                 CALL ARXEXCOM
          IF    R15,(NZ,LTR),R15,OR,    IF NON-ZERO RETURN CODE         X
                SHVRET,NE,SHVCLEAN      OR NON-ZERO CONDITION CODE
           IF   SYMPARM(3),(NE,CLC),=C'RC '  IF NOT 'RC', REPORT ERRORS
            IF  R15,(NZ,LTR),R15          IF NON-ZERO RETURN CODE
             LA R5,8                       SET RESULT CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
            ENDIF                         ENDIF
            IF  SHVRET,NE,SHVNEWV         IF NOT NEW VARIABLE
             IC R15,SHVRET                 SAVE ARXEXCOM CC
             LA R5,8                       SET RESULT CODE
-            B  RETERR                     GO RETURN ERROR
+            J  RETERR                     GO RETURN ERROR
            ENDIF                         ENDIF
           ENDIF                         ENDIF
          ENDIF                         ENDIF
@@ -419,11 +423,11 @@ SETVAR   DS    0H    SET REXX VARIABLE VALUE
          BR    R5
 * =================================================================== *
          EJECT
+DATA     LOCTR
 * =================================================================== *
 STORAGE  DS    0D
-* =================================================================== *
-TRTBL    EQU   *-64
-         DC    192AL1(*-TRTBL)         Init for no translation, then
+* ------------------------------------------------------------------- *
+TRTBL    DC    256AL1(*-TRTBL)         Init for no translation, then
          ORG   TRTBL+C'a'              Translate lower-case
          DC    C'ABCDEFGHI'               to upper-case
          ORG   TRTBL+C'j'              Translate lower-case
@@ -436,5 +440,7 @@ TRTBL    EQU   *-64
 *
 SALEN    DC    A(DYNALENG)
          LTORG
+*
+         CORG  0,256
 * =================================================================== *
          END

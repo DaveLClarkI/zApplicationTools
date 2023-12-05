@@ -22,7 +22,9 @@ RXDMPVAR RMODE 31
 *                                                                     *
 *                           IMPLEMENTATION                            *
 *                                                                     *
-*      This program is to be compiled as a standard batch phase.      *
+*      This program is to be compiled as a standard batch phase.   It *
+* will not,  however, then be available for just any program to call. *
+* Only a REXX procedure will be able to call it.                      *
 *                                                                     *
 * =================================================================== *
 *                                                                     *
@@ -224,13 +226,13 @@ RXDMPVAR HEADER VERSION='1.3',AUTHOR='DLC',DATE='(C)SEP03',            X
           IF   OPT,NE,OPTDUMP,AND,OPT,NE,OPTLIST
            MVC EVALBLOCK_EVDATA(23),=CL23'Invalid first argument.'
            LA  R2,23                   SET LENGTH OF RESULT MESSAGE
-           B   FINISH                  GO RETURN MESSAGE
+           J   FINISH                  GO RETURN MESSAGE
           ENDIF
          ELSE
           IF   STEMLENG,(NE,CLC),=F'0'
            MVC EVALBLOCK_EVDATA(22),=CL22'Invalid last argument.'
            LA  R2,22                   SET LENGTH OF RESULT MESSAGE
-           B   FINISH                  GO RETURN MESSAGE
+           J   FINISH                  GO RETURN MESSAGE
           ENDIF
           ST   R2,STEMLENG             SAVE STEM NAME LENGTH
           IF   OPT,EQ,OPTDUMP
@@ -241,14 +243,14 @@ RXDMPVAR HEADER VERSION='1.3',AUTHOR='DLC',DATE='(C)SEP03',            X
            IF  STEMLENG,(H,CLC),=F'9',OR,0(R3),NE,C'.'
             MVC EVALBLOCK_EVDATA(22),=CL22'Invalid stem argument.'
             LA R2,22                   SET LENGTH OF RESULT MESSAGE
-            B  FINISH                  GO RETURN MESSAGE
+            J  FINISH                  GO RETURN MESSAGE
 MVCSELN  MVC   SAYDATA(0),0(R4)        (SEE "EX" INSTRUCTION BELOW)
 TRSELN   TR    SAYDATA(0),TRTBL        (SEE "EX" INSTRUCTION BELOW)
            ENDIF
           ELSE
            BCTR R2,0                   DECR. LENGTH FOR ZERO REF.
-           EX  R2,MVCSELN              SAVE SELECTION NAME AND
-           EX  R2,TRSELN                 TRANSLATE TO UPPER-CASE
+           EXRL R2,MVCSELN             SAVE SELECTION NAME AND
+           EXRL R2,TRSELN                TRANSLATE TO UPPER-CASE
           ENDIF
          ENDIF
 
@@ -324,7 +326,7 @@ TRSELN   TR    SAYDATA(0),TRTBL        (SEE "EX" INSTRUCTION BELOW)
            LA  R2,16                   SET LENGTH OF RESULT MESSAGE
            IF  R15,(NZ,LTR),R15,BC,R15MSG  GO RETURN MESSAGE
            ENDIF
-           B   RETMSG                  GO RETURN MESSAGE
+           J   RETMSG                  GO RETURN MESSAGE
 MVCNAME  MVC   0(0,R3),VARNAME         (SEE "EX" INSTRUCTION BELOW)
 MVCVALU  MVC   0(0,R3),VARDATA         (SEE "EX" INSTRUCTION BELOW)
           ENDIF
@@ -334,14 +336,14 @@ MVCVALU  MVC   0(0,R3),VARDATA         (SEE "EX" INSTRUCTION BELOW)
           LA   R3,SAYDATA+1            START AT 2ND POSITION IN BUFFER
           L    R2,SHVNAML              GET LENGTH OF VARIABLE NAME
           BCTR R2,0                    DECR. LENGTH FOR ZERO REF.
-          EX   R2,MVCNAME              MOVE VARIABLE NAME TO BUFFER
+          EXRL R2,MVCNAME              MOVE VARIABLE NAME TO BUFFER
           AR   R3,R2                   ADD VARIABLE NAME LENGTH
           LA   R3,1(,R3)                 PLUS ONE TO BUFFER POSITION
           MVC  0(3,R3),=C' = '         MOVE LITERAL TO BUFFER
           LA   R3,3(,R3)               ADD LITERAL LENGTH TO BUF POS
           L    R2,SHVVALL              GET LENGTH OF VARIABLE VALUE
           BCTR R2,0                    DECR. LENGTH FOR ZERO REF.
-          EX   R2,MVCVALU              MOVE VARIABLE VALUE TO BUFFER
+          EXRL R2,MVCVALU              MOVE VARIABLE VALUE TO BUFFER
           AR   R3,R2                   ADD VARIABLE VALUE LENGTH
           LA   R3,1(,R3)                 PLUS ONE TO BUFFER POSITION
           LA   R2,SAYDATA              COMPUTE LENGTH OF
@@ -361,7 +363,7 @@ MVCVALU  MVC   0(0,R3),VARDATA         (SEE "EX" INSTRUCTION BELOW)
            MVC EVALBLOCK_EVDATA(46),=CL46'Internal storage exhausted --X
                 use List option.'
            LA  R2,46                   SET LENGTH OF RESULT MESSAGE
-           B   FINISH                  GO RETURN MESSAGE
+           J   FINISH                  GO RETURN MESSAGE
           ENDIF
           LA   R2,SAYDATA+1            POINT TO THE DATA TO COPY FROM
           STH  R3,0(,R4)               PUT LENGTH IN STORAGE AND
@@ -381,7 +383,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
           ENDIF
           L    R3,SHVNAML              GET LENGTH OF SHV NAME
           BCTR R3,0                    DECR. LENGTH FOR ZERO REF.
-          EX   R3,MVCSTOR              MOVE BUFFER TO STORAGE AND
+          EXRL R3,MVCSTOR              MOVE BUFFER TO STORAGE AND
           AR   R4,R3                     ADD THE BUFFER LENGTH
           MVI  1(R4),C' '              ADD LIST DELIMITER
           LA   R4,2(,R4)               PLUS TWO TO STORAGE POSITION
@@ -395,7 +397,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
           IF   R15,(NZ,LTR),R15        IF CALL ERROR...
            MVC EVALBLOCK_EVDATA(14),=CL14'ARXSAY failed.'
            LA  R2,14                   SET LENGTH OF RESULT MESSAGE
-           B   R15MSG                  GO RETURN MESSAGE
+           J   R15MSG                  GO RETURN MESSAGE
           ENDIF
 
          ENDSL
@@ -419,7 +421,7 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
            LA  R2,EWORK+6              COMPUTE LENGTH OF
            SR  R2,R1                     REMAINING SIGNIFICANT DIGITS
            BCTR R2,0                   DECR. LENGTH FOR ZERO REF.
-           EX  R2,MVCSTEM              MOVE TO STEM SUFFIX
+           EXRL R2,MVCSTEM             MOVE TO STEM SUFFIX
            A   R2,STEMLENG             ADD LENGTH OF STEM NAME
            LA  R2,1(,R2)                 PLUS ONE 'CUZ OF ZERO REF.
            LH  R4,0(,R3)               GET LENGTH OF VARIABLE DATA
@@ -433,12 +435,12 @@ MVCSTOR  MVC   0(0,R4),VARNAME         (SEE "EX" INSTRUCTION BELOW)
             IF R15,(NZ,LTR),R15        IF CALL ERROR...
              MVC EVALBLOCK_EVDATA(16),=CL16'ARXEXCOM failed.'
              LA R2,16                  SET LENGTH OF RESULT MESSAGE
-             B R15MSG                  GO RETURN MESSAGE
+             J R15MSG                  GO RETURN MESSAGE
             ENDIF
             IF SHVRET,NE,SHVNEWV       IF NOT NEW VARIABLE...
              MVC EVALBLOCK_EVDATA(16),=CL16'ARXEXCOM failed.'
              LA R2,16                  SET LENGTH OF RESULT MESSAGE
-             B RETMSG                  GO RETURN MESSAGE
+             J RETMSG                  GO RETURN MESSAGE
 MVCSTEM  MVC   0(0,R4),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
             ENDIF
            ENDIF
@@ -457,7 +459,7 @@ MVCSTEM  MVC   0(0,R4),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
            LA  R4,EWORK+6              COMPUTE LENGTH OF
            SR  R4,R1                     REMAINING SIGNIFICANT DIGITS
            BCTR R4,0                   DECR. LENGTH FOR ZERO REF.
-           EX  R4,MVCDATA              MOVE TO VAR DATA
+           EXRL R4,MVCDATA             MOVE TO VAR DATA
            LA  R4,1(,R4)               ADD BACK THE ONE SUBTRACTED
            STM R2,R4,SHVNAML           PUT IN SHV CONTROL BLOCK
            L   R0,SAVEENVB             GET ADDRESS OF ENV. BLOCK
@@ -468,12 +470,12 @@ MVCSTEM  MVC   0(0,R4),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
             IF R15,(NZ,LTR),R15        IF CALL ERROR...
              MVC EVALBLOCK_EVDATA(16),=CL16'ARXEXCOM failed.'
              LA R2,16                  SET LENGTH OF RESULT MESSAGE
-             B R15MSG                  GO RETURN MESSAGE
+             J R15MSG                  GO RETURN MESSAGE
             ENDIF
             IF SHVRET,NE,SHVNEWV       IF NOT NEW VARIABLE...
              MVC EVALBLOCK_EVDATA(16),=CL16'ARXEXCOM failed.'
              LA R2,16                  SET LENGTH OF RESULT MESSAGE
-             B RETMSG                  GO RETURN MESSAGE
+             J RETMSG                  GO RETURN MESSAGE
 MVCDATA  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
             ENDIF
            ENDIF
@@ -505,7 +507,7 @@ MVCDATA  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
            IF  R15,(NZ,LTR),R15        IF CALL ERROR...
             MVC EVALBLOCK_EVDATA(14),=CL14'ARXRLT failed.'
             LA R2,14                   SET LENGTH OF RESULT MESSAGE
-            B  R15MSG                  GO RETURN MESSAGE
+            J  R15MSG                  GO RETURN MESSAGE
            ENDIF
            L   R8,EFPLEVAL             EVALUATION BLOCK POINTER
            MVC 0(4,R8),SAYPARM2        SET ADDRESS OF NEW EVAL BLOCK
@@ -517,7 +519,7 @@ MVCDATA  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
           LA   R4,VARSTOR              GET ADDRESS OF STORED LIST
           LR   R5,R3                   COPY RESULT MESSAGE LENGTH
           MVCL R2,R4                   MOVE STORED LIST TO EVAL DATA
-          B    RETURN                  GO RETURN RESULT TO CALLER
+          J    RETURN                  GO RETURN RESULT TO CALLER
          ENDIF
 *
 * RETURN RESULT
@@ -526,7 +528,7 @@ MVCDATA  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION ABOVE)
           MVC  EVALBLOCK_EVDATA(2),=C'OK'  SET DEFAULT MESSAGE
           LA   R2,2                    SET LENGTH OF RESULT MESSAGE
          ENDIF
-         B     FINISH
+         J     FINISH
 * ------------------------------------------------------------------- *
 RETMSG   DS    0H
          LA    R3,EVALBLOCK_EVDATA     POINT TO RESULT MESSAGE
@@ -537,7 +539,7 @@ RETMSG   DS    0H
          TR    7(2,R3),TRTBL           X'FAFBFCFDFEFF' TO C'ABCDEF'
          MVI   9(R3),C''''             ADD TO RESULT MESSAGE
          LA    R2,9(,R2)               ADD TO LENGTH OF MESSAGE
-         B     FINISH                  GO RETURN MESSAGE
+         J     FINISH                  GO RETURN MESSAGE
 * ------------------------------------------------------------------- *
 MVCMESG  MVC   0(0,R3),0(R1)           (SEE "EX" INSTRUCTION BELOW)
 * ------------------------------------------------------------------- *
@@ -554,7 +556,7 @@ R15MSG   DS    0H
          LA    R4,EWORK+7              COMPUTE LENGTH OF
          SR    R4,R1                     REMAINING SIGNIFICANT DIGITS
          BCTR  R4,0                    DECR. LENGTH FOR ZERO REF.
-         EX    R4,MVCMESG              MOVE TO RESULT MESSAGE
+         EXRL  R4,MVCMESG              MOVE TO RESULT MESSAGE
          AR    R2,R4                     ADD TO LENGTH OF MESSAGE
          LA    R2,1(,R2)                 PLUS ONE FOR ZERO REF.
 * ------------------------------------------------------------------- *
@@ -563,11 +565,11 @@ RETURN   XR    R15,R15                 CLEAR REG15
          TRAILER RETCODE=R15,SVAREA=SALEN
 * =================================================================== *
          EJECT
+DATA     LOCTR
 * =================================================================== *
 STORAGE  DS    0D
 * ------------------------------------------------------------------- *
-TRTBL    EQU   *-64
-         DC    192AL1(*-TRTBL)         Init for no translation, then
+TRTBL    DC    256AL1(*-TRTBL)         Init for no translation, then
          ORG   TRTBL+C'a'              Translate lower-case
          DC    C'ABCDEFGHI'               to upper-case
          ORG   TRTBL+C'j'              Translate lower-case
@@ -580,5 +582,7 @@ TRTBL    EQU   *-64
 *
 SALEN    DC    A(DYNALENG)
          LTORG
+*
+         CORG  0,256
 * =================================================================== *
          END
