@@ -1435,11 +1435,11 @@ MVPARM   MVC   0(0,R5),0(R4)           (SEE "EX" INSTRUCTION ABOVE)
           ENDIF                         ENDIF
           DROP R8                       REMOVE ADDRESSABILITY
 
+          BASR R10,0                    TEMPORARY ADDRESSABILITY
+          USING *,R10
           MODCB MF=(L,PARMLIST),ACB=(*,FILEACB),MACRF=(IN,SEQ,NRS)
           PUSH ACONTROL
           ACONTROL FLAG(NOPAGE0)
-          BASR R10,0                    TEMPORARY ADDRESSABILITY
-          USING *,R10
           MODCB MF=(E,PARMLIST)          MODIFY ACB
           DROP R10
           POP  ACONTROL
@@ -2923,6 +2923,7 @@ SETVAR   DS    0H            SET REXX VARIABLE VALUE
 *
          BR    R5
 * =================================================================== *
+         CORG  0,256
          EJECT
 DATA     LOCTR
 * =================================================================== *
@@ -2973,5 +2974,6 @@ KEYPOS   DC    C'_RKP'                 relative key position
 RECMAX   DC    C'_RMX'                 record maximum length
 RECLEN   DC    C'_RLN'                 record variable length
 RECAVG   DC    C'_RAV'                 record average length
+         CORG  0,256
 * =================================================================== *
          END   RXVSAMIO

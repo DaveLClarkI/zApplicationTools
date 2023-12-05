@@ -1027,6 +1027,7 @@ SHOWRESN DS    0H    PASS BACK SHOWCAT RTN AND RSN CODES
 *
          L     R5,AWORK4+4             RESTORE RETURN ADDRESS
          BR    R5
+         CORG  0,256
 * =================================================================== *
          EJECT
 DATA     LOCTR
@@ -1107,5 +1108,6 @@ S_DELS   DC    C'_DELS'                deleted records
 S_ADDS   DC    C'_ADDS'                inserted records
 S_UPDS   DC    C'_UPDS'                updated records
 S_GETS   DC    C'_GETS'                retreived records
+         CORG  0,256
 * =================================================================== *
          END   RXVSAMXA
