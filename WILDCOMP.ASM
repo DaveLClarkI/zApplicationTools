@@ -1,15 +1,15 @@
 WILD     TITLE 'WILDCOMP - WILD-CARD COMPARISON BETWEEN TWO STRINGS'    00000100
          PRINT ON,GEN                                                   00000200
-WILDCOMP AMODE 31
-WILDCOMP RMODE ANY
-
-* CHANGE HISTORY  -----------------------------------------------------
-* 04/01/2008 DLC  ORIGINAL DESIGN.
-* 09/01/2023 DLC0 ALLOW ENDING WILD-CARD ASTERISK TO BE OMITTED, BUT
-*                 WITH THE SAME RESULT AS IF IT WERE THERE.
-* 11/29/2023 DLC1 ADD BLANK-MATCHING CHARACTER SUPPORT.
-* END OF HISTORY  -----------------------------------------------------
-
+WILDCOMP AMODE 31                                                               
+WILDCOMP RMODE ANY                                                              
+                                                                                
+* CHANGE HISTORY  -----------------------------------------------------         
+* 04/01/2008 DLC  ORIGINAL DESIGN.                                              
+* 09/01/2023 DLC0 ALLOW ENDING WILD-CARD ASTERISK TO BE OMITTED, BUT            
+*                 WITH THE SAME RESULT AS IF IT WERE THERE.                     
+* 11/29/2023 DLC1 ADD BLANK-MATCHING CHARACTER SUPPORT.                         
+* END OF HISTORY  -----------------------------------------------------         
+                                                                                
          EJECT                                                          00010500
 * =================================================================== * 00010600
 WILDPARM DSECT                                                          00010700
@@ -50,10 +50,10 @@ R15      EQU   15                 ENTRY REG                             00014200
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * ------------------------------------------------------------------- * 00014800
-         PRINT OFF
-         COPY  IF
-         COPY  WHILE
-         PRINT ON
+         PRINT OFF                                                              
+         COPY  IF                                                               
+         COPY  WHILE                                                            
+         PRINT ON                                                               
 * =================================================================== * 00012800
          EJECT                                                          00014400
 * =================================================================== * 00014500
@@ -61,38 +61,38 @@ WILDCOMP HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)APR08',            X00014600
                BASE=R11           NO SAVE AREA NEEDED                   00014600
 * ------------------------------------------------------------------- * 00014800
          L     R10,0(,R1)         LOAD DSECT BASE REGISTER              00016200
-         IF    WILDCTL,(NE,CLC),PGMNAME
-          ZAP  WILDRES,=PL2'11'   SIGNAL PARM AREA FORMAT ISSUES
-          J    RETURN             GO RETURN TO CALLER
-         ENDIF
-         IF    WILDONE,NH,X'40'   IF NO ONE-CHAR MATCH SPECIFIED
-          MVI  WILDONE,C'?'         SET DEFAULT TO A QUESTION MARK
-         ENDIF
-         IF    WILDALL,NH,X'40'   IF NO ALL-CHAR MATCH SPECIFIED
-          MVI  WILDALL,C'*'         SET DEFAULT TO AN ASTERISK
-         ENDIF
-         IF    WILDBLNK,NH,X'40'  IF NO BLANK-CHAR MATCH SPECIFIED DLC1
-          MVI  WILDBLNK,C'¬'        SET DEFAULT TO A NOT-SIGN      DLC1
-         ENDIF                                                     DLC1
-         IF    WILDONE,(NE,CLC),WILDALL
-         AND   WILDONE,(NE,CLC),WILDBLNK                           DLC1
-         AND   WILDALL,(NE,CLC),WILDBLNK                           DLC1
-         ELSE
-          ZAP  WILDRES,=PL2'12'   SIGNAL WILD CARD CHAR ISSUES
-          J    RETURN             GO RETURN TO CALLER
-         ENDIF
-         LH    R3,WILDLEN         GET LENGTH OF COMPARE STRINGS
-         IF    R3,(LT,CH),=H'1',OR,                                    +
-               R3,(HT,CH),=YL2(L'WILDSTR1)
-          ZAP  WILDRES,=PL2'13'   SIGNAL STRING LENGTH ISSUES
-          J    RETURN             GO RETURN TO CALLER
-         ENDIF
-*
+         IF    WILDCTL,(NE,CLC),PGMNAME                                         
+          ZAP  WILDRES,=PL2'11'   SIGNAL PARM AREA FORMAT ISSUES                
+          J    RETURN             GO RETURN TO CALLER                           
+         ENDIF                                                                  
+         IF    WILDONE,NH,X'40'   IF NO ONE-CHAR MATCH SPECIFIED                
+          MVI  WILDONE,C'?'         SET DEFAULT TO A QUESTION MARK              
+         ENDIF                                                                  
+         IF    WILDALL,NH,X'40'   IF NO ALL-CHAR MATCH SPECIFIED                
+          MVI  WILDALL,C'*'         SET DEFAULT TO AN ASTERISK                  
+         ENDIF                                                                  
+         IF    WILDBLNK,NH,X'40'  IF NO BLANK-CHAR MATCH SPECIFIED DLC1         
+          MVI  WILDBLNK,C'¬'        SET DEFAULT TO A NOT-SIGN      DLC1         
+         ENDIF                                                     DLC1         
+         IF    WILDONE,(NE,CLC),WILDALL                                         
+         AND   WILDONE,(NE,CLC),WILDBLNK                           DLC1         
+         AND   WILDALL,(NE,CLC),WILDBLNK                           DLC1         
+         ELSE                                                                   
+          ZAP  WILDRES,=PL2'12'   SIGNAL WILD CARD CHAR ISSUES                  
+          J    RETURN             GO RETURN TO CALLER                           
+         ENDIF                                                                  
+         LH    R3,WILDLEN         GET LENGTH OF COMPARE STRINGS                 
+         IF    R3,(LT,CH),=H'1',OR,                                    +        
+               R3,(HT,CH),=YL2(L'WILDSTR1)                                      
+          ZAP  WILDRES,=PL2'13'   SIGNAL STRING LENGTH ISSUES                   
+          J    RETURN             GO RETURN TO CALLER                           
+         ENDIF                                                                  
+*                                                                               
          ZAP   WILDRES,=PL2'0'    INITIALIZE RESULT VALUE               00016300
-         LA    R1,WILDSTR1        COMPARE STR1 FROM LEFT-TO-RIGHT
-         LA    R2,WILDSTR2           WITH STR2
+         LA    R1,WILDSTR1        COMPARE STR1 FROM LEFT-TO-RIGHT               
+         LA    R2,WILDSTR2           WITH STR2                                  
 *                  allow ending wild-card asterisk to be omitted   DLC0 00016400
-         LA    R4,WILDSTR1+L'WILDSTR1-1     POINT TO END OF STR1   DLC0
+         LA    R4,WILDSTR1+L'WILDSTR1-1     POINT TO END OF STR1   DLC0         
          WHILE 0(R4),NH,X'40',AND,R4,(HT,CR),R1   LAST NON-BLANK   DLC0 00016500
           BCTR R4,0                                                DLC0 00016700
          WEND                                                      DLC0 00016800
@@ -103,42 +103,42 @@ WILDCOMP HEADER VERSION='1.2',AUTHOR='DLC',DATE='(C)APR08',            X00014600
 *DLC0    WHILE R3,(NZ,LTR),R3                                      DLC0 00016500
          WHILE R3,(NZ,LTR),R3,AND,R1,(NH,CR),R4                    DLC0 00016500
           IF   0(1,R1),(EQ,CLC),WILDALL                                 00016600
-           WEXIT
-          ENDIF
+           WEXIT                                                                
+          ENDIF                                                                 
           IF   0(R2),EQ,X'40'                                      DLC1 00016600
            IF  0(1,R1),(NE,CLC),0(R2)                              DLC1 00016600
            AND 0(1,R1),(NE,CLC),WILDONE                            DLC1 00016600
            AND 0(1,R1),(NE,CLC),WILDBLNK                           DLC1 00016600
             ZAP WILDRES,=PL2'+1'   SIGNAL STR1 GT STR2             DLC1 00016300
-            WEXIT                                                  DLC1
-           ENDIF                                                   DLC1
-          ELSE                                                     DLC1
+            WEXIT                                                  DLC1         
+           ENDIF                                                   DLC1         
+          ELSE                                                     DLC1         
            IF  0(1,R1),(NE,CLC),0(R2)                                   00016600
            AND 0(1,R1),(NE,CLC),WILDONE                                 00016600
             IF 0(1,R1),(LT,CLC),0(R2)                                   00016600
              ZAP WILDRES,=PL2'-1'  SIGNAL STR1 LT STR2                  00016300
-            ELSE
+            ELSE                                                                
              ZAP WILDRES,=PL2'+1'  SIGNAL STR1 GT STR2                  00016300
-            ENDIF
-            WEXIT
-           ENDIF
-          ENDIF                                                    DLC1
-          LA   R1,1(,R1)
-          LA   R2,1(,R2)
+            ENDIF                                                               
+            WEXIT                                                               
+           ENDIF                                                                
+          ENDIF                                                    DLC1         
+          LA   R1,1(,R1)                                                        
+          LA   R2,1(,R2)                                                        
           BCTR R3,0                                                     00016700
          WEND                                                           00016800
 * ------------------------------------------------------------------- * 00014800
-RETURN   DS    0H
-         XR    R15,R15            ZERO RETURN CODE
-         TRAILER RETCODE=R15      RETURN TO CALLER
+RETURN   DS    0H                                                               
+         XR    R15,R15            ZERO RETURN CODE                              
+         TRAILER RETCODE=R15      RETURN TO CALLER                              
 * =================================================================== * 00024100
-         CORG  0,256
+         CORG  0,256                                                            
          EJECT                                                          00024200
-DATA     LOCTR
+DATA     LOCTR                                                                  
 * =================================================================== * 00024300
 STORAGE  DS    0D                                                       00024400
 * ------------------------------------------------------------------- * 00014800
          LTORG                                                          00024600
-         CORG  0,256
+         CORG  0,256                                                            
 * =================================================================== * 00024700
          END                                                            00024800
