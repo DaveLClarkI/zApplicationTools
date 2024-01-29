@@ -1,4 +1,4 @@
-* layout of map2 -- header, footer, and detail done in main procedure           
+* layout of map2 -- common header and footer done in main procedure             
 *                                                                               
 *SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
 *CUU: &CUU                      Member Selection                       hh:mm xx 
@@ -48,4 +48,14 @@ STMT:  map2.fn.output = map2_hdr.1;
 STMT:  map2.fn.output = map2_hdr.2;                                             
 10 003 ASKIP_BRT .   WHITE .                                                    
 STMT:  map2.fn.output = map2_hdr.3;                                             
+*                                                                               
+STMT:  map2_body.  = '';                                                        
+STMT:  map2_body.0 = 0;                                                         
+LOOP:  11                                                                       
+11 001 UNPROT_NORM . TURQU UNDERLINE                                            
+STMT:  map2_body.0 = x;                                                         
+STMT:  map2_body.x = fn;                                                        
+11 003 ASKIP_NORM  . GREEN .                                                    
+STMT:  map2_body.x = map2_body.x fn;                                            
+ENDL:                                                                           
 *                                                                               

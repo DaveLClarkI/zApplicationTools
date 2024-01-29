@@ -1,6 +1,6 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
 /* REXX: SYSEDIT    Proc Created 03/02/2004   By Dave Clark          */         
-/*                  Last Revised 10/12/2023                          */         
+/*                  Last Revised 01/02/2024                          */         
 /*                                                                   */         
 /*      This procedure  provides  for  quick-n-dirty creation and/or */         
 /* editing of VSE sublibrary  members  from  the  BG partition -- in */         
@@ -19,7 +19,7 @@
 /* the device address from the console.                              */         
 /*                                                                   */         
 /* // SETPFIX LIMIT=8K         /* for online use, only */            */         
-/* // EXEC REXX=SYSEDIT,SIZE=256K<,PARM='{ONLINE|BATCH}'>            */         
+/* // EXEC REXX=SYSEDIT,SIZE=320K<,PARM='{ONLINE|BATCH}'>            */         
 /*                                        ¯¯¯¯¯¯                     */         
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         
                                                                                 
@@ -63,10 +63,10 @@
 /*                 and, if specified, fills with entered string. */             
 /* LDrop         Eliminates the current line from the member.    */             
 /* COpy (n)      Add current line (plus n-1 more) to the FIFO    */             
-/*                 stack.  An '*' goes to end-of-member.         */             
-/* Paste (n)     Get one or more new lines, off of stack ('*' to */             
-/*                 end-of-stack), inserting after current line.  */             
-/* CLear         Empty the data stack.  Note that if the stack   */             
+/*                 queue.  An '*' goes to end-of-member.         */             
+/* Paste (n)     Get one or more new lines, off of queue ('*' to */             
+/*                 end-of-queue), inserting after current line.  */             
+/* CLear         Empty the data queue.  Note that if the queue   */             
 /*                 is not empty when the editor ends, then Job   */             
 /*                 Control will process (as JCL) what remains    */             
 /*                 up to the first "/&" card encountered.        */             
@@ -368,5 +368,89 @@
 /*             VSE library member,  parse it, and build the required */         
 /*             stem field definitions.  This saves on procedure size */         
 /*             and makes the maintenance of map definitions easier.  */         
+/*                                                                   */         
+/*             Map definition members may contain comment lines with */         
+/*             as asterisk in column 1.   Otherwise, map definitions */         
+/*             are one field per  line using the following free-form */         
+/*             format:  (a single period  may  be  used  as a place- */         
+/*             holder for any of  the  four attribute positions Ýatr */         
+/*             csr clr hlt¨ to accept the indicated default):        */         
+/*                                                                   */         
+/*                 row col atr csr clr hlt init                      */         
+/*                                                                   */         
+/*             Where: row  is the absolute row number (1-24) for the */         
+/*                         position of the field's attribute;        */         
+/*                    col  is the absolute column number (1-80) for  */         
+/*                         the position of the field's attribute (if */         
+/*                         "NO_FLD" attribute, add 1 to column no.); */         
+/*                    atr  is one of these field attribute values:   */         
+/*                           NO_FLD        (uses SA order instead of */         
+/*                                          SF or SFE order)         */         
+/*                           ASKIP_NORM          (default)           */         
+/*                           ASKIP_NORM_FSET                         */         
+/*                           ASKIP_NORM_DET                          */         
+/*                           ASKIP_NORM_DET_FSET                     */         
+/*                           ASKIP_BRT                               */         
+/*                           ASKIP_BRT_FSET                          */         
+/*                           ASKIP_DRK                               */         
+/*                           ASKIP_DRK_FSET                          */         
+/*                           PROT_NORM                               */         
+/*                           PROT_NORM_FSET                          */         
+/*                           PROT_NORM_DET                           */         
+/*                           PROT_NORM_DET_FSET                      */         
+/*                           PROT_BRT                                */         
+/*                           PROT_BRT_FSET                           */         
+/*                           PROT_DRK                                */         
+/*                           PROT_DRK_FSET                           */         
+/*                           UNPROT_NORM                             */         
+/*                           UNPROT_NORM_FSET                        */         
+/*                           UNPROT_NORM_DET                         */         
+/*                           UNPROT_NORM_DET_FSET                    */         
+/*                           UNPROT_BRT                              */         
+/*                           UNPROT_BRT_FSET                         */         
+/*                           UNPROT_DRK                              */         
+/*                           UNPROT_DRK_FSET                         */         
+/*                           UNPROT_NORM_NUM                         */         
+/*                           UNPROT_NORM_NUM_FSET                    */         
+/*                           UNPROT_NORM_NUM_DET                     */         
+/*                           UNPROT_NORM_NUM_DET_FSET                */         
+/*                           UNPROT_BRT_NUM                          */         
+/*                           UNPROT_BRT_NUM_FSET                     */         
+/*                           UNPROT_DRK_NUM                          */         
+/*                           UNPROT_DRK_NUM_FSET                     */         
+/*                    csr  a flag to use the INSERT CURSOR order:    */         
+/*                           NO                  (default)           */         
+/*                           YES                                     */         
+/*                    clr  is one of these color attribute values:   */         
+/*                           DEFAULT             (default)           */         
+/*                           BLUE                                    */         
+/*                           RED                                     */         
+/*                           PINK                                    */         
+/*                           GREEN                                   */         
+/*                           TURQUOISE or TURQU                      */         
+/*                           YELLOW                                  */         
+/*                           WHITE                                   */         
+/*                    hlt  is one of these hilite attribute values:  */         
+/*                           OFF                 (default)           */         
+/*                           BLINK                                   */         
+/*                           REVERSE                                 */         
+/*                           UNDERLINE                               */         
+/*                    init is the field's initial value (if any).    */         
+/*                                                                   */         
+/*             Note that position 1 of map definition lines may      */         
+/*             specify special labels in order to execute REXX       */         
+/*             statements during processing -- as follows:           */         
+/*             (For example, to capture/save the value of the field  */         
+/*             name variable Ýfn¨ generated by a field definition.)  */         
+/*                                                                   */         
+/*                 STMT:  indicates a single line of REXX code to be */         
+/*                          executed as encountered in the data; and */         
+/*                 LOOP:  nn                                         */         
+/*                 ENDL:  indicates a block of lines to be processed */         
+/*                          "nn" number of times using a "x" counter */         
+/*                          variable that may be referenced by REXX  */         
+/*                          code on STMT: lines within the block.    */         
+/*                          A member may contain multiple LOOPs but  */         
+/*                          LOOP: cannot be nested in another LOOP.  */         
 /*                                                                   */         
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */         

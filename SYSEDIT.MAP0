@@ -1,4 +1,4 @@
-* layout of map0 -- header and footer done in main procedure                    
+* layout of map0 -- common header and footer done in main procedure             
 *                                                                               
 *SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
 *CUU: &CUU                    Library Entry Screen                     hh:mm xx 
@@ -10,7 +10,7 @@
 *only editor (where each user would  require  their own dynamic partition and a 
 *local non-SNA 3270 device address from which to run this tool).   Please note, 
 *however, that there is no protection from two users editing the same member in 
-*the same library.                                                              
+*the same lib.sublib.                                                           
 *                                                                               
 *     This screen is only presented once  per session.   Its sole purpose is to 
 *obtain the VSE library name which will drive the remainder of the session.     
@@ -39,7 +39,7 @@
 09 040 .         .   GREEN .   which to run this tool).   Please note,          
 10 001 .         .   GREEN .   however, that there is no protection from        
 10 043 .         .   GREEN .   two users editing the same member in             
-11 001 .         .   GREEN .   the same library.                                
+11 001 .         .   GREEN .   the same lib.sublib.                             
 *                                                                               
 13 006 .         .   GREEN .   This screen is only presented once               
 13 042 .         .   GREEN .   per session.   Its sole purpose is to            

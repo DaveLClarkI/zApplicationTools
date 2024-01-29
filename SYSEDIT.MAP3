@@ -1,4 +1,4 @@
-* layout of map3 -- footer is done in main procedure                            
+* layout of map3 -- common footer is done in main procedure                     
 *                                                                               
 *SYSEDIT: &MBR                               Line nnnnnnn of nnnnnnn mm/dd/yyyy 
 *====> ____________________________________________________________    hh:mm xx 
@@ -53,6 +53,17 @@ STMT:  map3.fn.output = cuu||'280000'x;
 03 007 ASKIP_BRT .   WHITE .                                                    
 STMT:  map3_Truler = fn;                                                        
 STMT:  map3.fn.output = SubStr(source_ruler,map3_view,72);                      
+*                                                                               
+STMT:  map3_body.  = '';                                                        
+STMT:  map3_body.0 = 0;                                                         
+LOOP:  18                                                                       
+04 001 UNPROT_NORM . YELLOW .  *===*                                            
+STMT:  map3_body.0 = x;                                                         
+STMT:  map3_body.x = fn;                                                        
+04 007 UNPROT_NORM . GREEN  .                                                   
+STMT:  map3_body.x = map3_body.x fn;                                            
+04 080 .         .   .     .                                                    
+ENDL:                                                                           
 *                                                                               
 22 001 ASKIP_BRT .   WHITE .   MIXED                                            
 STMT:  map3_case = fn;                                                          

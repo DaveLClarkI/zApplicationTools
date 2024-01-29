@@ -1,4 +1,4 @@
-* layout of map1 -- header, footer, and detail done in main procedure           
+* layout of map1 -- common header and footer done in main procedure             
 *                                                                               
 *SYSEDIT                   Stand-alone System Editor                 mm/dd/yyyy 
 *CUU: &CUU                    SubLibrary Selection                     hh:mm xx 
@@ -48,4 +48,14 @@ STMT:  map1.fn.output = map1_hdr.1;
 STMT:  map1.fn.output = map1_hdr.2;                                             
 10 003 ASKIP_BRT .   WHITE .                                                    
 STMT:  map1.fn.output = map1_hdr.3;                                             
+*                                                                               
+STMT:  map1_body.  = '';                                                        
+STMT:  map1_body.0 = 0;                                                         
+LOOP:  11                                                                       
+11 001 UNPROT_NORM . TURQU UNDERLINE                                            
+STMT:  map1_body.0 = x;                                                         
+STMT:  map1_body.x = fn;                                                        
+11 003 ASKIP_NORM  . GREEN .                                                    
+STMT:  map1_body.x = map1_body.x fn;                                            
+ENDL:                                                                           
 *                                                                               
