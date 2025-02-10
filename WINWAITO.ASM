@@ -88,13 +88,13 @@ WIN      TITLE 'WINWAITO - WAIT FOR CICS/OLTP ACB TO OPEN'
 *                                                                     *
 *                             RETURN CODES                            *
 *                                                                     *
-* 15   one of several more severe errors, e.g.:                       * 00014300
-*        length parm is invalid;                                      * 00014300
-*        or job parm is invalid;                                      * 00014300
-* 12   partition or job not found;                                    * 00014300
-*  8   partition or job not executing DFHSIP;                         * 00014400
-*  4   DFHSIP ACB not yet open (or 15-min timeout);                   * 00014500
-*  0   DFHSIP ACB is open.                                            * 00014600
+* 15   one of several more severe errors, e.g.:                       *
+*        length parm is invalid;                                      *
+*        or job parm is invalid;                                      *
+* 12   partition or job not found;                                    *
+*  8   partition or job not executing DFHSIP;                         *
+*  4   DFHSIP ACB not yet open (or 15-min timeout);                   *
+*  0   DFHSIP ACB is open.                                            *
 *                                                                     *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
          EJECT
@@ -418,14 +418,14 @@ IS_CICS_UP DS  0H
 * ------------------------------------------------------------------- *
          ST    R14,ICU_R14             SAVE RETURN REG
          LAM   R0,R15,=16F'0'          CLEAR ACCESS REGISTERS
-         MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE       00018000
+         MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE
          PUSH  ACONTROL
          ACONTROL FLAG(NOPAGE0)
          L     R1,X'260'               GET ADDRESS TCB
          POP   ACONTROL
          MVC   TCBVEND,2(R1)           SAVE TCBVEND
          OI    2(R1),X'80'             ALLOW ACCESS REGISTERS
-         MODESET KEY=USER              RESET TO PROTECT LOW CORE        00024100
+         MODESET KEY=USER              RESET TO PROTECT LOW CORE
          USING COMREG,R4               CICS COMREG
          LH    R0,PID                  R0 <- PIK
          GETFLD FIELD=ALET,PART=(0),RETURN=YES
@@ -445,13 +445,13 @@ IS_CICS_UP DS  0H
          SAC   0                       SET PRIMARY SPACE MODE
          DROP  R4
          LAM   R0,R15,=16F'0'          CLEAR ACCESS REGISTERS
-         MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE       00018000
+         MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE
          PUSH  ACONTROL
          ACONTROL FLAG(NOPAGE0)
          L     R1,X'260'               GET ADDRESS TCB
          POP   ACONTROL
          MVC   2(1,R1),TCBVEND         RESTORE TCBVEND
-         MODESET KEY=USER              RESET TO PROTECT LOW CORE        00024100
+         MODESET KEY=USER              RESET TO PROTECT LOW CORE
          LHI   R15,0                   SIGNAL CICS IS DOWN (DEFAULT)
          IF    ICU_TRACE(4),(NE,CLC),=A(-1)
           IF   ICU_TRACE+2,(EQ,CLI),CSAXSINC
@@ -483,7 +483,7 @@ WAITMSG  DF    B'00100000'        WAIT MSG FLAG
 WAITPID  DF    B'00010000'        WAIT PID MSG FLAG
 WAITMAX  DS    H                  IN SECONDS
 MYTECB   TECB                     TIMER EVENT CONTROL BLOCK
-MSG      DS    CL60                    CONSOLE MESSAGE AREA             00028500
+MSG      DS    CL60                    CONSOLE MESSAGE AREA
          LTORG
 CONSOLE  DTFCN DEVADDR=SYSLOG,BLKSIZE=60,IOAREA1=MSG,MODNAME=WINWTO
          CORG  0,256
