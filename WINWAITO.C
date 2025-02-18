@@ -1,5 +1,5 @@
        01  WINWAITO-CONTROLS.
-         03  WINWAITO                  PIC  X(08)   VALUE 'WINWAIT0'.
+         03  WINWAITO                  PIC  X(08)   VALUE 'WINWAITO'.
          03  WINWAITO-PARMS.
            05  WINWAITO-LEN            PIC S9(04)   BINARY.
              88  WINWAITO-BYPID                     VALUE 2.
