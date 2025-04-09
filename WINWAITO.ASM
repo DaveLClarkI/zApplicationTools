@@ -344,6 +344,7 @@ CHECK    DS    0H                 CHECK PID FOR JOB, PGM, AND ACB
 * ------------------------------------------------------------------- *
 TIMEOUT  DS    0H                 WAIT TIMED OUT
          IF    MAINFLG,(ON,TF),$NOOP   FOR MAIN PGM, ONLY
+          LR   R3,R15                   SAVE RC
           MVI  MSG,C' '                 CLEAR MESSAGE FIELD
           MVC  MSG+1(L'MSG-1),MSG
           MVC  MSG+0(8),PGMNAME         SET PGM NAME IN MSG
@@ -355,7 +356,8 @@ TIMEOUT  DS    0H                 WAIT TIMED OUT
            MVC MSG+19(8),WINJOBN         SET JOBNAME IN MSG
            MVC MSG+27(10),=CL10' TIMED OUT'
           ENDIF
-          PUT  CONSOLE                 WRITE MSG TO CONSOLE
+          PUT  CONSOLE                  WRITE MSG TO CONSOLE
+          LR   R15,R3                   RESTORE RC
          ENDIF
 * ------------------------------------------------------------------- *
 FINISH   DS    0H
