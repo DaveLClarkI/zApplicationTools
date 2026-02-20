@@ -32,7 +32,6 @@
       *            (the last quadruplet may be padded with '=' signs).          
            05  TXT-RETN                PIC  X(01)   VALUE SPACES.               
                88  TXT-REQUEST-COMPLETED            VALUE ' '.                  
-               88  TXT-REQUEST-PTR-RESET            VALUE 'R'.                  
                88  TXT-STRING-NOT-FOUND             VALUE 'N'.                  
                88  TXT-STRING-WAS-FOUND             VALUE 'Y'.                  
                88  TXT-BUFFER-IS-FULL               VALUE 'F'.                  
