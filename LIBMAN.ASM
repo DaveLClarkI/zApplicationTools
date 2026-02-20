@@ -6,10 +6,31 @@ LIBM     TITLE 'LIBMAN   - INVOKE VSE/LIBRARIAN FOR COBOL PROGRAMS'     00000100
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1991 Dave L Clark I (v1.1)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -230,12 +251,12 @@ R13      EQU   13                      REGISTER SAVEAREA                00022900
 R14      EQU   14                      RETURN REG                       00023000
 R15      EQU   15                      ENTRY REG                        00023100
 * =================================================================== * 00023200
-         EJECT
-* =================================================================== *
-*        MACROS                                                       *
-* =================================================================== *
-         COPY  IF
-* =================================================================== *
+         EJECT                                                          00012700
+* =================================================================== * 00012800
+*        MACROS                                                       * 00012900
+* =================================================================== * 00013000
+         COPY  IF                                                               
+* =================================================================== * 00012800
          EJECT                                                          00023300
 * =================================================================== * 00023400
 LIBMAN   CSECT                                                          00023500

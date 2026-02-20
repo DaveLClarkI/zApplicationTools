@@ -1,17 +1,38 @@
 DTE      TITLE 'DTEMAN   - DATE MANIPULATION FOR COBOL PROGRAMS'        00000100
-         PRINT ON,NOGEN                                                 00000200
-DTEMAN   AMODE 31
-DTEMAN   RMODE ANY
+         PRINT ON,GEN                                                   00000200
+DTEMAN   AMODE 31                                                               
+DTEMAN   RMODE ANY                                                              
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *       D A T E   M A N I P U L A T I O N   S U B R O U T I N E       * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1990 Dave L Clark I (v2.0)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -239,25 +260,25 @@ R15      EQU   15                 ENTRY REG                             00022500
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * =================================================================== * 00013000
-         COPY  IF
-         COPY  WHILE
+         COPY  IF                                                               
+         COPY  WHILE                                                            
 * =================================================================== * 00012800
          EJECT                                                          00022700
 * =================================================================== * 00022800
-DTEMAN   CSECT                                                          00022900
-         USING DTEMAN,R15         ESTABLISH ENTRY-POINT REG AS BASE     00023000
+DTEMAN   CSECT 0                                                        00022900
 * =================================================================== * 00023100
-         B     START              BRANCH AROUND CORE EYE-CATCHER        00023200
+         J     START              BRANCH AROUND CORE EYE-CATCHER        00023200
 *                                                                       00023300
+DATA     LOCTR                                                                  
          DC    CL8'DTEMAN'        PROGRAM                               00023400
          DC    CL4'2.0'           VERSION                               00023500
          DC    CL4'DLC'           AUTHOR                                00023600
          DC    CL8'(C)SEP90'      DATE                                  00023700
 *                                                                       00023800
+CODE     LOCTR                                                                  
 START    DS    0H                                                       00023900
          SAVE  (14,12)            SAVE CALLER'S REGISTERS               00024000
          LR    R12,R15            INITIALIZE ROUTINE BASE REGISTER      00024100
-         DROP  R15                DISESTABLISH TEMP BASE REGISTER       00024200
          USING DTEMAN,R12         ESTABLISH PERM BASE REGISTER          00024300
 *                                                                       00024400
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00024500
@@ -273,7 +294,7 @@ START    DS    0H                                                       00023900
          ENDIF                                                          00025300
 *                                                                       00025400
          MVI   DTERETN,C'E'       DATE REQUEST IS IN ERROR              00025500
-         B     RETURN             GO RETURN TO CALLER                   00025600
+         J     RETURN             GO RETURN TO CALLER                   00025600
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00025700
 * ------------------------------------------------------------------- * 00025800
@@ -283,11 +304,11 @@ TOTDEDIT EQU   *   EDIT TOTAL DAYS FOR VALID RANGES                     00025900
          CVB   R9,PWORK           CONVERT PACKED DECIMAL TO BINARY      00026200
 *                                                                       00026300
          IF    R9,(PLUS,LTR),R9,AND,R9,(NHIGHER,C),=F'876582'           00026400
-          B    TOTLDAYS                                                 00026500
+          J    TOTLDAYS                                                 00026500
          ENDIF                                                          00026600
 *                                                                       00026700
          MVI   DTERETN,C'T'       SIGNAL TOTAL DAYS ERROR               00026800
-         B     RETURN             GO RETURN TO CALLER                   00026900
+         J     RETURN             GO RETURN TO CALLER                   00026900
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00027000
 * ------------------------------------------------------------------- * 00027100
@@ -310,11 +331,11 @@ TOTLDAYS EQU   *   CONVERT TOTAL DAYS TO A JULIAN DATE                  00027200
          D     R4,=F'1461'        DIV. BY DAYS IN 4 YEARS               00028800
          SR    R9,R5              SUB. QUOTIENT FROM TOTAL DAYS         00028900
          LR    R4,R9              COPY TOTAL DAYS TO REG 4              00029000
-         BCTR  R4,0               DECREMENT FOR ZERO REFERENCE
+         BCTR  R4,0               DECREMENT FOR ZERO REFERENCE                  
          SRDA  R4,32              CONVERT TO 64-BIT NUMBER              00029100
          D     R4,=F'365'         DIVIDE BY DAYS IN 1 YEAR              00029200
-         LR    R8,R5              SAVE YEAR IN REG 8
-*
+         LR    R8,R5              SAVE YEAR IN REG 8                            
+*                                                                               
          ZAP   PWORK,DTETOTD      PUT TOTAL DAYS IN WORK FIELD          00027500
          CVB   R9,PWORK           CONVERT PACKED DECIMAL TO BINARY      00027600
          LR    R5,R8              COPY YEARS TO WORK REG 5              00049200
@@ -347,7 +368,7 @@ TOTLDAYS EQU   *   CONVERT TOTAL DAYS TO A JULIAN DATE                  00027200
          IF    DTEREQU,EQ,C'C',BC,EXITDATE                              00030420
          ENDIF                                                          00030450
 *                                                                       00030500
-         B     JULNDATE           GO PROCESS JULIAN DATE                00030600
+         J     JULNDATE           GO PROCESS JULIAN DATE                00030600
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00030700
 * ------------------------------------------------------------------- * 00030800
@@ -367,7 +388,7 @@ JULNEDIT EQU   *   EDIT JULIAN DATE FOR VALID RANGES                    00030900
 *                                                                       00032200
          IF    R3,(H,CH),=Y(L'DTEJULN-1-5)   IF < 5 DIGITS LONG         00032300
           MVI  DTERETN,C'J'       SIGNAL JULIAN DATE ERROR              00032400
-          B    RETURN             GO RETURN TO CALLER                   00032500
+          J    RETURN             GO RETURN TO CALLER                   00032500
          ENDIF                                                          00032600
          IF    R3,(EQ,CH),=Y(L'DTEJULN-1-5)   IF = 5 DIGITS LONG        00032700
           LA   R2,2000            ONLY YY SPECIFIED, DEFAULT            00032800
@@ -392,7 +413,7 @@ JULNEDIT EQU   *   EDIT JULIAN DATE FOR VALID RANGES                    00030900
 *                                                                       00034700
          IF    R8,(NPLUS,LTR),R8,OR,R8,(HIGHER,CH),=H'2400'             00034800
           MVI  DTERETN,C'Y'       SIGNAL JULIAN YEAR ERROR              00034900
-          B    RETURN             GO RETURN TO CALLER                   00035000
+          J    RETURN             GO RETURN TO CALLER                   00035000
          ENDIF                                                          00035100
 *                                                                       00035200
          PACK  PWORK,DTEJUDA      CONVERT ZONED DECIMAL TO PACKED       00035300
@@ -402,16 +423,16 @@ JULNEDIT EQU   *   EDIT JULIAN DATE FOR VALID RANGES                    00030900
 *                                                                       00035700
          IF    LEAPYEAR,EQ,C'L'   IF LEAPYEAR FLAG IS A 'L'             00035800
           IF   R4,(PLUS,LTR),R4,AND,R4,(NHIGHER,CH),=H'366'             00035900
-           B   JULNDATE           GO PROCESS JULIAN DATE                00036000
+           J   JULNDATE           GO PROCESS JULIAN DATE                00036000
           ENDIF                                                         00036100
          ELSE                                                           00036200
           IF   R4,(PLUS,LTR),R4,AND,R4,(NHIGHER,CH),=H'365'             00036300
-           B   JULNDATE           GO PROCESS JULIAN DATE                00036400
+           J   JULNDATE           GO PROCESS JULIAN DATE                00036400
           ENDIF                                                         00036500
          ENDIF                                                          00036600
 *                                                                       00036700
          MVI   DTERETN,C'D'       SIGNAL JULIAN DAY ERROR               00036800
-         B     RETURN             GO RETURN TO CALLER                   00036900
+         J     RETURN             GO RETURN TO CALLER                   00036900
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00037000
 * ------------------------------------------------------------------- * 00037100
@@ -453,7 +474,7 @@ JULNDATE EQU   *   CONVERT JULIAN DATE TO A GREGORIAN DATE              00037200
          IF    DTEREQU,EQ,C'T',BC,EXITDATE                              00040700
          ENDIF                                                          00040800
 *                                                                       00040900
-         B     GREGDATE           GO PROCESS GREGORIAN DATE             00041000
+         J     GREGDATE           GO PROCESS GREGORIAN DATE             00041000
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00041100
 * ------------------------------------------------------------------- * 00041200
@@ -473,7 +494,7 @@ GREGEDIT EQU   *   EDIT GREGORIAN DATE FOR VALID RANGES                 00041300
 *                                                                       00042600
          IF    R3,(H,CH),=Y(L'DTEGREG-1-6)   IF < 6 DIGITS LONG         00042700
           MVI  DTERETN,C'G'       SIGNAL GREGORIAN DATE ERROR           00042800
-          B    RETURN             GO RETURN TO CALLER                   00042900
+          J    RETURN             GO RETURN TO CALLER                   00042900
          ENDIF                                                          00043000
          IF    R3,(EQ,CH),=Y(L'DTEGREG-1-6)   IF = 6 DIGITS LONG        00043100
           LA   R2,2000            ONLY YY SPECIFIED, DEFAULT            00043200
@@ -498,7 +519,7 @@ GREGEDIT EQU   *   EDIT GREGORIAN DATE FOR VALID RANGES                 00041300
 *                                                                       00045100
          IF    R8,(NPLUS,LTR),R8,OR,R8,(HIGHER,CH),=H'2400'             00045200
           MVI  DTERETN,C'Y'       SIGNAL GREGORIAN YEAR ERROR           00045300
-          B    RETURN             GO RETURN TO CALLER                   00045400
+          J    RETURN             GO RETURN TO CALLER                   00045400
          ENDIF                                                          00045500
 *                                                                       00045600
          PACK  PWORK,DTEGRMO      CONVERT ZONED DECIMAL TO PACKED       00045700
@@ -506,7 +527,7 @@ GREGEDIT EQU   *   EDIT GREGORIAN DATE FOR VALID RANGES                 00041300
 *                                                                       00045900
          IF    R6,(NPLUS,LTR),R6,OR,R6,(HIGHER,CH),=H'12'               00046000
           MVI  DTERETN,C'M'       SIGNAL GREGORIAN MONTH ERROR          00046100
-          B    RETURN             GO RETURN TO CALLER                   00046200
+          J    RETURN             GO RETURN TO CALLER                   00046200
          ENDIF                                                          00046300
 *                                                                       00046400
          PACK  PWORK,DTEGRDA      CONVERT ZONED DECIMAL TO PACKED       00046500
@@ -522,11 +543,11 @@ GREGEDIT EQU   *   EDIT GREGORIAN DATE FOR VALID RANGES                 00041300
          BCTR  R6,0               MAKE MONTH NUMBER 0 TO 11 AND         00047500
          SLA   R6,1               MULTIPLY BY 2 TO CREATE INDEX         00047600
          IF    R4,(PLUS,LTR),R4,AND,R4,(NHIGHER,CH),MTHTBL(R6)          00047700
-          B    GREGDATE           GO PROCESS GREGORIAN DATE             00047800
+          J    GREGDATE           GO PROCESS GREGORIAN DATE             00047800
          ENDIF                                                          00047900
 *                                                                       00048000
          MVI   DTERETN,C'D'       SIGNAL GREGORIAN DAY ERROR            00048100
-         B     RETURN             GO RETURN TO CALLER                   00048200
+         J     RETURN             GO RETURN TO CALLER                   00048200
 * ------------------------------------------------------------------- * 00048208
          EJECT                                                          00048202
 * ------------------------------------------------------------------- * 00048204
@@ -561,7 +582,7 @@ CURRDATE EQU   *   GENERATE GREGORIAN DATE FROM TIME-OF-DAY CLOCK       00048206
          ST    R15,DTEGRYR        STORE YYYY PORTION OF DATE            00048262
          ST    R14,DTEGRMO        STORE MMDD PORTION OF DATE            00048264
 *                                                                       00048266
-         B     GREGDATE           GO PROCESS GREGORIAN DATE             00048268
+         J     GREGDATE           GO PROCESS GREGORIAN DATE             00048268
 * ------------------------------------------------------------------- * 00048208
          EJECT                                                          00048300
 * ------------------------------------------------------------------- * 00048400
@@ -615,7 +636,7 @@ GREGDATE EQU   *   CONVERT GREGORIAN DATE TO TOTAL DAYS                 00048500
          IF    DTEREQU,EQ,C'J',BC,EXITDATE                              00053200
          ENDIF                                                          00053300
 *                                                                       00053400
-         B     TOTLDAYS           GO PROCESS TOTAL DAYS                 00053500
+         J     TOTLDAYS           GO PROCESS TOTAL DAYS                 00053500
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00053600
 * ------------------------------------------------------------------- * 00053700
@@ -637,7 +658,7 @@ EXITDATE EQU   *                                                        00053800
          PACK  DTEMNTH,DTEGRMO    COPY GREGORIAN MONTH TO MONTH NO.     00055300
          BAS   R11,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00055400
 *                                                                       00055500
-         B     RETURN                                                   00055600
+         J     RETURN                                                   00055600
 * ------------------------------------------------------------------- * 00025800
          EJECT                                                          00055700
 * ------------------------------------------------------------------- * 00055800
@@ -673,7 +694,9 @@ RETURN   EQU   *                                                        00058600
 * ------------------------------------------------------------------- * 00058700
          RETURN (14,12)            RETURN TO CALLER                     00058800
 * =================================================================== * 00058900
+         CORG  0,256                                                            
          EJECT                                                          00059000
+DATA     LOCTR                                                                  
 * =================================================================== * 00059100
 STORAGE  DS    0D                                                       00059200
 * =================================================================== * 00059300
@@ -694,5 +717,7 @@ MTHDEC   DC    H'31'                                                    00060700
          ORG                                                            00060800
 *                                                                       00060900
          LTORG                                                          00061000
+*                                                                               
+         CORG  0,256                                                            
 * =================================================================== * 00061100
          END                                                            00061200

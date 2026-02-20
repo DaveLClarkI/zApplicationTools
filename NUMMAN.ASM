@@ -1,17 +1,38 @@
 NUM      TITLE 'NUMMAN   - NUMBER MANIPULATION FOR COBOL PROGRAMS'      00000100
          PRINT ON,NOGEN                                                 00000200
-NUMMAN   AMODE 31
-NUMMAN   RMODE ANY
+NUMMAN   AMODE 31                                                               
+NUMMAN   RMODE ANY                                                              
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *     N U M B E R   M A N I P U L A T I O N   S U B R O U T I N E     * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1990 Dave L Clark I (v1.1)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -512,8 +533,8 @@ R15      EQU   15                 ENTRY REG                             00050700
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * =================================================================== * 00013000
-         COPY  IF
-         COPY  WHILE
+         COPY  IF                                                               
+         COPY  WHILE                                                            
 * =================================================================== * 00012800
          EJECT                                                          00050900
 * =================================================================== * 00051000
@@ -665,7 +686,7 @@ FMTERR    IF   NUMREQU,NEQUAL,C'I'                                      00062900
          ENDIF                                                          00066100
 *                                                                       00065200
          IF    R4,(HIGHER,CR),R3                                        00065300
-          IF   NUMREQU,NEQUAL,C'I'
+          IF   NUMREQU,NEQUAL,C'I'                                              
            MVI NUMRETN,C'<'       TOO MANY DIGITS LEFT OF DECIMAL       00065400
            B   RETURN             GO RETURN TO CALLER                   00065500
           ELSE                                                          00065500

@@ -1,17 +1,38 @@
 HEX      TITLE 'HEXMAN   - HEX MANIPULATION FOR COBOL PROGRAMS'         00000100
          PRINT ON,GEN                                                   00000200
-HEXMAN   AMODE 31
-HEXMAN   RMODE ANY
+HEXMAN   AMODE 31                                                               
+HEXMAN   RMODE ANY                                                              
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *        H E X   M A N I P U L A T I O N   S U B R O U T I N E        * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1989 Dave L Clark I (v1.1)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -106,8 +127,8 @@ R7       EQU   7                  CODING LENGTH REG                     00010300
 R8       EQU   8                  CHAR CODING TABLE ADDR                00010400
 R9       EQU   9                  HEX CODING TABLE ADDR                 00010500
 R10      EQU   10                 DSECT BASE REG (HEXPARM)              00010600
-R11      EQU   11                                                       00010700
-R12      EQU   12                 CSECT BASE REG (HEXMAN)               00010800
+R11      EQU   11                 CSECT BASE REG (HEXMAN)               00010700
+R12      EQU   12                                                       00010800
 R13      EQU   13                 REGS SAVE AREA                        00010900
 R14      EQU   14                 RETURN REG                            00011000
 R15      EQU   15                 ENTRY REG                             00011100
@@ -116,27 +137,16 @@ R15      EQU   15                 ENTRY REG                             00011100
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * =================================================================== * 00013000
-         COPY  IF
-         COPY  WHILE
+         PRINT OFF                                                              
+         COPY  IF                                                               
+         COPY  WHILE                                                            
+         PRINT ON                                                               
 * =================================================================== * 00012800
          EJECT                                                          00011300
 * =================================================================== * 00011400
-HEXMAN   CSECT                                                          00011500
-         USING HEXMAN,R15         ESTABLISH ENTRY-POINT REG AS BASE     00011600
+HEXMAN   HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)DEC89',            X        
+               BASE=R11                                                         
 * =================================================================== * 00011700
-         B     START              BRANCH AROUND CORE EYE-CATCHER        00011800
-*                                                                       00011900
-         DC    C'HEXMAN  '        PROGRAM                               00012000
-         DC    C'1.0 '            VERSION                               00012100
-         DC    C'DLC '            AUTHOR                                00012200
-         DC    C'(C)DEC89'        DATE                                  00012300
-*                                                                       00012400
-START    DS    0H                                                       00012500
-         SAVE  (14,12)            SAVE CALLER'S REGISTERS               00012600
-         LR    R12,R15            INITIALIZE ROUTINE BASE REGISTER      00012700
-         DROP  R15                DISESTABLISH TEMP BASE REGISTER       00012800
-         USING HEXMAN,R12         ESTABLISH PERM BASE REGISTER          00012900
-*                                                                       00013000
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00013100
          MVI   HEXRETN,C' '       INITIALIZE RETURN CODE                00013200
 *                                                                       00013300
@@ -201,19 +211,31 @@ ENCODET  TRT   0(0,R9),VALIDATE   (SEE "EX" INSTRUCTION ABOVE)          00017500
 * ------------------------------------------------------------------- * 00019200
 RETURN   EQU   *                                                        00019300
 * ------------------------------------------------------------------- * 00019400
-         RETURN (14,12)           RETURN TO CALLER                      00019500
+         TRAILER                  RETURN TO CALLER                      00019500
 * =================================================================== * 00019600
-         EJECT                                                          00019700
+         EJECT                                                                  
 * =================================================================== * 00019800
-STORAGE  DS    0D                                                       00019900
+STORAGE  DATAAREA                                                       00019900
 * =================================================================== * 00020000
-TRTABLE  EQU   *-192                                                    00020100
+TRTABLE  DS    0D                                                       00020100
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020400
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020400
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020400
+         DC    X'00000000000000000000000000000000'                      00020400
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020400
+         DC    X'00000000000000000000000000000000'                      00020300
+         DC    X'00000000000000000000000000000000'                      00020400
          DC    X'00FAFBFCFDFEFF000000000000000000'                      00020200
          DC    X'00000000000000000000000000000000'                      00020300
          DC    X'00000000000000000000000000000000'                      00020400
          DC    X'F0F1F2F3F4F5F6F7F8F9C1C2C3C4C5C6'                      00020500
 *                                                                       00020600
-VALIDATE EQU   *                                                        00020700
+VALIDATE DS    0D                                                       00020700
          DC    256X'FF'                DISALLOW EVERYTHING              00020800
          ORG   VALIDATE+C'A'                                            00020900
          DC    X'000000000000'         ALLOW FOR 'ABCDEF'               00021000
@@ -222,5 +244,6 @@ VALIDATE EQU   *                                                        00020700
          ORG                                                            00021300
 *                                                                       00021400
          LTORG                                                          00021500
+         CORG  0,256                                                            
 * =================================================================== * 00021600
          END                                                            00021700

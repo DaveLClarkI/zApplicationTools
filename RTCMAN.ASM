@@ -6,10 +6,32 @@ RTC      TITLE 'RTCMAN   - RETURN CODE MANAGER FOR COBOL PROGRAMS'      00000100
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1989 Dave L Clark I (v2.0)                   *         
+*                    (C) 1991 Dave L Clark I (v2.1)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -92,6 +114,29 @@ RTC      TITLE 'RTCMAN   - RETURN CODE MANAGER FOR COBOL PROGRAMS'      00000100
 *          CALL   'RTCMAN'   USING RTCMAN-PARMS                       * 00009100
 *          STOP RUN.                                                  * 00009200
 *                                                                     * 00009300
+*      Though not  generally  needed,  the  following  example demon- * 00009400
+* strates how to invoke RTCMAN from a REXX procedure:                 * 00009400
+*                                                                     * 00009300
+*      /* GET $MRC */                                                 * 00009300
+*      RTCPARM = 'S 'D2C(0,2);      /* START */                       * 00009300
+*      Address LINKPGM "RTCMAN RTCPARM";                              * 00009300
+*      RETN = Substr(RTCPARM,2,1);                                    * 00009300
+*      RTCD = C2D(Substr(RTCPARM,3,2));                               * 00009300
+*      Say 'RTCMAN START  RETN='RETN',RC='RTCD;                       * 00009300
+*      /* SET $RC */                                                  * 00009300
+*      RTCPARM = 'U 'D2C(4,2);      /* UPDATE */                      * 00009300
+*      Address LINKPGM "RTCMAN RTCPARM";                              * 00009300
+*      RETN = Substr(RTCPARM,2,1);                                    * 00009300
+*      RTCD = C2D(Substr(RTCPARM,3,2));                               * 00009300
+*      Say 'RTCMAN UPDATE RETN='RETN',RC='RTCD;                       * 00009300
+*      /* CONSOLE DISPLAY */                                          * 00009300
+*      RTCPARM = 'F 'D2C(0,2);      /* FINAL, CANCEL, or DUMP */      * 00009300
+*      Address LINKPGM "RTCMAN RTCPARM";                              * 00009300
+*      RETN = Substr(RTCPARM,2,1);                                    * 00009300
+*      RTCD = C2D(Substr(RTCPARM,3,2));                               * 00009300
+*      Say 'RTCMAN FINAL  RETN='RETN',RC='RTCD;                       * 00009300
+*      Exit;                                                          * 00009300
+*                                                                     * 00009300
 * As a suggestion, the following return codes may be used:            * 00009400
 *                                                                     * 00009500
 *       0  -  All  critical  and  non-critical  processing  completed * 00009600
@@ -125,16 +170,16 @@ RTCREQU  DS    CL1                     REQUEST CODE                     00012300
 RTCRETN  DS    CL1                     RETURN CODE                      00012400
 RTCCODE  DS    H                       RETURN CODE VALUE                00012500
 * =================================================================== * 00012600
-         EJECT
-* =================================================================== *
-DYNASTOR DSECT
-* =================================================================== *
-SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA
+         EJECT                                                                  
+* =================================================================== *         
+DYNASTOR DSECT                                                                  
+* =================================================================== *         
+SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA              
 PDEC     DS    D                                                        00028400
 MSG      DS    CL48                                                     00028500
-*
-DYNALENG EQU   *-DYNASTOR
-* =================================================================== *
+*                                                                               
+DYNALENG EQU   *-DYNASTOR                                                       
+* =================================================================== *         
          EJECT                                                          00012700
 * =================================================================== * 00012800
 *        REGISTER EQUATES                                             * 00012900
@@ -150,8 +195,8 @@ R7       EQU   7                                                        00013800
 R8       EQU   8                                                        00013900
 R9       EQU   9                                                        00014000
 R10      EQU   10                      DSECT BASE REG                   00014100
-R11      EQU   11                                                       00014200
-R12      EQU   12                      CSECT BASE REG                   00014300
+R11      EQU   11                      CSECT BASE REG                   00014200
+R12      EQU   12                      LE RESERVED REG                  00014300
 R13      EQU   13                      SAVEAREA ADDR                    00014400
 R14      EQU   14                      RETURN REG                       00014500
 R15      EQU   15                      ENTRY REG                        00014600
@@ -160,26 +205,28 @@ R15      EQU   15                      ENTRY REG                        00014600
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * =================================================================== * 00013000
-         PRINT OFF
-         COPY  HEADER                  SUBROUTINE PROLOG
-         COPY  TRAILER                 SUBROUTINE EPILOG
-         COPY  IF
-         PRINT ON
+         PRINT OFF                                                              
+         COPY  HEADER                  SUBROUTINE PROLOG                        
+         COPY  TRAILER                 SUBROUTINE EPILOG                        
+         COPY  IF                                                               
+         PRINT ON                                                               
 * =================================================================== * 00012800
          EJECT                                                          00014800
 * =================================================================== * 00014900
-RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
-               BASE=R12,SVAREA=SALEN
-* =================================================================== *
-         USING DYNASTOR,R13
+RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X        
+               BASE=R11,SVAREA=SALEN                                            
+* =================================================================== *         
+         USING DYNASTOR,R13                                                     
 *                                                                       00017400
          L     R10,0(,R1)              INITIALIZE PARM DSECT            00017500
          MVI   RTCRETN,C' '            INITIALIZE RETURN CODE           00017600
-         XC    PDEC,PDEC                CLEAR PARM AREA
+         XC    PDEC,PDEC                CLEAR PARM AREA                         
+*                                                                       00017700
+         MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE       00018000
+         AMODESW SET,AMODE=31                                                   
 *                                                                       00017700
          IF    RTCREQU,NE,C'U',AND,RTCREQU,NE,C'F'                      00017800
          AND   RTCREQU,NE,C'C',AND,RTCREQU,NE,C'D'                      00017900
-          MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE      00018000
           LOAD $IJBCJC,SYS=YES          LOCATE SYSTEM ROUTINE           00018100
           LR   R15,R1                   GET ENTRY POINT ADDRESS         00018200
           LA   R0,2                     SELECT "GETMRC" FUNCTION        00018300
@@ -196,18 +243,16 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
            CVB R15,PDEC                  CONVERT PACKED TO BINARY       00019400
           ENDIF                         ENDIF                           00019500
           STH  R15,RTCCODE              PUT $MRC IN HALFWORD PARM       00019600
-          MODESET KEY=USER              PROTECT EXTERNAL STORAGE        00019700
-          XR   R11,R11                  ZERO CURRENT $RC VALUE          00019800
+          XR   R9,R9                    ZERO CURRENT $RC VALUE          00019800
           MVI  RTCREQU,C'U'             CHANGE START REQUEST TO UPDATE  00019900
          ELSE                          ELSE                             00020000
-          MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE      00020100
           LOAD $IJBCJC,SYS=YES          LOCATE SYSTEM ROUTINE           00020200
           LR   R15,R1                   GET ENTRY POINT ADDRESS         00020300
           LA   R0,1                     SELECT "GETLRC" FUNCTION        00020400
           LA   R1,PDEC                  GET ADDRESS OF PARM AREA        00020500
           BALR R14,R15                  INVOKE SYSTEM ROUTINE           00020600
-          IF   R15,(NZERO,LTR),R15      IF "GETRC" NOT SUCCESSFULL      00020700
-           IF  R15,(EQUAL,CH),=H'4'      IF "GETRC" INFO NOT AVAIL.     00020800
+          IF   R15,(NZERO,LTR),R15      IF "GETLRC" NOT SUCCESSFULL     00020700
+           IF  R15,(EQUAL,CH),=H'4'      IF "GETLRC" INFO NOT AVAIL.    00020800
             XR R15,R15                    ZERO RETURN CODE REGISTER     00020900
            ELSE                          ELSE                           00021000
             MVI RTCRETN,C'L'              SET "GETLRC ERROR" CODE       00021100
@@ -216,20 +261,18 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
            PACK PDEC,PDEC(4)             PACK ZONED DECIMAL NUMBER      00021400
            CVB R15,PDEC                  CONVERT PACKED TO BINARY       00021500
           ENDIF                         ENDIF                           00021600
-          LR   R11,R15                  SAVE CURRENT $RC VALUE          00021700
-          MODESET KEY=USER              PROTECT EXTERNAL STORAGE        00021800
-          IF   R11,(HT,CH),RTCCODE,OR,RTCRETN,EQ,C'L'                   00021900
-           STH R11,RTCCODE              KEEP CURRENT VALUE              00022000
+          LR   R9,R15                   SAVE CURRENT $RC VALUE          00021700
+          IF   R9,(HT,CH),RTCCODE,OR,RTCRETN,EQ,C'L'                    00021900
+           STH R9,RTCCODE               KEEP CURRENT VALUE              00022000
           ELSE                                                          00022100
-           LH  R11,RTCCODE              KEEP REQUESTED VALUE            00022200
+           LH  R9,RTCCODE               KEEP REQUESTED VALUE            00022200
           ENDIF                                                         00022300
          ENDIF                         ENDIF                            00022400
 *                                                                       00022500
-         CVD   R11,PDEC                CONVERT $RC TO PACKED DECIMAL    00022600
+         CVD   R9,PDEC                 CONVERT $RC TO PACKED DECIMAL    00022600
          UNPK  PDEC(4),PDEC+5(3)       THEN CHANGE TO ZONED DECIMAL     00022700
          OI    PDEC+3,X'F0'            AND CLEAR ANY SIGN               00022800
 *                                                                       00022900
-         MODESET KEY=ZERO              SET FOR UPDATE OF SVA            00023000
          LOAD  $IJBCJC,SYS=YES         LOCATE SYSTEM ROUTINE            00023100
          LR    R15,R1                  GET ENTRY POINT ADDRESS          00023200
          LA    R0,3                    SELECT "PUTRC" FUNCTION          00023300
@@ -238,14 +281,16 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
          IF    R15,(NZERO,LTR),R15     IF "PUTRC" NOT SUCCESSFULL       00023600
           MVI  RTCRETN,C'E'             SET "PUTRC ERROR" CODE          00023700
           STH  R15,RTCCODE              SAVE RETURN CODE                00023800
-          LR   R11,R15                   AND OVERRIDE LRC               00023900
+          LR   R9,R15                    AND OVERRIDE LRC               00023900
          ENDIF                         ENDIF                            00024000
+*                                                                       00022900
+         AMODESW SET,AMODE=24                                                   
          MODESET KEY=USER              RESET TO PROTECT SVA             00024100
 *                                                                       00024200
          IF    RTCREQU,EQUAL,C'U',BC,FINISH                             00024300
          ENDIF                                                          00024400
 *                                                                       00024500
-         MVC   MSG,=C'PGM ........  SET RETURN CODE=0000              '
+         MVC   MSG,=C'PGM ........  SET RETURN CODE=0000              '         
          IF    RTCREQU,NEQUAL,C'F'     IF NOT A "FINISH" REQUEST        00024600
           MVC  MSG+36(3),=C'AND'        PUT CONNECTOR IN MESSAGE        00024700
           IF   RTCREQU,EQUAL,C'D'       IF REQUESTED TO "DUMP"          00024800
@@ -254,13 +299,13 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
            MVC MSG+40(8),=C'CANCELED'    PUT USER REQUEST IN MESSAGE    00025100
           ENDIF                         ENDIF                           00025200
          ENDIF                         ENDIF                            00025300
-         CVD   R11,PDEC                CHANGE $RC TO PACKED DECIMAL     00025400
+         CVD   R9,PDEC                 CHANGE $RC TO PACKED DECIMAL     00025400
          UNPK  MSG+30(4),PDEC+5(3)     UNPACK $RC INTO MESSAGE          00025500
          OI    MSG+33,X'F0'            AND CLEAR THE SIGN               00025600
          COMRG REG=(R1)                GET ADDRESS OF COMREG IN R1      00025700
          MVC   MSG+4(8),216(R1)        PUT EXEC PHASE NAME IN MESSAGE   00025800
-         LA    R11,MSG                 GET ADDRESS OF I/O AREA
-         STCM  R11,B'0111',CONSOLE+25  PUT IN CONSOLE CCW
+         LA    R9,MSG                  GET ADDRESS OF I/O AREA                  
+         STCM  R9,B'0111',CONSOLE+25   PUT IN CONSOLE CCW                       
          OPEN  CONSOLE                 OPEN CONSOLE FOR MESSAGES        00025900
          PUT   CONSOLE                 DISPLAY MESSAGE ON CONSOLE       00026000
          CLOSE CONSOLE                 CLOSE CONSOLE                    00026100
@@ -277,13 +322,13 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
 FINISH   DS    0H                                                       00027200
 * ------------------------------------------------------------------- * 00027300
          XR    R15,R15                 ZERO RETURN CODE REG             00027500
-         TRAILER RETCODE=R15,SVAREA=SALEN
+         TRAILER RETCODE=R15,SVAREA=SALEN                                       
 * =================================================================== * 00027800
          EJECT                                                          00027900
 * =================================================================== * 00028000
 STORAGE  DS    0D                                                       00028100
 * =================================================================== * 00028200
-SALEN    DC    A(DYNALENG)
+SALEN    DC    A(DYNALENG)                                                      
          LTORG                                                          00028700
 * =================================================================== * 00028800
          EJECT                                                          00028900

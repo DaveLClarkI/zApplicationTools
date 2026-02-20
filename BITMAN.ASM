@@ -1,17 +1,39 @@
 BIT      TITLE 'BITMAN   - BIT MANIPULATION FOR COBOL PROGRAMS'         00000100
-         PRINT ON,NOGEN                                                 00000200
-BITMAN   AMODE 31
-BITMAN   RMODE ANY
+         PRINT ON,GEN                                                   00000200
+BITMAN   AMODE 31                                                               
+BITMAN   RMODE ANY                                                              
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *        B I T   M A N I P U L A T I O N   S U B R O U T I N E        * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* CLARKE Industries, Inc.                             Written by:     * 00000900
-* 2100 Highway 265                                 Dave Leonard Clark * 00001000
-* Springdale, AR  72764                              (501)750-8248    * 00001100
-*                                                                     * 00001200
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1988 Dave L Clark I (v1.1)                   *         
+*                    (C) 1989 Dave L Clark I (v1.2)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -28,44 +50,49 @@ BITMAN   RMODE ANY
 * The invoking COBOL program should  use  the following data area for * 00002600
 * passing parameters:                                                 * 00002700
 *                                                                     * 00002800
-*      01  BITMAN-PARMS.                                              * 00002900
+*      01  BITMAN-AREA.                                               * 00002900
+*        03  BITMAN                    PIC  X(8)    VALUE 'BITMAN  '. * 00002900
+*        03  BITMAN-PARMS.                                            * 00002900
 *          05  BIT-REQU                PIC  X(1)    VALUE 'D'.        * 00003000
-*              88  BIT-DECODE-FROM-BYTE             VALUE 'D'.        * 00003100
-*              88  BIT-ENCODE-FROM-BITS             VALUE 'E'.        * 00003200
+*            88  BIT-DECODE-FROM-BYTE               VALUE 'D'.        * 00003100
+*            88  BIT-ENCODE-FROM-BITS               VALUE 'E'.        * 00003200
+*            88  BIT-LOGICAL-AND-BYTE               VALUE 'A'.        *         
+*            88  BIT-LOGICAL-OR-BYTE                VALUE 'R'.        *         
+*            88  BIT-LOGICAL-XOR-BYTE               VALUE 'X'.        *         
 *          05  BIT-RETN                PIC  X(1)    VALUE SPACES.     * 00003300
-*              88  BIT-REQUEST-COMPLETED            VALUE ' '.        * 00003400
-*              88  BIT-INVALID-REQU                 VALUE 'E'.        * 00003500
-*          05  FILLER                  PIC  X(1)    VALUE SPACES.     * 00003600
+*            88  BIT-REQUEST-COMPLETED              VALUE ' '.        * 00003400
+*            88  BIT-INVALID-REQU                   VALUE 'E'.        * 00003500
+*          05  BIT-LOGICAL             PIC  X(1)    VALUE SPACES.     * 00003600
 *          05  BIT-BYTE                PIC  X(1)    VALUE LOW-VALUE.  * 00003700
 *          05  BIT-DATA.                                              * 00003800
-*              10  BIT-0               PIC  9(1)    VALUE 0.          * 00003900
-*                  88  BIT-0-IS-OFF                 VALUE 0.          * 00004000
-*                  88  BIT-0-IS-ON                  VALUE 1.          * 00004100
-*              10  BIT-1               PIC  9(1)    VALUE 0.          * 00004200
-*                  88  BIT-1-IS-OFF                 VALUE 0.          * 00004300
-*                  88  BIT-1-IS-ON                  VALUE 1.          * 00004400
-*              10  BIT-2               PIC  9(1)    VALUE 0.          * 00004500
-*                  88  BIT-2-IS-OFF                 VALUE 0.          * 00004600
-*                  88  BIT-2-IS-ON                  VALUE 1.          * 00004700
-*              10  BIT-3               PIC  9(1)    VALUE 0.          * 00004800
-*                  88  BIT-3-IS-OFF                 VALUE 0.          * 00004900
-*                  88  BIT-3-IS-ON                  VALUE 1.          * 00005000
-*              10  BIT-4               PIC  9(1)    VALUE 0.          * 00005100
-*                  88  BIT-4-IS-OFF                 VALUE 0.          * 00005200
-*                  88  BIT-4-IS-ON                  VALUE 1.          * 00005300
-*              10  BIT-5               PIC  9(1)    VALUE 0.          * 00005400
-*                  88  BIT-5-IS-OFF                 VALUE 0.          * 00005500
-*                  88  BIT-5-IS-ON                  VALUE 1.          * 00005600
-*              10  BIT-6               PIC  9(1)    VALUE 0.          * 00005700
-*                  88  BIT-6-IS-OFF                 VALUE 0.          * 00005800
-*                  88  BIT-6-IS-ON                  VALUE 1.          * 00005900
-*              10  BIT-7               PIC  9(1)    VALUE 0.          * 00006000
-*                  88  BIT-7-IS-OFF                 VALUE 0.          * 00006100
-*                  88  BIT-7-IS-ON                  VALUE 1.          * 00006200
-*          05  BIT-TABLE   REDEFINES   BIT-DATA.                      * 00006300
-*              10  BIT     OCCURS 08   PIC  9(1).                     * 00006400
-*                  88  BIT-IS-OFF                   VALUE 0.          * 00006500
-*                  88  BIT-IS-ON                    VALUE 1.          * 00006600
+*            07  BIT-0                 PIC  9(1)    VALUE 0.          * 00003900
+*              88  BIT-0-IS-OFF                     VALUE 0.          * 00004000
+*              88  BIT-0-IS-ON                      VALUE 1.          * 00004100
+*            07  BIT-1                 PIC  9(1)    VALUE 0.          * 00004200
+*              88  BIT-1-IS-OFF                     VALUE 0.          * 00004300
+*              88  BIT-1-IS-ON                      VALUE 1.          * 00004400
+*            07  BIT-2                 PIC  9(1)    VALUE 0.          * 00004500
+*              88  BIT-2-IS-OFF                     VALUE 0.          * 00004600
+*              88  BIT-2-IS-ON                      VALUE 1.          * 00004700
+*            07  BIT-3                 PIC  9(1)    VALUE 0.          * 00004800
+*              88  BIT-3-IS-OFF                     VALUE 0.          * 00004900
+*              88  BIT-3-IS-ON                      VALUE 1.          * 00005000
+*            07  BIT-4                 PIC  9(1)    VALUE 0.          * 00005100
+*              88  BIT-4-IS-OFF                     VALUE 0.          * 00005200
+*              88  BIT-4-IS-ON                      VALUE 1.          * 00005300
+*            07  BIT-5                 PIC  9(1)    VALUE 0.          * 00005400
+*              88  BIT-5-IS-OFF                     VALUE 0.          * 00005500
+*              88  BIT-5-IS-ON                      VALUE 1.          * 00005600
+*            07  BIT-6                 PIC  9(1)    VALUE 0.          * 00005700
+*              88  BIT-6-IS-OFF                     VALUE 0.          * 00005800
+*              88  BIT-6-IS-ON                      VALUE 1.          * 00005900
+*            07  BIT-7                 PIC  9(1)    VALUE 0.          * 00006000
+*              88  BIT-7-IS-OFF                     VALUE 0.          * 00006100
+*              88  BIT-7-IS-ON                      VALUE 1.          * 00006200
+*          05  BIT-TABLE               REDEFINES    BIT-DATA.         * 00006300
+*            07  BIT                   PIC  9(1)    OCCURS 8.         * 00006400
+*              88  BIT-IS-OFF                       VALUE 0.          * 00006500
+*              88  BIT-IS-ON                        VALUE 1.          * 00006600
 *                                                                     * 00006700
 * =================================================================== * 00006800
 *                                                                     * 00006900
@@ -103,6 +130,8 @@ BITMAN   RMODE ANY
 *     *        your-byte-evaluation-code                              * 00010100
 *          END-IF                                                     * 00010200
 *                                                                     * 00010300
+* Note that the "logical"  requests  will perform an implied "decode" * 00010300
+* request after the logical request has been performed.               * 00010300
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00010400
          EJECT                                                          00010500
 * =================================================================== * 00010600
@@ -111,8 +140,9 @@ BITPARM  DSECT                                                          00010700
 * =================================================================== * 00010900
 BITREQU  DS    CL1                     REQUEST CODE                     00011000
 BITRETN  DS    CL1                     RETURN CODE                      00011100
-         DS    CL1                                                      00011200
+BITLOGC  DS    CL1                     LOGICAL VALUE                    00011200
 BITBYTE  DS    XL1                     BYTE VALUE                       00011300
+BITBITS  DS   0CL8                     BIT VALUES                       00011400
 BITBIT0  DS    CL1                     BIT0 VALUE                       00011400
 BITBIT1  DS    CL1                     BIT1 VALUE                       00011500
 BITBIT2  DS    CL1                     BIT2 VALUE                       00011600
@@ -147,7 +177,10 @@ R15      EQU   15                      ENTRY REG                        00014200
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * =================================================================== * 00013000
-         COPY  IF
+         PRINT OFF                                                              
+         COPY  IF                                                               
+         COPY  WHILE                                                            
+         PRINT ON                                                               
 * =================================================================== * 00012800
          EJECT                                                          00014400
 * =================================================================== * 00014500
@@ -157,7 +190,7 @@ BITMAN   CSECT                                                          00014600
          B     START              BRANCH AROUND CORE EYE-CATCHER        00014900
 *                                                                       00015000
          DC    C'BITMAN  '        PROGRAM                               00015100
-         DC    C'1.0 '            VERSION                               00015200
+         DC    C'1.2 '            VERSION                               00015200
          DC    C'DLC '            AUTHOR                                00015300
          DC    C'(C)DEC89'        DATE                                  00015400
 *                                                                       00015500
@@ -170,9 +203,26 @@ START    DS    0H                                                       00015600
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00016200
          MVI   BITRETN,C' '       INITIALIZE RETURN CODE                00016300
 *                                                                       00016400
+         IF    BITREQU,EQ,C'A'                                                  
+          NC   BITBYTE,BITLOGC    PERFORM LOGICAL AND                           
+          MVI  BITREQU,C'D'       THEN DECODE                                   
+         ENDIF                                                                  
+         IF    BITREQU,EQ,C'R'                                                  
+          OC   BITBYTE,BITLOGC    PERFORM LOGICAL OR                            
+          MVI  BITREQU,C'D'       THEN DECODE                                   
+         ENDIF                                                                  
+         IF    BITREQU,EQ,C'X'                                                  
+          XC   BITBYTE,BITLOGC    PERFORM LOGICAL XOR                           
+          MVI  BITREQU,C'D'       THEN DECODE                                   
+         ENDIF                                                                  
+*                                                                       00016400
          IF    BITREQU,EQ,C'D',BC,DECODE                                00016500
          ENDIF                                                          00016600
          IF    BITREQU,EQ,C'E',BC,ENCODE                                00016700
+         ENDIF                                                          00016800
+         IF    BITREQU,EQ,C'I',BC,SHIFTIN                               00016500
+         ENDIF                                                          00016600
+         IF    BITREQU,EQ,C'O',BC,SHIFTOUT                              00016700
          ENDIF                                                          00016800
 *                                                                       00016900
          MVI   BITRETN,C'E'       SIGNAL REQUEST ERROR                  00017000
@@ -181,34 +231,19 @@ START    DS    0H                                                       00015600
 * ------------------------------------------------------------------- * 00017300
 DECODE   EQU   *                                                        00017400
 * ------------------------------------------------------------------- * 00017500
-         MVC   BITBIT0(8),=C'00000000' SET ALL BITS OFF BY DEFAULT      00017600
+         MVC   BITBITS,=C'00000000'    SET ALL BITS OFF BY DEFAULT      00017600
 *                                                                       00017700
-         IF    BITBYTE,(O,TM),B'10000000'                               00017800
-          MVI  BITBIT0,C'1'       SET BIT 0 ON                          00017900
-         ENDIF                                                          00018000
-         IF    BITBYTE,(O,TM),B'01000000'                               00018100
-          MVI  BITBIT1,C'1'       SET BIT 1 ON                          00018200
-         ENDIF                                                          00018300
-         IF    BITBYTE,(O,TM),B'00100000'                               00018400
-          MVI  BITBIT2,C'1'       SET BIT 2 ON                          00018500
-         ENDIF                                                          00018600
-         IF    BITBYTE,(O,TM),B'00010000'                               00018700
-          MVI  BITBIT3,C'1'       SET BIT 3 ON                          00018800
-         ENDIF                                                          00018900
-         IF    BITBYTE,(O,TM),B'00001000'                               00019000
-          MVI  BITBIT4,C'1'       SET BIT 4 ON                          00019100
-         ENDIF                                                          00019200
-         IF    BITBYTE,(O,TM),B'00000100'                               00019300
-          MVI  BITBIT5,C'1'       SET BIT 5 ON                          00019400
-         ENDIF                                                          00019500
-         IF    BITBYTE,(O,TM),B'00000010'                               00019600
-          MVI  BITBIT6,C'1'       SET BIT 6 ON                          00019700
-         ENDIF                                                          00019800
-         IF    BITBYTE,(O,TM),B'00000001'                               00019900
-          MVI  BITBIT7,C'1'       SET BIT 7 ON                          00020000
-         ENDIF                                                          00020100
+         LA    R9,BITBITS              GET ADDRESS FOR DECODED BITS             
+         XR    R8,R8                   CLEAR WORK REGISTER                      
+         ICM   R8,B'1000',BITBYTE      GET ENCODED BYTE VALUE                   
+         WHILE R8,(NZ,LTR),R8          WHILE SOME BITS ARE STILL ON             
+          IF   R8,(K,ALR),R8            ADD TOGETHER AND, IF CARRY,             
+           MVI 0(R9),C'1'                SET CORRESPONDING DECODED BIT          
+          ENDIF                         ENDIF                                   
+          LA   R9,1(0,R9)               INCR. TO NEXT DECODED BIT               
+         WEND                          LOOP                                     
 * ------------------------------------------------------------------- * 00020200
-         B     RETURN                                                   00020300
+         B     RETURN                  GO RETURN TO CALLER              00020300
          EJECT                                                          00020400
 * ------------------------------------------------------------------- * 00020500
 ENCODE   EQU   *                                                        00020600
@@ -241,6 +276,49 @@ ENCODE   EQU   *                                                        00020600
          ENDIF                                                          00023300
 * ------------------------------------------------------------------- * 00023400
          B     RETURN                                                   00023500
+         EJECT                                                          00017200
+* ------------------------------------------------------------------- * 00017300
+SHIFTIN  EQU   *                                                        00017400
+* ------------------------------------------------------------------- * 00017500
+         LA    R9,BITBITS              GET ADDRESS FOR EIGHT BYTES              
+         LA    R8,8                    NUMBER OF BYTES TO SHIFT                 
+         WHILE R8,(NZ,LTR),R8          WHILE SOME BYTES REMAIN                  
+          XR   R4,R4                    CLEAR REGISTER PAIR                     
+          XR   R5,R5                                                            
+          IC   R4,0(,R9)                GET BYTE VALUE                          
+          SRDL R4,4                     SHIFT DOUBLE RIGHT 4 BITS               
+          SRL  R5,24                    SHIFT SINGLE RIGHT 24 BITS              
+          LA   R3,B'1111'               SET MASK                                
+          XR   R4,R3                    FLIP LEFT NIBBLE                        
+          AR   R5,R4                    ADD BACK TO RIGHT NIBBLE                
+          STC  R5,0(,R9)                SAVE BYTE VALUE                         
+          LA   R9,1(,R9)                INCR. TO NEXT BYTE                      
+          BCTR R8,0                     DECR. BYTE COUNT                        
+         WEND                          LOOP                                     
+* ------------------------------------------------------------------- * 00020200
+         B     RETURN                  GO RETURN TO CALLER              00020300
+         EJECT                                                          00017200
+* ------------------------------------------------------------------- * 00017300
+SHIFTOUT EQU   *                                                        00017400
+* ------------------------------------------------------------------- * 00017500
+         LA    R9,BITBITS              GET ADDRESS FOR EIGHT BYTES              
+         LA    R8,8                    NUMBER OF BYTES TO SHIFT                 
+         WHILE R8,(NZ,LTR),R8          WHILE SOME BYTES REMAIN                  
+          XR   R4,R4                    CLEAR REGISTER PAIR                     
+          XR   R5,R5                                                            
+          IC   R4,0(,R9)                GET BYTE VALUE                          
+          SRDL R4,4                     SHIFT DOUBLE RIGHT 4 BITS               
+          SRL  R5,28                    SHIFT SINGLE RIGHT 28 BITS              
+          LA   R3,B'1111'               SET MASK                                
+          XR   R5,R3                    FLIP RIGHT NIBBLE                       
+          SLL  R5,4                     SHIFT SINGLE LEFT 4 BITS                
+          AR   R5,R4                    ADD BACK THE LEFT NIBBLE                
+          STC  R5,0(,R9)                SAVE BYTE VALUE                         
+          LA   R9,1(0,R9)               INCR. TO NEXT BYTE                      
+          BCTR R8,0                     DECR. BYTE COUNT                        
+         WEND                          LOOP                                     
+* ------------------------------------------------------------------- * 00020200
+         B     RETURN                  GO RETURN TO CALLER              00020300
          EJECT                                                          00023600
 * ------------------------------------------------------------------- * 00023700
 RETURN   EQU   *                                                        00023800
