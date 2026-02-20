@@ -1,0 +1,82 @@
+* TO CATALOG THIS COPYBOOK FROM BIM-EDIT, USE THE FOLLOWING COMMAND:            
+* CATAL COPYBOOKS.TXTMAN-COPY DAP.PROD.TXTMAN.A REPL=YES                        
+TXTPARM  DSECT                    HEADER PARAMETER                              
+TXTREQU  DS    CL1                REQUEST CODE                                  
+REQU_2ASCII    EQU C'A'             CONVERT STRING(S) TO ASCII                  
+REQU_BTOB64    EQU C'B'             CONVERT STRING(S) TO BASE64                 
+REQU_COPY      EQU C'C'             COPY FROM BUFFER TO STRING(S)               
+REQU_DELETE    EQU C'D'             DELETE A STRING FROM BUFFER                 
+REQU_2EBCDIC   EQU C'E'             CONVERT STRING(S) TO EBCDIC                 
+REQU_FIND      EQU C'F'             FIND A STRING IN BUFFER                     
+REQU_INSERT    EQU C'I'             INSERT STRING(S) INTO BUFFER                
+REQU_LJUSTIFY  EQU C'J'             LEFT JUSTIFY STRING(S)                      
+REQU_PMASK     EQU C'K'             MASK NON-PRINTABLE IN STRING(S)             
+REQU_LCASE     EQU C'L'             CONVERT STRING(S) TO LOWER CASE             
+REQU_MJUSTIFY  EQU C'M'             MIDDLE JUSTIFY (CENTER) STRING(S)           
+REQU_OVERLAY   EQU C'O'             OVERLAY STRING(S) ONTO BUFFER               
+REQU_PARSE     EQU C'P'             PARSE BUFFER INTO STRING(S)                 
+REQU_RJUSTIFY  EQU C'R'             RIGHT JUSTIFY STRING(S)                     
+REQU_SCRIPTED  EQU C'S'             USE SCRIPTING MODE                          
+REQU_RTRIM     EQU C'T'             TRIM STRING(S) ON RIGHT                     
+REQU_UCASE     EQU C'U'             CONVERT STRING(S) TO UPPER CASE             
+REQU_WCAPS     EQU C'W'             CONVERT STRING(S) TO WORD CAPS              
+REQU_4TOBIN    EQU C'X'             CONVERT STRING(S) FROM BASE64               
+TXTRETN  DS    CL1                RETURN CODE                                   
+REQ_DONE       EQU X'40'            REQUEST COMPLETED                           
+STR_NFND       EQU C'N'             STRING NOT FOUND                            
+STR_YFND       EQU C'Y'             STRING WAS FOUND                            
+BUF_FULL       EQU C'F'             BUFFER IS FULL                              
+AT_BUFEND      EQU X'00'            PARSED AT BUFEND                            
+INV_REQU       EQU C'E'             INVALID REQU                                
+INV_PLST       EQU C'L'             INVALID PARMLIST                            
+INV_PNTR       EQU C'P'             INVALID PNTR                                
+INV_BUFL       EQU C'B'             INVALID BUFLEN                              
+INV_STRL       EQU C'S'             INVALID STRLEN                              
+SCR_TERM       EQU C'T'             SCRIPT TERMINATED                           
+TXTPNTR  DS    H                  BUFFER POINTER                                
+TXTDLMS  DS    CL8                PARSE DELIMITERS                              
+PARMPTR  DS    F                  (INTERNAL USE ONLY)                           
+TRTTABLE DS    CL256              (INTERNAL USE ONLY)                           
+         ORG   TRTTABLE                                                         
+STRGADDR DS    A                  SAVE FOR INPUT STRING POINTER                 
+STRGLEN  DS    H                  SAVE FOR REMAINING STRING LENGTH              
+BINCNT   DS    H                  BYTE COUNT IN BINARY CHUNK                    
+BINCHUNK DS    XL4                FOR BINARY CHUNK (EXTRA FOR ALIGN)            
+B64CHUNK DS    XL4                FOR BASE64 CHUNK                              
+         ORG                                                                    
+* ------------------------------------------------------------------- *         
+TXTMSTR  DSECT                    MASTER BUFFER PARAMETER                       
+TXTBUFL  DS    H                  MASTER BUFFER LENGTH                          
+TXTBUFR  DS    9998CL1            MASTER BUFFER VALUE                           
+* ------------------------------------------------------------------- *         
+TXTSINPT DSECT                    SCRIPTING INPUT STRING PARAMETER              
+TXTSREQU DS    CL1                SCRIPTING REQUEST CODE                        
+STR_2ASCII     EQU C'A'             CONVERT STRING(S) TO ASCII                  
+STR_COPY       EQU C'C'             COPY FROM BUFFER TO STRING(S)               
+STR_DELETE     EQU C'D'             DELETE A STRING FROM BUFFER                 
+STR_2EBCDIC    EQU C'E'             CONVERT STRING(S) TO EBCDIC                 
+STR_FIND       EQU C'F'             FIND A STRING IN BUFFER                     
+STR_INSERT     EQU C'I'             INSERT STRING(S) INTO BUFFER                
+STR_LJUSTIFY   EQU C'J'             LEFT JUSTIFY STRING(S)                      
+STR_PMASK      EQU C'K'             MASK NON-PRINTABLE IN STRING(S)             
+STR_LCASE      EQU C'L'             CONVERT STRING(S) TO LOWER CASE             
+STR_MJUSTIFY   EQU C'M'             MIDDLE JUSTIFY (CENTER) STRING(S)           
+STR_OVERLAY    EQU C'O'             OVERLAY STRING(S) ONTO BUFFER               
+STR_PARSE      EQU C'P'             PARSE BUFFER INTO STRING(S)                 
+STR_RJUSTIFY   EQU C'R'             RIGHT JUSTIFY STRING(S)                     
+STR_RTRIM      EQU C'T'             TRIM STRING(S) ON RIGHT                     
+STR_UCASE      EQU C'U'             CONVERT STRING(S) TO UPPER CASE             
+STR_WCAPS      EQU C'W'             CONVERT STRING(S) TO WORD CAPS              
+TXTSRETN DS    CL1                SCRIPTING RETURN CODE                         
+S_REQ_DONE     EQU X'40'            REQUEST COMPLETED                           
+S_REQ_INHRT    EQU C'I'             REQUEST INHERITANCE                         
+S_REQ_RSTP     EQU C'R'             REQUEST POINTER RESET (FIND)                
+S_STR_NFND     EQU C'N'             STRING NOT FOUND                            
+S_STR_YFND     EQU C'Y'             STRING WAS FOUND                            
+S_AT_BUFEND    EQU X'00'            PARSED AT BUFEND                            
+S_INV_REQU     EQU C'E'             INVALID REQU                                
+S_INV_INHRT    EQU C'F'             INVALID FIRST STRING INHERITANCE            
+S_INV_STRL     EQU C'S'             INVALID STRLEN                              
+TXTINPT  DS    0H                 LEGACY INPUT STRING PARAMETER                 
+TXTSTRL  DS    H                  LEGACY INPUT/OUTPUT STRING LENGTH             
+TXTSTRG  DS    256CL1             LEGACY INPUT/OUTPUT STRING VALUE              
