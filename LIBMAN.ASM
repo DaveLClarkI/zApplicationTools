@@ -6,31 +6,31 @@ LIBM     TITLE 'LIBMAN   - INVOKE VSE/LIBRARIAN FOR COBOL PROGRAMS'     00000100
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *
-* 3110 Kettering Blvd.                          Dave L Clark I        *
-* Dayton, OH  45439                             davelclark1@gmail.com *
-*                                                                     *
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                                                                     *
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
-*                    (C) 1991 Dave L Clark I (v1.1)                   *
-*                                                                     *
-* This program is free software; you can redistribute it and/or       *
-* modify it under the terms of the GNU General Public License         *
-* as published by the Free Software Foundation; either                *
-* version 3 of the License, or any later version.                     *
-*                                                                     *
-* This program is distributed in the hope that it will be             *
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
-* PURPOSE.                                                            *
-*                                                                     *
-* See the GNU General Public License for more details.                *
-* You should have received a copy of the                              *
-* GNU General Public License along with this program; if not,         *
-* see <http://www.gnu.org/licenses/>.                                 *
-*                                                                     *
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1991 Dave L Clark I (v1.1)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -234,7 +234,7 @@ INLCPLEN EQU   *-INLCPARM                                               00021000
 *        MACROS                                                       * 00012900
 * ------------------------------------------------------------------- * 00034300
          PRINT OFF                                                      00000200
-         COPY  IF
+         COPY  IF                                                               
          PRINT ON                                                       00000200
 * =================================================================== * 00012800
          EJECT                                                          00021200
@@ -260,8 +260,8 @@ R15      EQU   15                      ENTRY REG                        00023100
 * =================================================================== * 00023200
          EJECT                                                          00023300
 * =================================================================== * 00023400
-LIBMAN   HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY91',            X
-               BASE=R11
+LIBMAN   HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY91',            X        
+               BASE=R11                                                         
          WXTRN LIBMIPT,LIBMLOG,LIBMLST,LIBMPCH,LIBMFMT                  00023700
 * ------------------------------------------------------------------- * 00034300
          L     R10,0(,R1)              GET ADDRESS OF PARAMETER         00026000
@@ -337,7 +337,7 @@ LIBMAN   HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY91',            X
           LOAD LIBR,(R2),SYS=YES,RET=YES                                00032900
           IF   R15,(NZERO,LTR),R15      IF NOT LOADED OK                00033000
            AHI R15,100                   ADD 100 FOR "LOAD" RET CODES   00033100
-           B   FINISH                    GO RETURN TO CALLER            00033200
+           J   FINISH                    GO RETURN TO CALLER            00033200
           ENDIF                         ENDIF                           00033300
           LR   R15,R1                   COPY ADDRESS TO ENTRY REG       00033400
           ST   R15,LIBRADDR             SAVE LIBR ENTRY POINT           00033500
@@ -360,9 +360,9 @@ SAVEAREA DC    18F'0'                                                   00035500
 ORIGAREA DC    18F'0'                                                   00035600
 LIBRADDR DC    A(0)                                                     00035700
 PARMLIST DC    A(0)                                                     00035800
-*
+*                                                                               
          LTORG                                                          00035900
-*
-         DATAEND
+*                                                                               
+         DATAEND                                                                
 * =================================================================== * 00036000
          END                                                            00036100

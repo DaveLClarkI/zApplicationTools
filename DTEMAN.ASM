@@ -1,38 +1,38 @@
 DTE      TITLE 'DTEMAN   - DATE MANIPULATION FOR COBOL PROGRAMS'        00000100
          PRINT ON,GEN                                                   00000200
-DTEMAN   AMODE 31
-DTEMAN   RMODE ANY
+DTEMAN   AMODE 31                                                               
+DTEMAN   RMODE ANY                                                              
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *       D A T E   M A N I P U L A T I O N   S U B R O U T I N E       * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *
-* 3110 Kettering Blvd.                          Dave L Clark I        *
-* Dayton, OH  45439                             davelclark1@gmail.com *
-*                                                                     *
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*                                                                     *
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
-*                    (C) 1990 Dave L Clark I (v2.0)                   *
-*                                                                     *
-* This program is free software; you can redistribute it and/or       *
-* modify it under the terms of the GNU General Public License         *
-* as published by the Free Software Foundation; either                *
-* version 3 of the License, or any later version.                     *
-*                                                                     *
-* This program is distributed in the hope that it will be             *
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
-* PURPOSE.                                                            *
-*                                                                     *
-* See the GNU General Public License for more details.                *
-* You should have received a copy of the                              *
-* GNU General Public License along with this program; if not,         *
-* see <http://www.gnu.org/licenses/>.                                 *
-*                                                                     *
+* Winsupply Group Svcs.                         Written by:           *         
+* 3110 Kettering Blvd.                          Dave L Clark I        *         
+* Dayton, OH  45439                             davelclark1@gmail.com *         
+*                                                                     *         
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
+*                                                                     *         
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
+*                    (C) 1990 Dave L Clark I (v2.0)                   *         
+*                                                                     *         
+* This program is free software; you can redistribute it and/or       *         
+* modify it under the terms of the GNU General Public License         *         
+* as published by the Free Software Foundation; either                *         
+* version 3 of the License, or any later version.                     *         
+*                                                                     *         
+* This program is distributed in the hope that it will be             *         
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
+* PURPOSE.                                                            *         
+*                                                                     *         
+* See the GNU General Public License for more details.                *         
+* You should have received a copy of the                              *         
+* GNU General Public License along with this program; if not,         *         
+* see <http://www.gnu.org/licenses/>.                                 *         
+*                                                                     *         
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -237,10 +237,10 @@ COMREG   MAPCOMR EQU=YES          PARTITION COMMUNICATION REGION        00020530
 * =================================================================== * 00012800
 *        MACROS                                                       * 00012900
 * ------------------------------------------------------------------- * 00025800
-         PRINT OFF
-         COPY  IF
-         COPY  WHILE
-         PRINT ON
+         PRINT OFF                                                              
+         COPY  IF                                                               
+         COPY  WHILE                                                            
+         PRINT ON                                                               
 * =================================================================== * 00012800
          EJECT                                                          00020600
 * =================================================================== * 00020700
@@ -265,8 +265,8 @@ R15      EQU   15                 ENTRY REG                             00022500
 * =================================================================== * 00022600
          EJECT                                                          00022700
 * =================================================================== * 00022800
-DTEMAN   HEADER VERSION='2.0',AUTHOR='DLC',DATE='(C)SEP90',            X
-               BASE=R11
+DTEMAN   HEADER VERSION='2.0',AUTHOR='DLC',DATE='(C)SEP90',            X        
+               BASE=R11                                                         
 * ------------------------------------------------------------------- * 00017500
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00024500
          USING DTEPARM,R10        ESTABLISH REG 10 AS BASE              00018600
@@ -284,7 +284,7 @@ DTEMAN   HEADER VERSION='2.0',AUTHOR='DLC',DATE='(C)SEP90',            X
          MVI   DTERETN,C'E'       DATE REQUEST IS IN ERROR              00025500
          J     RETURN             GO RETURN TO CALLER                   00025600
 * ------------------------------------------------------------------- * 00058500
-RETURN   TRAILER RETCODE=0        RETURN TO ORIGINAL CALLER
+RETURN   TRAILER RETCODE=0        RETURN TO ORIGINAL CALLER                     
 * =================================================================== * 00058900
          EJECT                                                          00058400
 * ------------------------------------------------------------------- * 00025800
@@ -321,11 +321,11 @@ TOTLDAYS EQU   *   CONVERT TOTAL DAYS TO A JULIAN DATE                  00027200
          D     R4,=F'1461'        DIV. BY DAYS IN 4 YEARS               00028800
          SR    R9,R5              SUB. QUOTIENT FROM TOTAL DAYS         00028900
          LR    R4,R9              COPY TOTAL DAYS TO REG 4              00029000
-         BCTR  R4,0               DECREMENT FOR ZERO REFERENCE
+         BCTR  R4,0               DECREMENT FOR ZERO REFERENCE                  
          SRDA  R4,32              CONVERT TO 64-BIT NUMBER              00029100
          D     R4,=F'365'         DIVIDE BY DAYS IN 1 YEAR              00029200
-         LR    R8,R5              SAVE YEAR IN REG 8
-*
+         LR    R8,R5              SAVE YEAR IN REG 8                            
+*                                                                               
          ZAP   PWORK,DTETOTD      PUT TOTAL DAYS IN WORK FIELD          00027500
          CVB   R9,PWORK           CONVERT PACKED DECIMAL TO BINARY      00027600
          LR    R5,R8              COPY YEARS TO WORK REG 5              00049200
@@ -409,7 +409,7 @@ JULNEDIT EQU   *   EDIT JULIAN DATE FOR VALID RANGES                    00030900
          PACK  PWORK,DTEJUDA      CONVERT ZONED DECIMAL TO PACKED       00035300
          CVB   R4,PWORK           CONVERT PACKED DECIMAL TO BINARY      00035400
          LR    R1,R8              COPY YEAR TO PARM REG                 00035500
-         BAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00035600
+         JAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00035600
 *                                                                       00035700
          IF    LEAPYEAR,EQ,C'L'   IF LEAPYEAR FLAG IS A 'L'             00035800
           IF   R4,(PLUS,LTR),R4,AND,R4,(NHIGHER,CH),=H'366'             00035900
@@ -437,7 +437,7 @@ JULNDATE EQU   *   CONVERT JULIAN DATE TO A GREGORIAN DATE              00037200
          CVB   R4,PWORK           CONVERT PACKED DECIMAL TO BINARY      00038000
 *                                                                       00038100
          LR    R1,R8              COPY YEAR TO PARM REG                 00038200
-         BAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00038300
+         JAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00038300
 *                                                                       00038400
          LA    R6,1               SET MONTH NUMBER TO 1                 00038500
          XR    R7,R7              ZERO MONTH INDEX REG 7                00038600
@@ -524,7 +524,7 @@ GREGEDIT EQU   *   EDIT GREGORIAN DATE FOR VALID RANGES                 00041300
          CVB   R4,PWORK           CONVERT PACKED DECIMAL TO BINARY      00046600
 *                                                                       00046700
          LR    R1,R8              COPY YEAR TO PARM REG                 00046800
-         BAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00046900
+         JAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00046900
 *                                                                       00047000
          IF    LEAPYEAR,EQ,C'L',AND,R6,(EQ,CH),=H'2'                    00047100
           IF   R4,(EQ,CH),=H'29',BC,GREGDATE                            00047200
@@ -603,7 +603,7 @@ GREGDATE EQU   *   CONVERT GREGORIAN DATE TO TOTAL DAYS                 00048500
 *                                                                       00050700
          PACK  PWORK,DTEGRMO      PACK GREGORIAN MONTH INTO WORK FIELD  00050800
          CVB   R6,PWORK           CONVERT PACKED DECIMAL TO BINARY      00050900
-         BAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00051000
+         JAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00051000
 *                                                                       00051100
          XR    R4,R4              ZERO MONTH INDEX REG 4                00051200
          LA    R5,1               SET MONTH NUMBER TO 1                 00051300
@@ -648,7 +648,7 @@ EXITDATE EQU   *                                                        00053800
          OI    DTEDAYN,X'0F'      REMOVE ANY SIGN                       00055100
 *                                                                       00055200
          PACK  DTEMNTH,DTEGRMO    COPY GREGORIAN MONTH TO MONTH NO.     00055300
-         BAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00055400
+         JAS   R14,LEAPTEST       GO TEST YEAR FOR LEAP-YEAR            00055400
 *                                                                       00055500
          J     RETURN                                                   00055600
 * ------------------------------------------------------------------- * 00025800
@@ -701,7 +701,7 @@ MTHDEC   DC    H'31'                                                    00060700
          ORG                                                            00060800
 *                                                                       00060900
          LTORG                                                          00061000
-*
+*                                                                               
          DATAEND                                                        00059200
 * =================================================================== * 00061100
          END                                                            00061200
