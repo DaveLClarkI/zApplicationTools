@@ -1,38 +1,38 @@
 NUM      TITLE 'NUMMAN   - NUMBER MANIPULATION FOR COBOL PROGRAMS'      00000100
          PRINT ON,NOGEN                                                 00000200
-NUMMAN   AMODE 31                                                               
-NUMMAN   RMODE ANY                                                              
+NUMMAN   AMODE 31
+NUMMAN   RMODE ANY
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *     N U M B E R   M A N I P U L A T I O N   S U B R O U T I N E     * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *         
-* 3110 Kettering Blvd.                          Dave L Clark I        *         
-* Dayton, OH  45439                             davelclark1@gmail.com *         
-*                                                                     *         
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
-*                                                                     *         
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
-*                    (C) 1990 Dave L Clark I (v1.1)                   *         
-*                                                                     *         
-* This program is free software; you can redistribute it and/or       *         
-* modify it under the terms of the GNU General Public License         *         
-* as published by the Free Software Foundation; either                *         
-* version 3 of the License, or any later version.                     *         
-*                                                                     *         
-* This program is distributed in the hope that it will be             *         
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
-* PURPOSE.                                                            *         
-*                                                                     *         
-* See the GNU General Public License for more details.                *         
-* You should have received a copy of the                              *         
-* GNU General Public License along with this program; if not,         *         
-* see <http://www.gnu.org/licenses/>.                                 *         
-*                                                                     *         
+* Winsupply Group Svcs.                         Written by:           *
+* 3110 Kettering Blvd.                          Dave L Clark I        *
+* Dayton, OH  45439                             davelclark1@gmail.com *
+*                                                                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                                                                     *
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
+*                    (C) 1990 Dave L Clark I (v1.1)                   *
+*                                                                     *
+* This program is free software; you can redistribute it and/or       *
+* modify it under the terms of the GNU General Public License         *
+* as published by the Free Software Foundation; either                *
+* version 3 of the License, or any later version.                     *
+*                                                                     *
+* This program is distributed in the hope that it will be             *
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
+* PURPOSE.                                                            *
+*                                                                     *
+* See the GNU General Public License for more details.                *
+* You should have received a copy of the                              *
+* GNU General Public License along with this program; if not,         *
+* see <http://www.gnu.org/licenses/>.                                 *
+*                                                                     *
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -493,8 +493,7 @@ NUMMAN   RMODE ANY
          EJECT                                                          00047000
 * =================================================================== * 00047100
 NUMPARM  DSECT                    NUMMAN PARMS DUMMY SECTION            00047200
-         USING *,R10              ESTABLISH REG 10 AS BASE              00047300
-* =================================================================== * 00047400
+* ------------------------------------------------------------------- * 00054900
 NUMREQU  DS    CL1                REQUEST CODE                          00047500
 NUMRETN  DS    CL1                RETURN CODE                           00047600
 NUMTOTL  DS    H                  TOTAL DIGITS ALLOWED                  00047700
@@ -508,10 +507,17 @@ FCOMMA   EQU   B'00001000'         COMMA FORMAT DETECTION               00048400
 FBLANK   EQU   B'00000100'         IMBEDDED BLANK DETECTION             00048500
 NUMDATA  DS    CL15               NUMBER DATA                           00048600
 * =================================================================== * 00048700
+         EJECT                                                          00012700
+* =================================================================== * 00012800
+*        MACROS                                                       * 00012900
+* ------------------------------------------------------------------- * 00054900
+         COPY  IF
+         COPY  WHILE
+* =================================================================== * 00012800
          EJECT                                                          00048800
 * =================================================================== * 00048900
-*        REGISTER USAGES                                                00049000
-* =================================================================== * 00049100
+*        REGISTER USAGE                                               * 00049000
+* ------------------------------------------------------------------- * 00054900
 R0       EQU   0                  PARM REG                              00049200
 R1       EQU   1                  PARM REG                              00049300
 R2       EQU   2                  WORK REG (INSERT CHAR FOR COMPARE)    00049400
@@ -529,52 +535,41 @@ R13      EQU   13                 REGISTER SAVEAREA ADDR                00050500
 R14      EQU   14                 RETURN REG                            00050600
 R15      EQU   15                 ENTRY REG                             00050700
 * =================================================================== * 00050800
-         EJECT                                                          00012700
-* =================================================================== * 00012800
-*        MACROS                                                       * 00012900
-* =================================================================== * 00013000
-         COPY  IF                                                               
-         COPY  WHILE                                                            
-* =================================================================== * 00012800
          EJECT                                                          00050900
 * =================================================================== * 00051000
-NUMMAN   CSECT                    NUMMAN CONTROL SECTION                00051100
-         USING *,R15              ESTABLISH ENTRY REG AS BASE REG       00051200
-* =================================================================== * 00051300
-         STM   R14,R12,12(R13)    SAVE CALLER'S REGISTERS               00051400
-         B     START              SKIP OVER CORE EYE-CATCHER            00051500
-*                                                                       00051600
-         DC    CL8'NUMMAN  '      PROGRAM                               00051700
-         DC    CL4'1.0 '          VERSION                               00051800
-         DC    CL4'DLC '          AUTHOR                                00051900
-         DC    CL8'(C)SEP90'      DATE                                  00052000
-*                                                                       00052100
-START    DS    0H                                                       00052200
+NUMMAN   HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)SEP90',            X
+               BASE=R11
+* ------------------------------------------------------------------- * 00054900
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00052300
+         USING NUMPARM,R10        ESTABLISH REG 10 AS BASE              00047300
+         MVI   NUMRETN,C' '       INITIALIZE RETURN CODE                00016300
 *                                                                       00052400
          LH    R3,NUMTOTL         GET TOTAL DIGIT ALLOWANCE             00052500
          IF    R3,(NPLUS,LTR),R3,OR,R3,(HIGHER,CH),=H'15'               00052600
           MVI  NUMRETN,C'T'       TOTAL DIGITS IS IN ERROR              00052700
-          B    RETURN             GO RETURN TO CALLER                   00052800
+          J    RETURN             GO RETURN TO CALLER                   00052800
          ENDIF                                                          00052900
 *                                                                       00053000
          LH    R3,NUMDECM         GET DECIMAL DIGIT ALLOWANCE           00053100
          IF    R3,(MINUS,LTR),R3,OR,R3,(HIGHER,CH),=H'9'                00053200
           MVI  NUMRETN,C'D'       DECIMAL DIGITS IS IN ERROR            00053300
-          B    RETURN             GO RETURN TO CALLER                   00053400
+          J    RETURN             GO RETURN TO CALLER                   00053400
          ENDIF                                                          00053500
-*                                                                       00053600
          IF    R3,(HIGHER,CH),NUMTOTL                                   00053700
           MVI  NUMRETN,C'C'       COMBINATION IS IN ERROR               00053800
-          B    RETURN             GO RETURN TO CALLER                   00053900
+          J    RETURN             GO RETURN TO CALLER                   00053900
          ENDIF                                                          00054000
 *                                                                       00054100
          IF    NUMREQU,EQUAL,C'E',OR,NUMREQU,EQUAL,C'I'                 00054200
-          B    PROCESS            GO PROCESS THE REQUEST                00054300
+          J    PROCESS            GO PROCESS THE REQUEST                00054300
          ENDIF                                                          00054400
 *                                                                       00054500
          MVI   NUMRETN,C'E'       NUMBER REQUEST IS IN ERROR            00054600
-         B     RETURN             GO RETURN TO CALLER                   00054700
+         J     RETURN             GO RETURN TO CALLER                   00054700
+         EJECT                                                          00068100
+* ------------------------------------------------------------------- * 00068200
+RETURN   TRAILER RETCODE=0        RETURN TO ORIGINAL CALLER
+* =================================================================== * 00068800
          EJECT                                                          00054800
 * ------------------------------------------------------------------- * 00054900
 PROCESS  EQU   *                                                        00055000
@@ -608,7 +603,7 @@ PROCESS  EQU   *                                                        00055000
           ENDIF                                                         00057800
 *                                                                       00057900
           IF   FLAGS,(ON,TM),FBLANK,AND,NUMREQU,NEQUAL,C'I'             00058000
-           B   FMTERR             NUMBER CONTAINS IMMBEDED BLANKS       00058100
+           J   FMTERR             NUMBER CONTAINS IMMBEDED BLANKS       00058100
           ENDIF                                                         00058200
 *                                                                       00058300
           IF   R2,(EQUAL,CLM,B'0001'),=C'.'                             00058400
@@ -658,7 +653,7 @@ PROCESS  EQU   *                                                        00055000
 *                                                                       00062800
 FMTERR    IF   NUMREQU,NEQUAL,C'I'                                      00062900
            MVI NUMRETN,C'F'       NUMBER IS NOT IN NUMERIC FORMAT       00063000
-           B   RETURN             GO RETURN TO CALLER                   00063100
+           J   RETURN             GO RETURN TO CALLER                   00063100
           ENDIF                                                         00063200
 *                                                                       00063300
          WEND                                                           00063400
@@ -666,7 +661,7 @@ FMTERR    IF   NUMREQU,NEQUAL,C'I'                                      00062900
          IF    R3,(HIGHER,CH),=H'3',AND,FLAGS,(ON,TM),FCOMMA            00063600
           IF   NUMREQU,NEQUAL,C'I'                                      00063700
            MVI NUMRETN,C'F'       NUMBER IS NOT IN NUMERIC FORMAT       00063800
-           B   RETURN             GO RETURN TO CALLER                   00063900
+           J   RETURN             GO RETURN TO CALLER                   00063900
           ENDIF                                                         00064000
          ENDIF                                                          00064100
 *                                                                       00064200
@@ -682,15 +677,15 @@ FMTERR    IF   NUMREQU,NEQUAL,C'I'                                      00062900
 *                                                                       00065700
          IF    R5,(HIGHER,CH),NUMDECM                                   00065800
           MVI  NUMRETN,C'>'       TOO MANY DIGITS RIGHT OF DECIMAL      00065900
-          B    RETURN             GO RETURN TO CALLER                   00066000
+          J    RETURN             GO RETURN TO CALLER                   00066000
          ENDIF                                                          00066100
 *                                                                       00065200
          IF    R4,(HIGHER,CR),R3                                        00065300
-          IF   NUMREQU,NEQUAL,C'I'                                              
+          IF   NUMREQU,NEQUAL,C'I'
            MVI NUMRETN,C'<'       TOO MANY DIGITS LEFT OF DECIMAL       00065400
-           B   RETURN             GO RETURN TO CALLER                   00065500
+           J   RETURN             GO RETURN TO CALLER                   00065500
           ELSE                                                          00065500
-           B   SETSIGN            GO SET SIGN                           00065500
+           J   SETSIGN            GO SET SIGN                           00065500
           ENDIF                                                         00065600
          ENDIF                                                          00065600
 *                                                                       00066200
@@ -711,19 +706,15 @@ SETSIGN  NI    NUMDATA+14,X'CF'   CHANGE X'F?' SIGN TO X'C?' SIGN       00067500
           OI   NUMDATA+14,X'D0'   PUT A NEGATIVE SIGN ON THE NUMBER     00067700
          ENDIF                                                          00067800
 *                                                                       00067900
-         B     RETURN             GO RETURN TO CALLER                   00068000
-         EJECT                                                          00068100
-* ------------------------------------------------------------------- * 00068200
-RETURN   EQU   *                                                        00068300
-* ------------------------------------------------------------------- * 00068400
-         LM    R14,R12,12(R13)    RESTORE CALLER'S REGISTERS            00068500
-         XR    R15,R15            ZERO RETURN CODE REGISTER             00068600
-         BR    R14                RETURN TO CALLER                      00068700
-* =================================================================== * 00068800
-         EJECT                                                          00068900
-* =================================================================== * 00069000
-STORAGE  DS    0D                                                       00069100
-* =================================================================== * 00069200
-         LTORG                                                          00069300
-* =================================================================== * 00069400
+         J     RETURN             GO RETURN TO CALLER                   00068000
+* ------------------------------------------------------------------- * 00020200
+         EJECT                                                          00024200
+* =================================================================== * 00024300
+STORAGE  DATAAREA                                                       00024400
+* ------------------------------------------------------------------- * 00020200
+*
+         LTORG                                                          00024600
+*
+         DATAEND                                                        00024400
+* =================================================================== * 00024700
          END                                                            00069500

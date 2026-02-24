@@ -6,32 +6,32 @@ RTC      TITLE 'RTCMAN   - RETURN CODE MANAGER FOR COBOL PROGRAMS'      00000100
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *         
-* 3110 Kettering Blvd.                          Dave L Clark I        *         
-* Dayton, OH  45439                             davelclark1@gmail.com *         
-*                                                                     *         
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
-*                                                                     *         
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
-*                    (C) 1989 Dave L Clark I (v2.0)                   *         
-*                    (C) 1991 Dave L Clark I (v2.1)                   *         
-*                                                                     *         
-* This program is free software; you can redistribute it and/or       *         
-* modify it under the terms of the GNU General Public License         *         
-* as published by the Free Software Foundation; either                *         
-* version 3 of the License, or any later version.                     *         
-*                                                                     *         
-* This program is distributed in the hope that it will be             *         
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
-* PURPOSE.                                                            *         
-*                                                                     *         
-* See the GNU General Public License for more details.                *         
-* You should have received a copy of the                              *         
-* GNU General Public License along with this program; if not,         *         
-* see <http://www.gnu.org/licenses/>.                                 *         
-*                                                                     *         
+* Winsupply Group Svcs.                         Written by:           *
+* 3110 Kettering Blvd.                          Dave L Clark I        *
+* Dayton, OH  45439                             davelclark1@gmail.com *
+*                                                                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                                                                     *
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
+*                    (C) 1989 Dave L Clark I (v2.0)                   *
+*                    (C) 1991 Dave L Clark I (v2.1)                   *
+*                                                                     *
+* This program is free software; you can redistribute it and/or       *
+* modify it under the terms of the GNU General Public License         *
+* as published by the Free Software Foundation; either                *
+* version 3 of the License, or any later version.                     *
+*                                                                     *
+* This program is distributed in the hope that it will be             *
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
+* PURPOSE.                                                            *
+*                                                                     *
+* See the GNU General Public License for more details.                *
+* You should have received a copy of the                              *
+* GNU General Public License along with this program; if not,         *
+* see <http://www.gnu.org/licenses/>.                                 *
+*                                                                     *
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -164,26 +164,35 @@ RTC      TITLE 'RTCMAN   - RETURN CODE MANAGER FOR COBOL PROGRAMS'      00000100
          EJECT                                                          00011800
 * =================================================================== * 00011900
 RTCPARM  DSECT                         RTCCODE PARMS DUMMY SECTION      00012000
-         USING *,R10                   ESTABLISH REG 10 AS BASE         00012100
-* =================================================================== * 00012200
+* ------------------------------------------------------------------- * 00027100
 RTCREQU  DS    CL1                     REQUEST CODE                     00012300
 RTCRETN  DS    CL1                     RETURN CODE                      00012400
 RTCCODE  DS    H                       RETURN CODE VALUE                00012500
 * =================================================================== * 00012600
-         EJECT                                                                  
-* =================================================================== *         
-DYNASTOR DSECT                                                                  
-* =================================================================== *         
-SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA              
+         EJECT
+* =================================================================== *
+DYNASTOR DSECT
+* ------------------------------------------------------------------- * 00027100
+SAVEAREA DS    9D                      STANDARD REGISTER SAVE AREA
 PDEC     DS    D                                                        00028400
 MSG      DS    CL48                                                     00028500
-*                                                                               
-DYNALENG EQU   *-DYNASTOR                                                       
-* =================================================================== *         
+*
+DYNALENG EQU   *-DYNASTOR
+* =================================================================== *
+         EJECT                                                          00012700
+* =================================================================== * 00012800
+*        MACROS                                                       * 00012900
+* ------------------------------------------------------------------- * 00027100
+         PRINT OFF
+         COPY  HEADER                  SUBROUTINE PROLOG
+         COPY  TRAILER                 SUBROUTINE EPILOG
+         COPY  IF
+         PRINT ON
+* =================================================================== * 00012800
          EJECT                                                          00012700
 * =================================================================== * 00012800
 *        REGISTER EQUATES                                             * 00012900
-* =================================================================== * 00013000
+* ------------------------------------------------------------------- * 00027100
 R0       EQU   0                       PARM REG                         00013100
 R1       EQU   1                       PARM REG                         00013200
 R2       EQU   2                                                        00013300
@@ -201,29 +210,20 @@ R13      EQU   13                      SAVEAREA ADDR                    00014400
 R14      EQU   14                      RETURN REG                       00014500
 R15      EQU   15                      ENTRY REG                        00014600
 * =================================================================== * 00014700
-         EJECT                                                          00012700
-* =================================================================== * 00012800
-*        MACROS                                                       * 00012900
-* =================================================================== * 00013000
-         PRINT OFF                                                              
-         COPY  HEADER                  SUBROUTINE PROLOG                        
-         COPY  TRAILER                 SUBROUTINE EPILOG                        
-         COPY  IF                                                               
-         PRINT ON                                                               
-* =================================================================== * 00012800
          EJECT                                                          00014800
 * =================================================================== * 00014900
-RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X        
-               BASE=R11,SVAREA=SALEN                                            
-* =================================================================== *         
-         USING DYNASTOR,R13                                                     
+RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
+               BASE=R11,SVAREA=SALEN
+* ------------------------------------------------------------------- * 00027100
+         USING DYNASTOR,R13
 *                                                                       00017400
          L     R10,0(,R1)              INITIALIZE PARM DSECT            00017500
+         USING RTCPARM,R10             ESTABLISH REG 10 AS BASE         00012100
          MVI   RTCRETN,C' '            INITIALIZE RETURN CODE           00017600
-         XC    PDEC,PDEC                CLEAR PARM AREA                         
+         XC    PDEC,PDEC                CLEAR PARM WORK AREA
 *                                                                       00017700
          MODESET KEY=ZERO              UNPROTECT EXTERNAL STORAGE       00018000
-         AMODESW SET,AMODE=31                                                   
+         AMODESW SET,AMODE=31
 *                                                                       00017700
          IF    RTCREQU,NE,C'U',AND,RTCREQU,NE,C'F'                      00017800
          AND   RTCREQU,NE,C'C',AND,RTCREQU,NE,C'D'                      00017900
@@ -284,13 +284,13 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
           LR   R9,R15                    AND OVERRIDE LRC               00023900
          ENDIF                         ENDIF                            00024000
 *                                                                       00022900
-         AMODESW SET,AMODE=24                                                   
+         AMODESW SET,AMODE=24
          MODESET KEY=USER              RESET TO PROTECT SVA             00024100
 *                                                                       00024200
          IF    RTCREQU,EQUAL,C'U',BC,FINISH                             00024300
          ENDIF                                                          00024400
 *                                                                       00024500
-         MVC   MSG,=C'PGM ........  SET RETURN CODE=0000              '         
+         MVC   MSG,=C'PGM ........  SET RETURN CODE=0000              '
          IF    RTCREQU,NEQUAL,C'F'     IF NOT A "FINISH" REQUEST        00024600
           MVC  MSG+36(3),=C'AND'        PUT CONNECTOR IN MESSAGE        00024700
           IF   RTCREQU,EQUAL,C'D'       IF REQUESTED TO "DUMP"          00024800
@@ -304,8 +304,8 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
          OI    MSG+33,X'F0'            AND CLEAR THE SIGN               00025600
          COMRG REG=(R1)                GET ADDRESS OF COMREG IN R1      00025700
          MVC   MSG+4(8),216(R1)        PUT EXEC PHASE NAME IN MESSAGE   00025800
-         LA    R9,MSG                  GET ADDRESS OF I/O AREA                  
-         STCM  R9,B'0111',CONSOLE+25   PUT IN CONSOLE CCW                       
+         LA    R9,MSG                  GET ADDRESS OF I/O AREA
+         STCM  R9,B'0111',CONSOLE+25   PUT IN CONSOLE CCW
          OPEN  CONSOLE                 OPEN CONSOLE FOR MESSAGES        00025900
          PUT   CONSOLE                 DISPLAY MESSAGE ON CONSOLE       00026000
          CLOSE CONSOLE                 CLOSE CONSOLE                    00026100
@@ -319,20 +319,18 @@ RTCMAN   HEADER VERSION='2.1',AUTHOR='DLC',DATE='(C)MAR91',            X
 *                                                                       00026900
          CANCEL ALL                    CANCEL PARTITION                 00027000
 * ------------------------------------------------------------------- * 00027100
-FINISH   DS    0H                                                       00027200
-* ------------------------------------------------------------------- * 00027300
-         XR    R15,R15                 ZERO RETURN CODE REG             00027500
-         TRAILER RETCODE=R15,SVAREA=SALEN                                       
+FINISH   TRAILER RETCODE=0,SVAREA=SALEN
 * =================================================================== * 00027800
          EJECT                                                          00027900
 * =================================================================== * 00028000
-STORAGE  DS    0D                                                       00028100
+STORAGE  DATAAREA                                                       00028100
 * =================================================================== * 00028200
-SALEN    DC    A(DYNALENG)                                                      
+SALEN    DC    A(DYNALENG)
          LTORG                                                          00028700
 * =================================================================== * 00028800
          EJECT                                                          00028900
 * =================================================================== * 00029000
 CONSOLE  DTFCN DEVADDR=SYSLOG,BLKSIZE=L'MSG,IOAREA1=0,MODNAME=RTCWTO    00029100
 * =================================================================== * 00029200
+         DATAEND
          END                                                            00029300

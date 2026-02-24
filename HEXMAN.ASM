@@ -1,38 +1,38 @@
 HEX      TITLE 'HEXMAN   - HEX MANIPULATION FOR COBOL PROGRAMS'         00000100
          PRINT ON,GEN                                                   00000200
-HEXMAN   AMODE 31                                                               
-HEXMAN   RMODE ANY                                                              
+HEXMAN   AMODE 31
+HEXMAN   RMODE ANY
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00000300
 *                                                                     * 00000400
 *        H E X   M A N I P U L A T I O N   S U B R O U T I N E        * 00000500
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *         
-* 3110 Kettering Blvd.                          Dave L Clark I        *         
-* Dayton, OH  45439                             davelclark1@gmail.com *         
-*                                                                     *         
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
-*                                                                     *         
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
-*                    (C) 1989 Dave L Clark I (v1.1)                   *         
-*                                                                     *         
-* This program is free software; you can redistribute it and/or       *         
-* modify it under the terms of the GNU General Public License         *         
-* as published by the Free Software Foundation; either                *         
-* version 3 of the License, or any later version.                     *         
-*                                                                     *         
-* This program is distributed in the hope that it will be             *         
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
-* PURPOSE.                                                            *         
-*                                                                     *         
-* See the GNU General Public License for more details.                *         
-* You should have received a copy of the                              *         
-* GNU General Public License along with this program; if not,         *         
-* see <http://www.gnu.org/licenses/>.                                 *         
-*                                                                     *         
+* Winsupply Group Svcs.                         Written by:           *
+* 3110 Kettering Blvd.                          Dave L Clark I        *
+* Dayton, OH  45439                             davelclark1@gmail.com *
+*                                                                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                                                                     *
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
+*                    (C) 1989 Dave L Clark I (v1.1)                   *
+*                                                                     *
+* This program is free software; you can redistribute it and/or       *
+* modify it under the terms of the GNU General Public License         *
+* as published by the Free Software Foundation; either                *
+* version 3 of the License, or any later version.                     *
+*                                                                     *
+* This program is distributed in the hope that it will be             *
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
+* PURPOSE.                                                            *
+*                                                                     *
+* See the GNU General Public License for more details.                *
+* You should have received a copy of the                              *
+* GNU General Public License along with this program; if not,         *
+* see <http://www.gnu.org/licenses/>.                                 *
+*                                                                     *
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -104,18 +104,26 @@ HEXMAN   RMODE ANY
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 00008100
          EJECT                                                          00008200
 * =================================================================== * 00008300
-HEXPARM  DSECT                                                          00008400
-         USING HEXPARM,R10        ESTABLISH REG 10 AS BASE              00008500
-* =================================================================== * 00008600
+HEXPARM  DSECT                    HEXMAN PARMS DUMMY SECTION            00008400
+* ------------------------------------------------------------------- * 00017500
 HEXREQU  DS    CL1                REQUEST CODE                          00008700
 HEXRETN  DS    CL1                RETURN CODE                           00008800
 HEXLENG  DS    H                  TABLES LENGTH                         00008900
 HEXCHRT  DS    0C                 CHAR TABLE                            00009000
 * =================================================================== * 00009100
+         EJECT                                                          00012700
+* =================================================================== * 00012800
+*        MACROS                                                       * 00012900
+* ------------------------------------------------------------------- * 00017500
+         PRINT OFF
+         COPY  IF
+         COPY  WHILE
+         PRINT ON
+* =================================================================== * 00012800
          EJECT                                                          00009200
 * =================================================================== * 00009300
 *        REGISTER USAGE                                                 00009400
-* =================================================================== * 00009500
+* ------------------------------------------------------------------- * 00017500
 R0       EQU   0                                                        00009600
 R1       EQU   1                                                        00009700
 R2       EQU   2                                                        00009800
@@ -128,32 +136,24 @@ R8       EQU   8                  CHAR CODING TABLE ADDR                00010400
 R9       EQU   9                  HEX CODING TABLE ADDR                 00010500
 R10      EQU   10                 DSECT BASE REG (HEXPARM)              00010600
 R11      EQU   11                 CSECT BASE REG (HEXMAN)               00010700
-R12      EQU   12                                                       00010800
+R12      EQU   12                 NOT USED (LE)                         00010800
 R13      EQU   13                 REGS SAVE AREA                        00010900
 R14      EQU   14                 RETURN REG                            00011000
 R15      EQU   15                 ENTRY REG                             00011100
 * =================================================================== * 00011200
-         EJECT                                                          00012700
-* =================================================================== * 00012800
-*        MACROS                                                       * 00012900
-* =================================================================== * 00013000
-         PRINT OFF                                                              
-         COPY  IF                                                               
-         COPY  WHILE                                                            
-         PRINT ON                                                               
-* =================================================================== * 00012800
          EJECT                                                          00011300
 * =================================================================== * 00011400
-HEXMAN   HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)DEC89',            X        
-               BASE=R11                                                         
-* =================================================================== * 00011700
+HEXMAN   HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)DEC89',            X
+               BASE=R11
+* ------------------------------------------------------------------- * 00019200
          L     R10,0(,R1)         GET ADDRESS OF PARAMETERS             00013100
+         USING HEXPARM,R10        ESTABLISH REG 10 AS BASE              00008500
          MVI   HEXRETN,C' '       INITIALIZE RETURN CODE                00013200
 *                                                                       00013300
          LH    R7,HEXLENG         GET LENGTH OF CODING AREA             00013400
          IF    R7,(Z,LTR),R7,OR,R7,(HT,CH),=H'256'                      00013500
           MVI  HEXRETN,C'L'       SIGNAL LENGTH VALUE ERROR             00013600
-          B    RETURN             GO RETURN TO CALLER                   00013700
+          J    RETURN             GO RETURN TO CALLER                   00013700
          ENDIF                                                          00013800
 *                                                                       00013900
          LA    R8,HEXCHRT         GET ADDRESS OF CHAR TABLE             00014000
@@ -167,7 +167,10 @@ HEXMAN   HEADER VERSION='1.1',AUTHOR='DLC',DATE='(C)DEC89',            X
          ENDIF                                                          00014800
 *                                                                       00014900
          MVI   HEXRETN,C'E'       SET RETURN CODE                       00015000
-         B     RETURN             GO RETURN TO CALLER                   00015100
+         J     RETURN             GO RETURN TO CALLER                   00015100
+* ------------------------------------------------------------------- * 00019200
+RETURN   TRAILER RETCODE=0        RETURN TO ORIGINAL CALLER
+* =================================================================== * 00019600
          EJECT                                                          00015200
 * ------------------------------------------------------------------- * 00015300
 DECODE   EQU   *                                                        00015400
@@ -182,7 +185,8 @@ DECODE   EQU   *                                                        00015400
 *                                                                       00016300
          MVI   0(R9),C' '         CLEAR LAST UNUSED HEX BYTE            00016400
 *                                                                       00016500
-         B     RETURN             GO RETURN TO CALLER                   00016600
+         J     RETURN             GO RETURN TO CALLER                   00016600
+* ------------------------------------------------------------------- * 00015500
          EJECT                                                          00016700
 * ------------------------------------------------------------------- * 00016800
 ENCODE   EQU   *                                                        00016900
@@ -190,7 +194,7 @@ ENCODE   EQU   *                                                        00016900
          BCTR  R7,0               DECREMENT FOR ZERO REFERENCE          00017100
          IF    R7,(NZ,EX),ENCODET CHECK FOR ALL '0'-'9' & 'A'-'F'       00017200
           MVI  HEXRETN,C'X'       SIGNAL HEX VALUE ERROR                00017300
-          B    RETURN             GO RETURN TO CALLER                   00017400
+          J    RETURN             GO RETURN TO CALLER                   00017400
 ENCODET  TRT   0(0,R9),VALIDATE   (SEE "EX" INSTRUCTION ABOVE)          00017500
          ENDIF                                                          00017600
          LA    R7,1(,R7)          ADD BACK 1 SUBTRACTED BEFORE          00017700
@@ -206,17 +210,12 @@ ENCODET  TRT   0(0,R9),VALIDATE   (SEE "EX" INSTRUCTION ABOVE)          00017500
 *                                                                       00018700
          MVI   0(R8),C' '         CLEAR LAST UNUSED CHAR BYTE           00018800
 *                                                                       00018900
-         B     RETURN             GO RETURN TO CALLER                   00019000
-         EJECT                                                          00019100
-* ------------------------------------------------------------------- * 00019200
-RETURN   EQU   *                                                        00019300
-* ------------------------------------------------------------------- * 00019400
-         TRAILER                  RETURN TO CALLER                      00019500
-* =================================================================== * 00019600
-         EJECT                                                                  
+         J     RETURN             GO RETURN TO CALLER                   00019000
+* ------------------------------------------------------------------- * 00015500
+         EJECT
 * =================================================================== * 00019800
 STORAGE  DATAAREA                                                       00019900
-* =================================================================== * 00020000
+* ------------------------------------------------------------------- * 00019200
 TRTABLE  DS    0D                                                       00020100
          DC    X'00000000000000000000000000000000'                      00020300
          DC    X'00000000000000000000000000000000'                      00020400
@@ -244,6 +243,7 @@ VALIDATE DS    0D                                                       00020700
          ORG                                                            00021300
 *                                                                       00021400
          LTORG                                                          00021500
-         CORG  0,256                                                            
+*                                                                       00021400
+         DATAEND
 * =================================================================== * 00021600
          END                                                            00021700

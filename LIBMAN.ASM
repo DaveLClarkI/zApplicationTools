@@ -6,31 +6,31 @@ LIBM     TITLE 'LIBMAN   - INVOKE VSE/LIBRARIAN FOR COBOL PROGRAMS'     00000100
 *                 F O R   C O B O L   P R O G R A M S                 * 00000600
 *                                                                     * 00000700
 *                                                                     * 00000800
-* Winsupply Group Svcs.                         Written by:           *         
-* 3110 Kettering Blvd.                          Dave L Clark I        *         
-* Dayton, OH  45439                             davelclark1@gmail.com *         
-*                                                                     *         
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *         
-*                                                                     *         
-* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *         
-* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *         
-*                    (C) 1991 Dave L Clark I (v1.1)                   *         
-*                                                                     *         
-* This program is free software; you can redistribute it and/or       *         
-* modify it under the terms of the GNU General Public License         *         
-* as published by the Free Software Foundation; either                *         
-* version 3 of the License, or any later version.                     *         
-*                                                                     *         
-* This program is distributed in the hope that it will be             *         
-* useful, but WITHOUT ANY WARRANTY; without even the implied          *         
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *         
-* PURPOSE.                                                            *         
-*                                                                     *         
-* See the GNU General Public License for more details.                *         
-* You should have received a copy of the                              *         
-* GNU General Public License along with this program; if not,         *         
-* see <http://www.gnu.org/licenses/>.                                 *         
-*                                                                     *         
+* Winsupply Group Svcs.                         Written by:           *
+* 3110 Kettering Blvd.                          Dave L Clark I        *
+* Dayton, OH  45439                             davelclark1@gmail.com *
+*                                                                     *
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+*                                                                     *
+* TXTMAN   - Text Manipulaton subroutine for COBOL programs           *
+* Original copyright (C) 1986 Dave L Clark I (v1.0)                   *
+*                    (C) 1991 Dave L Clark I (v1.1)                   *
+*                                                                     *
+* This program is free software; you can redistribute it and/or       *
+* modify it under the terms of the GNU General Public License         *
+* as published by the Free Software Foundation; either                *
+* version 3 of the License, or any later version.                     *
+*                                                                     *
+* This program is distributed in the hope that it will be             *
+* useful, but WITHOUT ANY WARRANTY; without even the implied          *
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR             *
+* PURPOSE.                                                            *
+*                                                                     *
+* See the GNU General Public License for more details.                *
+* You should have received a copy of the                              *
+* GNU General Public License along with this program; if not,         *
+* see <http://www.gnu.org/licenses/>.                                 *
+*                                                                     *
 * =================================================================== * 00001300
 *                                                                     * 00001400
 *                               PURPOSE                               * 00001500
@@ -199,8 +199,7 @@ LIBM     TITLE 'LIBMAN   - INVOKE VSE/LIBRARIAN FOR COBOL PROGRAMS'     00000100
          EJECT                                                          00017800
 * =================================================================== * 00017900
 LIBPARM  DSECT                         LIBMAN PARMS DUMMY SECTION       00018000
-         USING *,R10                   ESTABLISH REG 10 AS BASE         00018100
-* =================================================================== * 00018200
+* ------------------------------------------------------------------- * 00034300
 LIBIPT   DS    CL1                     SYSIPT EXIT ROUTINE              00018300
 LIBLOG   DS    CL1                     SYSLOG EXIT ROUTINE              00018400
 LIBLST   DS    CL1                     SYSLST EXIT ROUTINE              00018500
@@ -230,10 +229,18 @@ SYSFMT   DS    AL4                     (EXIT ROUTINE ADDRESS)           00020700
          DS    CL8                     RESERVED                         00020900
 INLCPLEN EQU   *-INLCPARM                                               00021000
 * =================================================================== * 00021100
+         EJECT                                                          00012700
+* =================================================================== * 00012800
+*        MACROS                                                       * 00012900
+* ------------------------------------------------------------------- * 00034300
+         PRINT OFF                                                      00000200
+         COPY  IF
+         PRINT ON                                                       00000200
+* =================================================================== * 00012800
          EJECT                                                          00021200
 * =================================================================== * 00021300
 *        REGISTER USAGES                                                00021400
-* =================================================================== * 00021500
+* ------------------------------------------------------------------- * 00034300
 R0       EQU   0                       PARM REG                         00021600
 R1       EQU   1                       PARM REG                         00021700
 R2       EQU   2                                                        00021800
@@ -245,117 +252,91 @@ R7       EQU   7                                                        00022300
 R8       EQU   8                                                        00022400
 R9       EQU   9                                                        00022500
 R10      EQU   10                      LIBPARM DSECT BASE REG           00022600
-R11      EQU   11                                                       00022700
-R12      EQU   12                      LIBMAN CSECT BASE REG            00022800
+R11      EQU   11                      LIBMAN CSECT BASE REG            00022700
+R12      EQU   12                                                       00022800
 R13      EQU   13                      REGISTER SAVEAREA                00022900
 R14      EQU   14                      RETURN REG                       00023000
 R15      EQU   15                      ENTRY REG                        00023100
 * =================================================================== * 00023200
-         EJECT                                                          00012700
-* =================================================================== * 00012800
-*        MACROS                                                       * 00012900
-* =================================================================== * 00013000
-         COPY  IF                                                               
-* =================================================================== * 00012800
          EJECT                                                          00023300
 * =================================================================== * 00023400
-LIBMAN   CSECT                                                          00023500
-         USING LIBMAN,15               ESTABLISH TEMP BASE REGISTER     00023600
+LIBMAN   HEADER VERSION='1.0',AUTHOR='DLC',DATE='(C)MAY91',            X
+               BASE=R11
          WXTRN LIBMIPT,LIBMLOG,LIBMLST,LIBMPCH,LIBMFMT                  00023700
-* =================================================================== * 00023800
-         B     START                   BRANCH AROUND CORE EYE-CATCHER   00023900
-*                                                                       00024000
-         DC    CL8'LIBMAN'             PROGRAM                          00024100
-         DC    CL4'1.0'                VERSION                          00024200
-         DC    CL4'DLC'                AUTHOR                           00024300
-         DC    CL8'(C)MAY91'           DATE                             00024400
-*                                                                       00024500
-START    DS    0H                                                       00024600
-         SAVE  (14,12)                 SAVE CALLER'S REGISTERS          00024700
-         LR    R12,R15                 LOAD PROGRAM BASE REGISTER       00024800
-         DROP  15                      DISESTABLISH TEMP BASE REGISTER  00024900
-         USING LIBMAN,R12              ESTABLISH PERMANENT BASE REG     00025000
-         XR    R15,R15                 CLEAR RETURN CODE REGISTER       00025100
-         ST    R15,16(,R13)            PUT IN CALLER'S SAVEAREA         00025200
-         LA    R15,SAVEAREA            LOAD ADDRESS OF MY SAVEAREA      00025300
-         ST    R15,8(,R13)             SET NEXT SAVEAREA IN CALLER'S    00025400
-         ST    R13,4(,R15)             SET PREV SAVEAREA IN MINE        00025500
-         LR    R13,R15                 LOAD REG WITH MY SAVEAREA ADDR   00025600
-         ST    R13,0(,R13)             AND STORE IT IN MY SAVEAREA      00025700
-         XR    R15,R15                 CLEAR RETURN CODE REGISTER       00025800
-*                                                                       00025900
+* ------------------------------------------------------------------- * 00034300
          L     R10,0(,R1)              GET ADDRESS OF PARAMETER         00026000
-         LA    R1,4(,R1)               INCREMENT TO NEXT PARM           00026100
-         LA    R2,INLCPLEN             GET CONTROL BLOCK LENGTH         00026200
+         USING LIBPARM,R10             ESTABLISH REG 10 AS BASE         00018100
+         LHI   R2,INLCPLEN             GET CONTROL BLOCK LENGTH         00026200
          STH   R2,INLCPARM             AND STORE IT IN CONTROL BLOCK    00026300
-         LA    R2,0                    SET SPF CALLER IDENTIFICATION    00026400
+         LHI   R2,0                    SET SPF CALLER IDENTIFICATION    00026400
          ST    R2,INLCPCID             AND STORE IT IN CONTROL BLOCK    00026500
 *        OI    INLCPFB1,X'20'   ???    SET "MSHP" BYPASS ON             00026600
 *                                                                       00026700
          IF    LIBIPT,EQ,C'Y'          IF SYSIPT EXIT ROUTINE SUPPLIED  00026800
+          AHI  R1,4                     INCREMENT TO PARM               00026100
           L    R2,=V(LIBMIPT)           GET EXIT RTN ADDRESS            00026900
           L    R3,0(,R1)                GET I/O AREA ADDRESS            00027000
-          LA   R1,4(,R1)                INCREMENT TO NEXT PARM          00027100
          ELSE                          ELSE                             00027200
-          LA   R2,0                     SET EXIT RTN ADDRESS TO ZERO    00027300
-          LR   R3,R2                    SET I/O AREA ADDRESS TO ZERO    00027400
+          XR   R2,R2                    SET EXIT RTN ADDRESS TO ZERO    00027300
+          XR   R3,R3                    SET I/O AREA ADDRESS TO ZERO    00027400
          ENDIF                         ENDIF                            00027500
          STM   R2,R3,SYSIPT            PUT ADDRESSES IN CONTROL BLOCK   00027600
 *                                                                       00027700
          IF    LIBLOG,EQ,C'Y'          IF SYSLOG EXIT ROUTINE SUPPLIED  00027800
+          AHI  R1,4                     INCREMENT TO PARM               00027100
           L    R2,=V(LIBMLOG)           GET EXIT RTN ADDRESS            00027900
           L    R3,0(,R1)                GET I/O AREA ADDRESS            00028000
-          LA   R1,4(,R1)                INCREMENT TO NEXT PARM          00028100
          ELSE                          ELSE                             00028200
-          LA   R2,0                     SET EXIT RTN ADDRESS TO ZERO    00028300
-          LR   R3,R2                    SET I/O AREA ADDRESS TO ZERO    00028400
+          XR   R2,R2                    SET EXIT RTN ADDRESS TO ZERO    00028300
+          XR   R3,R3                    SET I/O AREA ADDRESS TO ZERO    00028400
          ENDIF                         ENDIF                            00028500
          STM   R2,R3,SYSLOG            PUT ADDRESSES IN CONTROL BLOCK   00028600
 *                                                                       00028700
          IF    LIBLST,EQ,C'Y'          IF SYSLST EXIT ROUTINE SUPPLIED  00028800
+          AHI  R1,4                     INCREMENT TO PARM               00028100
           L    R2,=V(LIBMLST)           GET EXIT RTN ADDRESS            00028900
           L    R3,0(,R1)                GET I/O AREA ADDRESS            00029000
-          LA   R1,4(,R1)                INCREMENT TO NEXT PARM          00029100
          ELSE                          ELSE                             00029200
-          LA   R2,0                     SET EXIT RTN ADDRESS TO ZERO    00029300
-          LR   R3,R2                    SET I/O AREA ADDRESS TO ZERO    00029400
+          XR   R2,R2                    SET EXIT RTN ADDRESS TO ZERO    00029300
+          XR   R3,R3                    SET I/O AREA ADDRESS TO ZERO    00029400
          ENDIF                         ENDIF                            00029500
          STM   R2,R3,SYSLST            PUT ADDRESSES IN CONTROL BLOCK   00029600
 *                                                                       00029700
          IF    LIBPCH,EQ,C'Y'          IF SYSPCH EXIT ROUTINE SUPPLIED  00029800
+          AHI  R1,4                     INCREMENT TO PARM               00029100
           L    R2,=V(LIBMPCH)           GET EXIT RTN ADDRESS            00029900
           L    R3,0(,R1)                GET I/O AREA ADDRESS            00030000
-          LA   R1,4(,R1)                INCREMENT TO NEXT PARM          00030100
          ELSE                          ELSE                             00030200
-          LA   R2,0                     SET EXIT RTN ADDRESS TO ZERO    00030300
-          LR   R3,R2                    SET I/O AREA ADDRESS TO ZERO    00030400
+          XR   R2,R2                    SET EXIT RTN ADDRESS TO ZERO    00030300
+          XR   R3,R3                    SET I/O AREA ADDRESS TO ZERO    00030400
          ENDIF                         ENDIF                            00030500
          STM   R2,R3,SYSPCH            PUT ADDRESSES IN CONTROL BLOCK   00030600
 *                                                                       00030700
          IF    LIBFMT,EQ,C'Y'          IF FRMTTD EXIT ROUTINE SUPPLIED  00030800
+          AHI  R1,4                     INCREMENT TO PARM               00030100
           L    R2,=V(LIBMFMT)           GET EXIT RTN ADDRESS            00030900
           L    R3,0(,R1)                GET I/O AREA ADDRESS            00031000
-          LA   R4,1                     SET FORMATTED OUTPUT OPTION     00031100
+          LHI  R4,1                     SET FORMATTED OUTPUT OPTION     00031100
          ELSE                          ELSE                             00031200
-          LA   R2,0                     SET EXIT RTN ADDRESS TO ZERO    00031300
-          LR   R3,R2                    SET I/O AREA ADDRESS TO ZERO    00031400
-          LR   R4,R2                    SET FORMATTED OUTPUT OPTION     00031500
+          XR   R2,R2                    SET EXIT RTN ADDRESS TO ZERO    00031300
+          XR   R3,R3                    SET I/O AREA ADDRESS TO ZERO    00031400
+          XR   R4,R4                    SET FORMATTED OUTPUT OPTION     00031500
          ENDIF                         ENDIF                            00031600
          STM   R2,R3,SYSFMT            PUT ADDRESSES IN CONTROL BLOCK   00031700
          STC   R4,FMTOPT               PUT FMT OPTION IN CONTROL BLOCK  00031800
 *                                                                       00031900
-         L     R11,SAVEAREA+4          GET ADDRESS OF CALLER'S SAVEAREA 00032000
-         MVC   ORIGAREA(72),0(R11)     COPY IT TO PREVENT OVERLAY       00032100
+         L     R8,SAVEAREA+4           GET ADDRESS OF CALLER'S SAVEAREA 00032000
+         MVC   ORIGAREA(72),0(R8)      COPY IT TO PREVENT OVERLAY       00032100
          L     R15,LIBRADDR            CHECK LIBR ENTRY POINT           00032200
          IF    R15,(ZERO,LTR),R15      IF ZERO                          00032300
           COMRG REG=(R1)                GET ADDRESS OF COMREG IN R1     00032400
           L    R2,36(R1)                GET NEXT FREE ADDRESS           00032500
-          LA   R2,8(,R2)                ADD X'08' TO THAT ADDRESS       00032600
+          AHI  R2,8                     ADD 8 TO THAT ADDRESS           00032600
           SRL  R2,3                     AND TRUNCATE LOW 3 BITS         00032700
           SLL  R2,3                     TO POINT TO NEXT DOUBLE-WORD    00032800
           LOAD LIBR,(R2),SYS=YES,RET=YES                                00032900
           IF   R15,(NZERO,LTR),R15      IF NOT LOADED OK                00033000
-           AH  R15,=H'100'               ADD 100 FOR "LOAD" RET CODES   00033100
+           AHI R15,100                   ADD 100 FOR "LOAD" RET CODES   00033100
            B   FINISH                    GO RETURN TO CALLER            00033200
           ENDIF                         ENDIF                           00033300
           LR   R15,R1                   COPY ADDRESS TO ENTRY REG       00033400
@@ -366,23 +347,22 @@ START    DS    0H                                                       00024600
          OI    PARMLIST,X'80'          SET LAST ADDRESS IN LIST         00033900
          LA    R1,PARMLIST             GET ADDRESS OF PARM LIST         00034000
          BALR  R14,R15                 INVOKE VSE LIBRARIAN             00034100
-         MVC   0(72,R11),ORIGAREA      RESTORE CALLER'S ORIGINAL SVAREA 00034200
+         MVC   0(72,R8),ORIGAREA       RESTORE CALLER'S ORIGINAL SVAREA 00034200
 * ------------------------------------------------------------------- * 00034300
-FINISH   DS    0H                                                       00034400
-* ------------------------------------------------------------------- * 00034500
-         STH   R15,LIBRTC              PASS BACK RETURN CODE            00034600
-         L     R13,4(,R13)             GET ADDRESS OF CALLER'S SAVEAREA 00034700
-         ST    R15,16(,R13)            SAVE RETURN CODE IN REG 15 LOC   00034800
-         RETURN (14,12)                RETURN TO CALLER                 00034900
+FINISH   STH   R15,LIBRTC              PASS BACK RETURN CODE            00034600
+         TRAILER RETCODE=0             RETURN TO ORIGINAL CALLER        00034700
 * =================================================================== * 00035000
          EJECT                                                          00035100
 * =================================================================== * 00035200
-STORAGE  DS    0D                                                       00035300
-* =================================================================== * 00035400
+STORAGE  DATAAREA                                                       00035300
+* ------------------------------------------------------------------- * 00034300
 SAVEAREA DC    18F'0'                                                   00035500
 ORIGAREA DC    18F'0'                                                   00035600
 LIBRADDR DC    A(0)                                                     00035700
 PARMLIST DC    A(0)                                                     00035800
+*
          LTORG                                                          00035900
+*
+         DATAEND
 * =================================================================== * 00036000
          END                                                            00036100
