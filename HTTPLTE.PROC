@@ -1,0 +1,30 @@
+   CATALOG HTTPLTE.PROC   REPLACE=YES   DATA=YES
+// EXEC   PGM=IDCAMS,SIZE=AUTO
+   DELETE WIN.HTTP.TEMPLATE.DATA.FILE                                 -
+          CLUSTER  NOERASE  PURGE                                     -
+          CATALOG(DAPSCO.DEVL.CATALOG)
+   SET MAXCC = 0
+   DEFINE CLUSTER( NAME('WIN.HTTP.TEMPLATE.DATA.FILE')                -
+                   INDEXED                                            -
+                   FREESPACE(0 0)                                     -
+                   KEYS(16 0)                                         -
+                   RECORDSIZE(16 141)                                 -
+                   NOREPLICATE                                        -
+                   REUSE                                              -
+                   SHAREOPTIONS(4 3)                                  -
+                 )                                                    -
+          DATA   ( NAME('WIN.HTTP.TEMPLATE.DATA.DATA')                -
+                   CYLINDERS(2 1)                                     -
+                   VOLUMES( IDD033 )                                  -
+                   CISZ(8192)                                         -
+                   SPEED                                              -
+                 )                                                    -
+          INDEX  ( NAME('WIN.HTTP.TEMPLATE.DATA.INDEX')               -
+                   TRACKS(1 1)                                        -
+                   VOLUMES( IDD033 )                                  -
+                   CISZ(1024)                                         -
+                 )                                                    -
+          CATALOG(DAPSCO.DEVL.CATALOG)
+   IF MAXCC > 0 THEN CANCEL JOB
+/* EOD
+/+
