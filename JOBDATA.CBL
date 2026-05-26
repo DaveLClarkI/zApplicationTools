@@ -67,6 +67,8 @@
       *      03  JOBD-PGM-STIM             PIC  X(8).                 *
       *   * VSE SYSPARM VALUE                                         *
       *      03  JOBD-SYS-PARM             PIC  X(8).                 *
+      *   * VM GUEST NAME                                             *
+      *      03  JOBD-VM-NAME              PIC  X(8).                 *
       *                                                               *
       * ============================================================= *
       *                                                               *
@@ -139,6 +141,9 @@
 
        COPY TODCOM.
 
+       01  LOW-MEMORY.
+           05  VM-GUEST-NAME           PIC  X(8).
+
        PROCEDURE DIVISION           USING JOBDATA-PARMS.
 
            CALL 'SETCTLBK'          USING ADDRESS OF COMREG-BLOCK
@@ -177,6 +182,10 @@
            MOVE             LOW-VALUES TO TWO-BYTES.
            MOVE SYSPARM-LENGTH         TO ONE-BYTE.
            MOVE SYSPARM-VALUE(1:HWORD) TO JOBD-SYS-PARM.
+
+           MOVE 1484                   TO FWORD.
+           SET  ADDRESS OF LOW-MEMORY  TO MEMORY-ADDRESS.
+           MOVE VM-GUEST-NAME          TO JOBD-VM-NAME.
 
            MOVE ZEROES                 TO RETURN-CODE.
            GOBACK.

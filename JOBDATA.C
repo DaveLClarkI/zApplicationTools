@@ -23,3 +23,5 @@
          03  JOBD-PGM-STIM             PIC  X(8).
       * VSE SYSPARM VALUE
          03  JOBD-SYS-PARM             PIC  X(8).
+      * VM GUEST NAME
+         03  JOBD-VM-NAME              PIC  X(8).
